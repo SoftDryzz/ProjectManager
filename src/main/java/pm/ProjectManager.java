@@ -29,18 +29,18 @@ import java.util.Map;
  * </ul>
  *
  * <p><b>Comandos disponibles:</b>
- * <pre>
- * pm add <nombre> --path <ruta>    Registrar nuevo proyecto
- * pm list                          Listar todos los proyectos
- * pm build <nombre>                Compilar proyecto
- * pm run <nombre>                  Ejecutar proyecto
- * pm test <nombre>                 Ejecutar tests
- * pm scan <nombre>                 Escanear comandos en código
- * pm commands <nombre>             Listar comandos disponibles
- * pm remove <nombre>               Eliminar proyecto
- * pm info <nombre>                 Mostrar información del proyecto
- * pm help                          Mostrar ayuda
- * </pre>
+ * * <pre>
+ *  * pm add NAME --path PATH          Register new project
+ *  * pm list                          List all projects
+ *  * pm build NAME                    Build project
+ *  * pm run NAME                      Run project
+ *  * pm test NAME                     Run tests
+ *  * pm scan NAME                     Scan for commands in code
+ *  * pm commands NAME                 List available commands
+ *  * pm remove NAME                   Remove project
+ *  * pm info NAME                     Show project information
+ *  * pm help                          Show help
+ *  * </pre>
  *
  * @author SoftDryzz
  * @version 1.0.0
@@ -103,7 +103,7 @@ public class ProjectManager {
      * Handler para el comando "add".
      * Registra un nuevo proyecto en ProjectManager.
      *
-     * <p>Uso: pm add <nombre> --path <ruta> [--type <tipo>]
+     * <p>Usage: {@code pm add NAME --path PATH [--type TYPE]}
      *
      * <p>Proceso:
      * <ol>
@@ -263,7 +263,7 @@ public class ProjectManager {
      * Handler para el comando "build".
      * Compila el proyecto especificado.
      *
-     * <p>Uso: pm build <nombre>
+     * <p>Usage: {@code pm build NAME}
      *
      * <p>Proceso:
      * <ol>
@@ -352,7 +352,7 @@ public class ProjectManager {
      * Handler para el comando "run".
      * Ejecuta el proyecto especificado.
      *
-     * <p>Uso: pm run <nombre>
+     * <p>Usage: {@code pm run NAME}
      *
      * @param args argumentos del comando
      */
@@ -424,7 +424,7 @@ public class ProjectManager {
      * Handler para el comando "test".
      * Ejecuta los tests del proyecto.
      *
-     * <p>Uso: pm test <nombre>
+     * <p>Usage: {@code pm test NAME}
      *
      * @param args argumentos del comando
      */
@@ -494,7 +494,7 @@ public class ProjectManager {
      * Handler para el comando "scan".
      * Escanea el código fuente buscando comandos.
      *
-     * <p>Uso: pm scan <nombre>
+     * <p>Usage: {@code pm scan NAME}
      *
      * <p>TODO: Implementar scanner de anotaciones @Command
      *
@@ -514,7 +514,7 @@ public class ProjectManager {
      * Handler para el comando "commands".
      * Lista los comandos disponibles para un proyecto.
      *
-     * <p>Uso: pm commands <nombre>
+     * <p>Usage: {@code pm commands NAME}
      *
      * @param args argumentos del comando
      */
@@ -552,7 +552,7 @@ public class ProjectManager {
      * Handler para el comando "remove".
      * Elimina un proyecto del registro.
      *
-     * <p>Uso: pm remove <nombre>
+     * <p>Usage: {@code pm remove NAME}
      *
      * @param args argumentos del comando
      */
@@ -615,7 +615,7 @@ public class ProjectManager {
      * Handler para el comando "info".
      * Muestra información detallada de un proyecto.
      *
-     * <p>Uso: pm info <nombre>
+     * <p>Usage: {@code pm info NAME}
      *
      * @param args argumentos del comando
      */
