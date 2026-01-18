@@ -178,7 +178,7 @@ Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detall
 ## 🙏 Agradecimientos
 
 - Anthropic Claude por asistencia en desarrollo
-- Comunidad de Java y Maven
+- Comunidad de Java y Maven 
 
 ---
 
