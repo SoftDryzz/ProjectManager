@@ -1,52 +1,59 @@
-# 📖 User Guide - ProjectManager
-
 ## 📑 Table of Contents
 
-* [What is ProjectManager?](https://www.google.com/search?q=%23-what-is-projectmanager)
-* [Quick Start (5 minutes)](https://www.google.com/search?q=%23-quick-start-5-minutes)
-* [Step 1: Verify Installation](https://www.google.com/search?q=%23step-1-verify-installation)
-* [Step 2: Register Your First Project](https://www.google.com/search?q=%23step-2-register-your-first-project)
-* [Step 3: View Your Projects](https://www.google.com/search?q=%23step-3-view-your-projects)
-* [Step 4: Build Your Project](https://www.google.com/search?q=%23step-4-build-your-project)
+* [What is ProjectManager?](#-what-is-projectmanager)
 
+* [Quick Start (5 minutes)](#-quick-start-5-minutes)
 
-* [Command Reference](https://www.google.com/search?q=%23-command-reference)
-* [Project Management](https://www.google.com/search?q=%23-project-management)
-* [Command Execution](https://www.google.com/search?q=%23-command-execution)
-* [Help and Version](https://www.google.com/search?q=%23-help-and-version)
+  * [Step 1: Verify Installation](#step-1-verify-installation)
+  * [Step 2: Register Your First Project](#step-2-register-your-first-project)
+  * [Step 3: View Your Projects](#step-3-view-your-projects)
+  * [Step 4: Build Your Project](#step-4-build-your-project)
 
+* [Command Reference](#-command-reference)
 
-* [Environment Variables](https://www.google.com/search?q=%23-environment-variables)
-* [What Are They?](https://www.google.com/search?q=%23what-are-they)
-* [How Do They Work in ProjectManager?](https://www.google.com/search?q=%23how-do-they-work-in-projectmanager)
-* [Usage Examples](https://www.google.com/search?q=%23usage-examples)
-* [View Configured Variables](https://www.google.com/search?q=%23view-configured-variables)
-* [Modify Variables](https://www.google.com/search?q=%23modify-variables)
+  * [Project Management](#-project-management)
+  * [Command Execution](#-command-execution)
+  * [Help and Version](#-help-and-version)
 
+* [Environment Variables](#-environment-variables)
 
-* [Git Integration](https://www.google.com/search?q=%23-git-integration)
-* [What is it?](https://www.google.com/search?q=%23what-is-it)
-* [Information Displayed](https://www.google.com/search?q=%23information-displayed)
-* [Full Example](https://www.google.com/search?q=%23full-example)
-* [Git Integration Use Cases](https://www.google.com/search?q=%23git-integration-use-cases)
-* [Projects Without Git](https://www.google.com/search?q=%23projects-without-git)
-* [Requirements](https://www.google.com/search?q=%23requirements)
+  * [What Are They?](#what-are-they)
+  * [How Do They Work in ProjectManager?](#how-do-they-work-in-projectmanager)
+  * [Usage Examples](#usage-examples)
+  * [View Configured Variables](#view-configured-variables)
+  * [Modify Variables](#modify-variables)
 
+* [Git Integration](#-git-integration)
 
-* [Use Cases](https://www.google.com/search?q=%23-use-cases)
-* [Supported Project Types](https://www.google.com/search?q=%23-supported-project-types)
-* [Advanced Configuration](https://www.google.com/search?q=%23-advanced-configuration)
-* [Config File Location](https://www.google.com/search?q=%23config-file-location)
-* [projects.json File Structure](https://www.google.com/search?q=%23projectsjson-file-structure)
-* [Manual Editing](https://www.google.com/search?q=%23manual-editing-advanced)
+  * [What is it?](#what-is-it)
+  * [Information Displayed](#information-displayed)
+  * [Full Example](#full-example)
+  * [Git Integration Use Cases](#git-integration-use-cases)
+  * [Projects Without Git](#projects-without-git)
+  * [Requirements](#requirements)
 
+* [Use Cases](#-use-cases)
 
-* [Frequently Asked Questions (FAQ)](https://www.google.com/search?q=%23-frequently-asked-questions-faq)
-* [Troubleshooting](https://www.google.com/search?q=%23-troubleshooting)
-* [Quick Cheatsheet](https://www.google.com/search?q=%23-quick-cheatsheet)
-* [Complete Workflow](https://www.google.com/search?q=%23-complete-workflow)
-* [Next Steps](https://www.google.com/search?q=%23-next-steps)
-* [Additional Resources](https://www.google.com/search?q=%23-additional-resources)
+* [Supported Project Types](#-supported-project-types)
+
+* [Advanced Configuration](#-advanced-configuration)
+
+  * [Config File Location](#config-file-location)
+  * [projects.json File Structure](#projectsjson-file-structure)
+  * [Manual Editing](#manual-editing-advanced)
+
+* [Frequently Asked Questions (FAQ)](#-frequently-asked-questions-faq)
+
+* [Troubleshooting](#-troubleshooting)
+
+* [Quick Cheatsheet](#-quick-cheatsheet)
+
+* [Complete Workflow](#-complete-workflow)
+
+* [Next Steps](#-next-steps)
+
+* [Additional Resources](#-additional-resources)
+
 
 ---
 
