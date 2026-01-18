@@ -1,6 +1,20 @@
 package pm;
 
+import pm.cli.OutputFormatter;
+import pm.core.Project;
+import pm.detector.ProjectType;
+import pm.detector.ProjectTypeDetector;
+import pm.executor.CommandExecutor;
+import pm.storage.ProjectStore;
+import pm.util.ArgsParser;
+import pm.util.CommandConfigurator;
 import pm.util.Constants;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Clase principal de ProjectManager - CLI para gestionar múltiples proyectos.
@@ -20,25 +34,13 @@ import pm.util.Constants;
  * pm list                          Listar todos los proyectos
  * pm build <nombre>                Compilar proyecto
  * pm run <nombre>                  Ejecutar proyecto
+ * pm test <nombre>                 Ejecutar tests
  * pm scan <nombre>                 Escanear comandos en código
+ * pm commands <nombre>             Listar comandos disponibles
+ * pm remove <nombre>               Eliminar proyecto
+ * pm info <nombre>                 Mostrar información del proyecto
  * pm help                          Mostrar ayuda
  * </pre>
- *
- * <p><b>Ejemplo de uso típico:</b>
- * <pre>{@code
- * // 1. Registrar un proyecto
- * $ pm add minecraft --path ~/projects/minecraft-client
- *
- * // 2. Compilar
- * $ pm build minecraft
- *
- * // 3. Escanear comandos
- * $ pm scan minecraft
- * Found 5 commands:
- *   .fly     FlyCommand.java:12
- *   .speed   SpeedCommand.java:8
- *   ...
- * }</pre>
  *
  * @author SoftDryzz
  * @version 1.0.0
@@ -46,59 +48,55 @@ import pm.util.Constants;
  */
 public class ProjectManager {
 
+    // Instancias de servicios (pattern: dependency injection manual)
+    private static final ProjectStore store = new ProjectStore();
+    private static final ProjectTypeDetector detector = new ProjectTypeDetector();
+    private static final CommandExecutor executor = new CommandExecutor();
+
     /**
      * Punto de entrada de la aplicación.
      *
-     * <p>Flujo de ejecución:
-     * <ol>
-     *   <li>Muestra banner de bienvenida</li>
-     *   <li>Valida que hay argumentos</li>
-     *   <li>Parsea el comando (primer argumento)</li>
-     *   <li>Ejecuta el handler correspondiente</li>
-     * </ol>
-     *
      * @param args argumentos de línea de comandos
-     *             args[0] = comando (add, list, build, etc)
-     *             args[1..n] = argumentos del comando
      */
     public static void main(String[] args) {
-        // Mostrar banner de bienvenida
         printBanner();
 
-        // Validar que se proporcionó al menos un comando
         if (args.length == 0) {
             printHelp();
             return;
         }
 
-        // Extraer comando y convertir a minúsculas para case-insensitive
         String command = args[0].toLowerCase();
 
-        // Switch expression (Java 14+)
-        // Más limpio que switch tradicional con breaks
-        switch (command) {
-            case "add" -> handleAdd(args);
-            case "list", "ls" -> handleList(args);
-            case "build" -> handleBuild(args);
-            case "run" -> handleRun(args);
-            case "test" -> handleTest(args);
-            case "scan" -> handleScan(args);
-            case "commands", "cmd" -> handleCommands(args);
-            case "remove", "rm" -> handleRemove(args);
-            case "info" -> handleInfo(args);
-            case "help", "-h", "--help" -> printHelp();
-            case "version", "-v", "--version" -> printVersion();
-            default -> {
-                // Comando no reconocido
-                System.err.println("❌ Unknown command: " + command);
-                System.err.println("Run 'pm help' for usage information");
-                System.exit(1);
+        try {
+            switch (command) {
+                case "add" -> handleAdd(args);
+                case "list", "ls" -> handleList(args);
+                case "build" -> handleBuild(args);
+                case "run" -> handleRun(args);
+                case "test" -> handleTest(args);
+                case "scan" -> handleScan(args);
+                case "commands", "cmd" -> handleCommands(args);
+                case "remove", "rm" -> handleRemove(args);
+                case "info" -> handleInfo(args);
+                case "help", "-h", "--help" -> printHelp();
+                case "version", "-v", "--version" -> printVersion();
+                default -> {
+                    OutputFormatter.error("Unknown command: " + command);
+                    System.out.println("Run 'pm help' for usage information");
+                    System.exit(1);
+                }
             }
+        } catch (Exception e) {
+            // Capturar cualquier excepción no manejada
+            OutputFormatter.error("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 
     // ============================================================
-    // HANDLERS DE COMANDOS (implementar en próximos pasos)
+    // COMANDO: ADD (Registrar nuevo proyecto)
     // ============================================================
 
     /**
@@ -107,18 +105,133 @@ public class ProjectManager {
      *
      * <p>Uso: pm add <nombre> --path <ruta> [--type <tipo>]
      *
-     * <p>TODO: Implementar
-     * - Validar argumentos
-     * - Detectar tipo de proyecto
-     * - Crear objeto Project
-     * - Guardar en projects.json
+     * <p>Proceso:
+     * <ol>
+     *   <li>Validar argumentos (nombre y path son obligatorios)</li>
+     *   <li>Validar que el path existe y es un directorio</li>
+     *   <li>Detectar tipo de proyecto (o usar --type si se especifica)</li>
+     *   <li>Crear objeto Project</li>
+     *   <li>Configurar comandos por defecto</li>
+     *   <li>Guardar en projects.json</li>
+     *   <li>Confirmar al usuario</li>
+     * </ol>
      *
      * @param args argumentos del comando
      */
     private static void handleAdd(String[] args) {
-        System.out.println("🔨 Add command - Coming soon");
-        System.out.println("   Will register a new project");
+        ArgsParser parser = new ArgsParser(args);
+
+        // Validar argumentos
+        // args[0] = "add", args[1] = nombre del proyecto
+        String projectName = parser.getPositional(1);
+        if (projectName == null || projectName.isBlank()) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm add <name> --path <path> [--type <type>]");
+            System.exit(1);
+        }
+
+        // Obtener path del proyecto
+        String pathStr = parser.getFlag("path");
+        if (pathStr == null || pathStr.isBlank()) {
+            OutputFormatter.error("Project path is required");
+            System.out.println("Usage: pm add <name> --path <path> [--type <type>]");
+            System.exit(1);
+        }
+
+        // Convertir a Path y expandir ~ si es necesario
+        Path projectPath = Paths.get(pathStr);
+        if (pathStr.startsWith("~")) {
+            // Expandir ~ a home directory
+            projectPath = Paths.get(System.getProperty("user.home") + pathStr.substring(1));
+        }
+
+        // Validar que el path existe
+        if (!Files.exists(projectPath)) {
+            OutputFormatter.error("Path does not exist: " + projectPath);
+            System.exit(1);
+        }
+
+        if (!Files.isDirectory(projectPath)) {
+            OutputFormatter.error("Path is not a directory: " + projectPath);
+            System.exit(1);
+        }
+
+        try {
+            // Verificar si ya existe un proyecto con ese nombre
+            Project existing = store.findProject(projectName);
+            if (existing != null) {
+                OutputFormatter.error("Project '" + projectName + "' already exists");
+                System.out.println("Use 'pm remove " + projectName + "' to remove it first");
+                System.exit(1);
+            }
+
+            // Detectar tipo de proyecto
+            ProjectType type;
+            String typeFlag = parser.getFlag("type");
+
+            if (typeFlag != null) {
+                // Usuario especificó el tipo manualmente
+                try {
+                    type = ProjectType.valueOf(typeFlag.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    OutputFormatter.error("Invalid project type: " + typeFlag);
+                    System.out.println("Valid types: GRADLE, MAVEN, NODEJS, DOTNET, PYTHON");
+                    System.exit(1);
+                    return;
+                }
+            } else {
+                // Auto-detectar tipo
+                OutputFormatter.info("Detecting project type...");
+                type = detector.detect(projectPath);
+
+                if (type == ProjectType.UNKNOWN) {
+                    OutputFormatter.warning("Could not detect project type");
+                    System.out.println("You can specify it manually with --type <type>");
+                    System.out.println("Valid types: GRADLE, MAVEN, NODEJS, DOTNET, PYTHON");
+                    System.out.println();
+                    System.out.print("Continue with UNKNOWN type? (y/n): ");
+
+                    // Leer respuesta del usuario
+                    String response = System.console() != null
+                            ? System.console().readLine()
+                            : "n";
+
+                    if (!response.toLowerCase().startsWith("y")) {
+                        System.out.println("Aborted.");
+                        System.exit(0);
+                    }
+                }
+            }
+
+            // Crear proyecto
+            Project project = new Project(projectName, projectPath, type);
+
+            // Configurar comandos por defecto según el tipo
+            CommandConfigurator.configure(project);
+
+            // Guardar proyecto
+            store.saveProject(project);
+
+            // Confirmar al usuario
+            System.out.println();
+            OutputFormatter.success("Project '" + projectName + "' registered successfully");
+            System.out.println();
+            System.out.println("  Name: " + projectName);
+            System.out.println("  Type: " + type.displayName());
+            System.out.println("  Path: " + projectPath);
+            System.out.println("  Commands: " + project.commandCount() + " configured");
+            System.out.println();
+            System.out.println("Use 'pm commands " + projectName + "' to see available commands");
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to save project: " + e.getMessage());
+            System.exit(1);
+        }
     }
+
+    // ============================================================
+    // COMANDO: LIST (Listar proyectos)
+    // ============================================================
 
     /**
      * Handler para el comando "list".
@@ -126,17 +239,25 @@ public class ProjectManager {
      *
      * <p>Uso: pm list
      *
-     * <p>TODO: Implementar
-     * - Leer projects.json
-     * - Formatear y mostrar lista de proyectos
-     * - Mostrar info básica (nombre, tipo, path)
-     *
      * @param args argumentos del comando
      */
     private static void handleList(String[] args) {
-        System.out.println("📋 List command - Coming soon");
-        System.out.println("   Will show all registered projects");
+        try {
+            // Cargar todos los proyectos
+            Map<String, Project> projects = store.load();
+
+            // Usar OutputFormatter para mostrar
+            OutputFormatter.printProjectList(projects);
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+            System.exit(1);
+        }
     }
+
+    // ============================================================
+    // COMANDO: BUILD (Compilar proyecto)
+    // ============================================================
 
     /**
      * Handler para el comando "build".
@@ -144,18 +265,88 @@ public class ProjectManager {
      *
      * <p>Uso: pm build <nombre>
      *
-     * <p>TODO: Implementar
-     * - Buscar proyecto por nombre
-     * - Obtener comando "build"
-     * - Ejecutar en el directorio del proyecto
-     * - Mostrar output en tiempo real
+     * <p>Proceso:
+     * <ol>
+     *   <li>Buscar proyecto por nombre</li>
+     *   <li>Obtener comando "build"</li>
+     *   <li>Ejecutar en el directorio del proyecto</li>
+     *   <li>Mostrar output en tiempo real</li>
+     *   <li>Reportar éxito/fallo</li>
+     * </ol>
      *
      * @param args argumentos del comando
      */
     private static void handleBuild(String[] args) {
-        System.out.println("🏗️  Build command - Coming soon");
-        System.out.println("   Will build the specified project");
+        ArgsParser parser = new ArgsParser(args);
+
+        // Obtener nombre del proyecto
+        String projectName = parser.getPositional(1);
+        if (projectName == null || projectName.isBlank()) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm build <name>");
+            System.exit(1);
+        }
+
+        try {
+            // Buscar proyecto
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.out.println("Use 'pm list' to see registered projects");
+                System.exit(1);
+            }
+
+            // Obtener comando build
+            String buildCommand = project.getCommand("build");
+            if (buildCommand == null) {
+                OutputFormatter.error("No 'build' command configured for this project");
+                System.out.println("Use 'pm commands " + projectName + "' to see available commands");
+                System.exit(1);
+            }
+
+            // Mostrar información
+            System.out.println();
+            OutputFormatter.info("Building " + projectName + "...");
+            System.out.println("Command: " + buildCommand);
+            System.out.println("Directory: " + project.path());
+            System.out.println();
+            System.out.println("─".repeat(60));
+            System.out.println();
+
+            // Ejecutar comando
+            CommandExecutor.ExecutionResult result = executor.execute(
+                    buildCommand,
+                    project.path(),
+                    300  // timeout: 5 minutos
+            );
+
+            // Mostrar resultado
+            System.out.println();
+            System.out.println("─".repeat(60));
+            System.out.println();
+
+            if (result.success()) {
+                OutputFormatter.success("Build completed successfully");
+                System.out.println("Duration: " + result.formattedDuration());
+            } else {
+                OutputFormatter.error("Build failed");
+                System.out.println("Exit code: " + result.exitCode());
+                System.out.println("Duration: " + result.formattedDuration());
+                System.exit(1);
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        } catch (InterruptedException e) {
+            OutputFormatter.warning("Build interrupted");
+            System.exit(130);  // Standard exit code for Ctrl+C
+        }
     }
+
+    // ============================================================
+    // COMANDO: RUN (Ejecutar proyecto)
+    // ============================================================
 
     /**
      * Handler para el comando "run".
@@ -163,18 +354,71 @@ public class ProjectManager {
      *
      * <p>Uso: pm run <nombre>
      *
-     * <p>TODO: Implementar
-     * - Buscar proyecto
-     * - Ejecutar comando "run"
-     * - Mantener proceso activo
-     * - Capturar Ctrl+C para terminar limpiamente
-     *
      * @param args argumentos del comando
      */
     private static void handleRun(String[] args) {
-        System.out.println("▶️  Run command - Coming soon");
-        System.out.println("   Will run the specified project");
+        ArgsParser parser = new ArgsParser(args);
+
+        String projectName = parser.getPositional(1);
+        if (projectName == null || projectName.isBlank()) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm run <name>");
+            System.exit(1);
+        }
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            String runCommand = project.getCommand("run");
+            if (runCommand == null) {
+                OutputFormatter.error("No 'run' command configured for this project");
+                System.exit(1);
+            }
+
+            System.out.println();
+            OutputFormatter.info("Running " + projectName + "...");
+            System.out.println("Command: " + runCommand);
+            System.out.println("Directory: " + project.path());
+            System.out.println();
+            System.out.println("─".repeat(60));
+            System.out.println();
+
+            // Ejecutar sin timeout (puede correr indefinidamente)
+            CommandExecutor.ExecutionResult result = executor.execute(
+                    runCommand,
+                    project.path(),
+                    0  // sin timeout
+            );
+
+            System.out.println();
+            System.out.println("─".repeat(60));
+            System.out.println();
+
+            if (result.success()) {
+                OutputFormatter.info("Process terminated");
+                System.out.println("Duration: " + result.formattedDuration());
+            } else {
+                OutputFormatter.error("Process failed");
+                System.out.println("Exit code: " + result.exitCode());
+                System.exit(1);
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        } catch (InterruptedException e) {
+            OutputFormatter.warning("Process interrupted");
+            System.exit(130);
+        }
     }
+
+    // ============================================================
+    // COMANDO: TEST (Ejecutar tests)
+    // ============================================================
 
     /**
      * Handler para el comando "test".
@@ -182,17 +426,69 @@ public class ProjectManager {
      *
      * <p>Uso: pm test <nombre>
      *
-     * <p>TODO: Implementar
-     * - Ejecutar comando "test"
-     * - Parsear resultados (passed/failed)
-     * - Mostrar resumen de tests
-     *
      * @param args argumentos del comando
      */
     private static void handleTest(String[] args) {
-        System.out.println("🧪 Test command - Coming soon");
-        System.out.println("   Will run tests for the project");
+        ArgsParser parser = new ArgsParser(args);
+
+        String projectName = parser.getPositional(1);
+        if (projectName == null || projectName.isBlank()) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm test <name>");
+            System.exit(1);
+        }
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            String testCommand = project.getCommand("test");
+            if (testCommand == null) {
+                OutputFormatter.error("No 'test' command configured for this project");
+                System.exit(1);
+            }
+
+            System.out.println();
+            OutputFormatter.info("Running tests for " + projectName + "...");
+            System.out.println("Command: " + testCommand);
+            System.out.println();
+            System.out.println("─".repeat(60));
+            System.out.println();
+
+            CommandExecutor.ExecutionResult result = executor.execute(
+                    testCommand,
+                    project.path(),
+                    600  // timeout: 10 minutos para tests
+            );
+
+            System.out.println();
+            System.out.println("─".repeat(60));
+            System.out.println();
+
+            if (result.success()) {
+                OutputFormatter.success("All tests passed");
+                System.out.println("Duration: " + result.formattedDuration());
+            } else {
+                OutputFormatter.error("Tests failed");
+                System.out.println("Exit code: " + result.exitCode());
+                System.exit(1);
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        } catch (InterruptedException e) {
+            OutputFormatter.warning("Tests interrupted");
+            System.exit(130);
+        }
     }
+
+    // ============================================================
+    // COMANDO: SCAN (Escanear comandos en código)
+    // ============================================================
 
     /**
      * Handler para el comando "scan".
@@ -200,22 +496,19 @@ public class ProjectManager {
      *
      * <p>Uso: pm scan <nombre>
      *
-     * <p>Busca anotaciones @Command en archivos Java.
-     * Útil para proyectos como mods de Minecraft.
-     *
-     * <p>TODO: Implementar
-     * - Leer archivos .java del proyecto
-     * - Buscar anotaciones @Command
-     * - Parsear nombre, descripción, archivo, línea
-     * - Mostrar lista formateada
-     * - Cachear resultados
+     * <p>TODO: Implementar scanner de anotaciones @Command
      *
      * @param args argumentos del comando
      */
     private static void handleScan(String[] args) {
-        System.out.println("🔍 Scan command - Coming soon");
-        System.out.println("   Will scan for @Command annotations");
+        OutputFormatter.info("Scan command - Coming soon");
+        System.out.println("This will scan for @Command annotations in your code");
+        System.out.println("Useful for Minecraft mods and similar projects");
     }
+
+    // ============================================================
+    // COMANDO: COMMANDS (Listar comandos disponibles)
+    // ============================================================
 
     /**
      * Handler para el comando "commands".
@@ -223,17 +516,37 @@ public class ProjectManager {
      *
      * <p>Uso: pm commands <nombre>
      *
-     * <p>TODO: Implementar
-     * - Buscar proyecto
-     * - Listar comandos del Map<String, String>
-     * - Mostrar formato: nombre → comando shell
-     *
      * @param args argumentos del comando
      */
     private static void handleCommands(String[] args) {
-        System.out.println("📜 Commands command - Coming soon");
-        System.out.println("   Will list available commands");
+        ArgsParser parser = new ArgsParser(args);
+
+        String projectName = parser.getPositional(1);
+        if (projectName == null || projectName.isBlank()) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm commands <name>");
+            System.exit(1);
+        }
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            // Usar OutputFormatter para mostrar comandos
+            OutputFormatter.printCommands(project);
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
     }
+
+    // ============================================================
+    // COMANDO: REMOVE (Eliminar proyecto)
+    // ============================================================
 
     /**
      * Handler para el comando "remove".
@@ -241,18 +554,62 @@ public class ProjectManager {
      *
      * <p>Uso: pm remove <nombre>
      *
-     * <p>TODO: Implementar
-     * - Buscar proyecto
-     * - Confirmar eliminación (opcional: flag --force)
-     * - Eliminar de projects.json
-     * - Limpiar cache
-     *
      * @param args argumentos del comando
      */
     private static void handleRemove(String[] args) {
-        System.out.println("🗑️  Remove command - Coming soon");
-        System.out.println("   Will remove project from registry");
+        ArgsParser parser = new ArgsParser(args);
+
+        String projectName = parser.getPositional(1);
+        if (projectName == null || projectName.isBlank()) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm remove <name>");
+            System.exit(1);
+        }
+
+        try {
+            // Verificar que existe
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            // Confirmar eliminación (a menos que se use --force)
+            if (!parser.hasFlag("force")) {
+                System.out.println("About to remove project:");
+                System.out.println("  Name: " + project.name());
+                System.out.println("  Path: " + project.path());
+                System.out.println();
+                System.out.print("Are you sure? (y/n): ");
+
+                String response = System.console() != null
+                        ? System.console().readLine()
+                        : "n";
+
+                if (!response.toLowerCase().startsWith("y")) {
+                    System.out.println("Aborted.");
+                    return;
+                }
+            }
+
+            // Eliminar
+            boolean removed = store.removeProject(projectName);
+
+            if (removed) {
+                OutputFormatter.success("Project '" + projectName + "' removed");
+            } else {
+                OutputFormatter.error("Failed to remove project");
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to remove project: " + e.getMessage());
+            System.exit(1);
+        }
     }
+
+    // ============================================================
+    // COMANDO: INFO (Mostrar información del proyecto)
+    // ============================================================
 
     /**
      * Handler para el comando "info".
@@ -260,32 +617,41 @@ public class ProjectManager {
      *
      * <p>Uso: pm info <nombre>
      *
-     * <p>TODO: Implementar
-     * - Buscar proyecto
-     * - Mostrar todos los campos
-     * - Listar comandos disponibles
-     * - Mostrar última modificación
-     *
      * @param args argumentos del comando
      */
     private static void handleInfo(String[] args) {
-        System.out.println("ℹ️  Info command - Coming soon");
-        System.out.println("   Will show detailed project info");
+        ArgsParser parser = new ArgsParser(args);
+
+        String projectName = parser.getPositional(1);
+        if (projectName == null || projectName.isBlank()) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm info <name>");
+            System.exit(1);
+        }
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            // Mostrar información detallada
+            OutputFormatter.section("Project Information");
+            OutputFormatter.printProject(project);
+            OutputFormatter.printCommands(project);
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
     }
 
     // ============================================================
     // OUTPUT Y AYUDA
     // ============================================================
 
-    /**
-     * Muestra el banner de bienvenida.
-     *
-     * Usa text blocks (Java 15+) para strings multilínea.
-     * El formato está diseñado para terminal de 80 columnas.
-     */
     private static void printBanner() {
-        // Text block: strings multilínea sin concatenación
-        // .formatted() inserta variables (similar a String.format)
         System.out.println("""
             ╔════════════════════════════════╗
             ║  ProjectManager v%-12s ║
@@ -294,14 +660,6 @@ public class ProjectManager {
             """.formatted(Constants.VERSION));
     }
 
-    /**
-     * Muestra el mensaje de ayuda con todos los comandos disponibles.
-     *
-     * Incluye:
-     * - Sintaxis de cada comando
-     * - Descripción breve
-     * - Ejemplos de uso
-     */
     private static void printHelp() {
         System.out.println("""
             Usage: pm <command> [options]
@@ -323,16 +681,12 @@ public class ProjectManager {
               pm add minecraft --path ~/projects/minecraft-client
               pm list
               pm build minecraft
-              pm scan minecraft
+              pm run minecraft
               pm commands minecraft
+              pm info minecraft
             """);
     }
 
-    /**
-     * Muestra la versión de ProjectManager y Java.
-     *
-     * Útil para debugging y reportar issues.
-     */
     private static void printVersion() {
         System.out.println("ProjectManager " + Constants.VERSION);
         System.out.println("Java " + System.getProperty("java.version"));
