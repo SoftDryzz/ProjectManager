@@ -654,7 +654,7 @@ public class ProjectManager {
     private static void printBanner() {
         System.out.println("""
             ╔════════════════════════════════╗
-            ║  ProjectManager v%-12s         ║
+            ║  ProjectManager v%-12s  ║
             ║  Manage your projects          ║
             ╚════════════════════════════════╝
             """.formatted(Constants.VERSION));
