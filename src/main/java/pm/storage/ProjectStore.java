@@ -5,138 +5,75 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import pm.core.Project;
 import pm.detector.ProjectType;
-import pm.util.Constants;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import static pm.util.Constants.CONFIG_DIR;
+import static pm.util.Constants.PROJECTS_FILE;
+
 /**
- * Gestor de persistencia de proyectos.
- *
- * <p>Responsabilidades:
- * <ul>
- *   <li>Guardar proyectos en JSON (~/.projectmanager/projects.json)</li>
- *   <li>Cargar proyectos desde JSON</li>
- *   <li>Crear directorio de configuración si no existe</li>
- *   <li>Serializar/deserializar objetos Project</li>
- * </ul>
- *
- * <p>Formato del archivo JSON:
- * <pre>
- * {
- *   "minecraft-client": {
- *     "name": "minecraft-client",
- *     "path": "/home/user/projects/minecraft-client",
- *     "type": "GRADLE",
- *     "commands": {
- *       "build": "gradle build",
- *       "run": "gradle runClient"
- *     },
- *     "lastModified": "2025-01-18T10:30:00Z"
- *   },
- *   "webapp": {
- *     ...
- *   }
- * }
- * </pre>
- *
- * <p>Thread-safety: Esta clase NO es thread-safe.
- * Si múltiples procesos modifican el archivo simultáneamente, puede corromperse.
- *
- * @author SoftDryzz
- * @version 1.0.0
- * @since 1.0.0
+ * Gestor de persistencia de proyectos usando JSON.
  */
 public class ProjectStore {
 
-    /**
-     * Instancia de Gson para serialización/deserialización JSON.
-     * Configurado con pretty printing para legibilidad.
-     */
     private final Gson gson;
 
-    /**
-     * Constructor.
-     * Inicializa Gson con configuración personalizada.
-     */
     public ProjectStore() {
         this.gson = new GsonBuilder()
-                .setPrettyPrinting()  // JSON formateado con indentación
+                .setPrettyPrinting()
                 .create();
     }
 
     /**
-     * Guarda todos los proyectos en el archivo JSON.
-     *
-     * <p>Proceso:
-     * <ol>
-     *   <li>Crea directorio de configuración si no existe</li>
-     *   <li>Serializa el Map de proyectos a JSON</li>
-     *   <li>Escribe al archivo projects.json</li>
-     * </ol>
-     *
-     * <p>Si el archivo ya existe, se sobrescribe completamente.
-     *
-     * @param projects mapa de proyectos (key: nombre, value: Project)
-     * @throws IOException si falla la escritura del archivo
+     * Guarda todos los proyectos en JSON.
      */
     public void save(Map<String, Project> projects) throws IOException {
-        // Crear directorio de configuración si no existe
         ensureConfigDirExists();
 
-        // Convertir Map a JSON con pretty printing
-        String json = gson.toJson(projects);
+        // Convertir Projects a DTOs
+        Map<String, ProjectDTO> dtos = new HashMap<>();
+        for (Map.Entry<String, Project> entry : projects.entrySet()) {
+            dtos.put(entry.getKey(), ProjectDTO.fromProject(entry.getValue()));
+        }
 
-        // Escribir al archivo
-        Files.writeString(Constants.PROJECTS_FILE, json);
+        String json = gson.toJson(dtos);
+        Files.writeString(PROJECTS_FILE, json);
     }
 
     /**
-     * Carga todos los proyectos desde el archivo JSON.
-     *
-     * <p>Si el archivo no existe, retorna un Map vacío.
-     * <p>Si el archivo está corrupto, lanza IOException.
-     *
-     * @return mapa de proyectos cargados (puede estar vacío)
-     * @throws IOException si falla la lectura o el JSON es inválido
+     * Carga todos los proyectos desde JSON.
      */
     public Map<String, Project> load() throws IOException {
-        // Si el archivo no existe, retornar Map vacío
-        if (!Files.exists(Constants.PROJECTS_FILE)) {
+        if (!Files.exists(PROJECTS_FILE)) {
             return new HashMap<>();
         }
 
-        // Leer contenido del archivo
-        String json = Files.readString(Constants.PROJECTS_FILE);
+        String json = Files.readString(PROJECTS_FILE);
 
-        // Deserializar JSON a Map
-        // TypeToken es necesario porque Gson necesita saber el tipo genérico
-        TypeToken<Map<String, ProjectData>> typeToken =
-                new TypeToken<Map<String, ProjectData>>() {};
+        TypeToken<Map<String, ProjectDTO>> typeToken =
+                new TypeToken<Map<String, ProjectDTO>>() {};
 
-        Map<String, ProjectData> dataMap = gson.fromJson(json, typeToken.getType());
+        Map<String, ProjectDTO> dtos = gson.fromJson(json, typeToken.getType());
 
-        // Convertir ProjectData a Project
-        // ProjectData es una clase interna para deserialización
-        return convertToProjects(dataMap);
+        // Convertir DTOs a Projects
+        Map<String, Project> projects = new HashMap<>();
+        if (dtos != null) {
+            for (Map.Entry<String, ProjectDTO> entry : dtos.entrySet()) {
+                projects.put(entry.getKey(), entry.getValue().toProject());
+            }
+        }
+
+        return projects;
     }
 
     /**
-     * Agrega o actualiza un proyecto específico.
-     *
-     * <p>Proceso:
-     * <ol>
-     *   <li>Carga todos los proyectos existentes</li>
-     *   <li>Agrega/actualiza el proyecto en el Map</li>
-     *   <li>Guarda de nuevo todos los proyectos</li>
-     * </ol>
-     *
-     * @param project proyecto a guardar
-     * @throws IOException si falla la operación
+     * Guarda un proyecto específico.
      */
     public void saveProject(Project project) throws IOException {
         Map<String, Project> projects = load();
@@ -145,11 +82,7 @@ public class ProjectStore {
     }
 
     /**
-     * Elimina un proyecto del almacenamiento.
-     *
-     * @param projectName nombre del proyecto a eliminar
-     * @return true si se eliminó, false si no existía
-     * @throws IOException si falla la operación
+     * Elimina un proyecto.
      */
     public boolean removeProject(String projectName) throws IOException {
         Map<String, Project> projects = load();
@@ -164,10 +97,6 @@ public class ProjectStore {
 
     /**
      * Busca un proyecto por nombre.
-     *
-     * @param projectName nombre del proyecto
-     * @return el proyecto si existe, null en caso contrario
-     * @throws IOException si falla la lectura
      */
     public Project findProject(String projectName) throws IOException {
         Map<String, Project> projects = load();
@@ -176,65 +105,52 @@ public class ProjectStore {
 
     /**
      * Crea el directorio de configuración si no existe.
-     *
-     * @throws IOException si falla la creación del directorio
      */
     private void ensureConfigDirExists() throws IOException {
-        if (!Files.exists(Constants.CONFIG_DIR)) {
-            Files.createDirectories(Constants.CONFIG_DIR);
+        if (!Files.exists(CONFIG_DIR)) {
+            Files.createDirectories(CONFIG_DIR);
         }
     }
 
     /**
-     * Convierte el Map de ProjectData a Map de Project.
-     *
-     * ProjectData es una clase auxiliar para deserialización desde JSON.
-     *
-     * @param dataMap mapa de ProjectData deserializado
-     * @return mapa de objetos Project
+     * DTO (Data Transfer Object) para serialización JSON.
+     * Usa tipos simples que Gson puede manejar sin problemas.
      */
-    private Map<String, Project> convertToProjects(Map<String, ProjectData> dataMap) {
-        Map<String, Project> projects = new HashMap<>();
-
-        if (dataMap == null) {
-            return projects;
-        }
-
-        for (Map.Entry<String, ProjectData> entry : dataMap.entrySet()) {
-            ProjectData data = entry.getValue();
-
-            // Crear objeto Project desde ProjectData
-            Project project = new Project(
-                    data.name,
-                    Path.of(data.path),
-                    ProjectType.valueOf(data.type)
-            );
-
-            // Agregar comandos
-            if (data.commands != null) {
-                data.commands.forEach(project::addCommand);
-            }
-
-            projects.put(entry.getKey(), project);
-        }
-
-        return projects;
-    }
-
-    /**
-     * Clase interna para deserialización de JSON.
-     *
-     * Gson no puede deserializar directamente a Project porque:
-     * - Project tiene campos final
-     * - Path no se serializa directamente
-     *
-     * Esta clase auxiliar tiene campos simples que Gson puede manejar.
-     */
-    private static class ProjectData {
+    private static class ProjectDTO {
         String name;
         String path;  // String en vez de Path
         String type;  // String en vez de ProjectType
         Map<String, String> commands;
         String lastModified;  // String en vez de Instant
+
+        /**
+         * Convierte un Project a DTO.
+         */
+        static ProjectDTO fromProject(Project project) {
+            ProjectDTO dto = new ProjectDTO();
+            dto.name = project.name();
+            dto.path = project.path().toString();
+            dto.type = project.type().name();
+            dto.commands = new HashMap<>(project.commands());
+            dto.lastModified = project.lastModified().toString();
+            return dto;
+        }
+
+        /**
+         * Convierte un DTO a Project.
+         */
+        Project toProject() {
+            Project project = new Project(
+                    name,
+                    Paths.get(path),
+                    ProjectType.valueOf(type)
+            );
+
+            if (commands != null) {
+                commands.forEach(project::addCommand);
+            }
+
+            return project;
+        }
     }
 }

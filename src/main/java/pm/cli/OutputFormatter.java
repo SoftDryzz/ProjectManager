@@ -1,7 +1,8 @@
 package pm.cli;
 
 import pm.core.Project;
-
+import pm.util.GitIntegration;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -116,7 +117,50 @@ public class OutputFormatter {
             System.out.println("  Commands: " + project.commandCount());
         }
 
+        // Mostrar información de Git (si es un repo)
+        printGitInfo(project.path());
+
         System.out.println();
+    }
+
+    /**
+     * Muestra información de Git si el proyecto es un repositorio.
+     *
+     * @param projectPath ruta del proyecto
+     */
+    private static void printGitInfo(Path projectPath) {
+        // Verificar si es un repositorio Git
+        if (!GitIntegration.isGitRepository(projectPath)) {
+            return;
+        }
+
+        System.out.println();
+        System.out.println("  " + BOLD + "Git:" + RESET);
+
+        // Branch actual
+        String branch = GitIntegration.getCurrentBranch(projectPath);
+        if (branch != null) {
+            System.out.println("    Branch: " + GREEN + branch + RESET);
+        }
+
+        // Estado (archivos modificados, etc)
+        GitIntegration.GitStatus status = GitIntegration.getStatus(projectPath);
+        if (status != null) {
+            if (status.isClean()) {
+                System.out.println("    Status: " + GREEN + "✓ Clean working tree" + RESET);
+            } else {
+                System.out.println("    Status: " + YELLOW + status.toString() + RESET);
+            }
+        }
+
+        // Commits pendientes de push
+        int commitsAhead = GitIntegration.getCommitsAhead(projectPath);
+        if (commitsAhead > 0) {
+            System.out.println("    Unpushed: " + YELLOW + commitsAhead + " commit" +
+                    (commitsAhead > 1 ? "s" : "") + RESET);
+        } else if (commitsAhead == 0) {
+            System.out.println("    Unpushed: " + GREEN + "✓ Up to date" + RESET);
+        }
     }
 
     /**

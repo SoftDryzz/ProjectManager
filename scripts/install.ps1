@@ -1,6 +1,4 @@
-# Crear archivo de instalación
-@'
-# ProjectManager - Installation Script for Windows
+﻿# ProjectManager - Installation Script for Windows
 # Run this after compiling with: mvn clean package
 
 Write-Host "=== ProjectManager Installer ===" -ForegroundColor Cyan
@@ -32,7 +30,7 @@ java -jar "$jarPath" %*
 
 Write-Host "Creado: $pmBat" -ForegroundColor Green
 
-# 4. Agregar bin al PATH si no está
+# 4. Agregar bin al PATH si no estÃ¡
 $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($currentPath -notlike "*$binDir*") {
     [Environment]::SetEnvironmentVariable("Path", "$currentPath;$binDir", "User")
@@ -58,6 +56,3 @@ Write-Host ""
 Write-Host "Cierra y abre PowerShell de nuevo, luego ejecuta:" -ForegroundColor Yellow
 Write-Host "  pm help" -ForegroundColor Cyan
 Write-Host ""
-'@ | Out-File -FilePath scripts\install.ps1 -Encoding UTF8
-
-Write-Host "✅ Creado: scripts\install.ps1" -ForegroundColor Green
