@@ -50,7 +50,7 @@ public class CommandConfigurator {
      * @param project proyecto al que agregar comandos
      * @throws IllegalArgumentException si project es null
      */
-    public static void configure(Project project) {
+    public static void configureDefaultCommands(Project project) {
         if (project == null) {
             throw new IllegalArgumentException("Project cannot be null");
         }

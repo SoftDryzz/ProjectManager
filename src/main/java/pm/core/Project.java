@@ -2,6 +2,7 @@ package pm.core;
 
 import pm.detector.ProjectType;
 
+
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashMap;
@@ -74,6 +75,7 @@ public final class Project {
      * Se actualiza automáticamente cuando se agregan/quitan comandos.
      */
     private Instant lastModified;
+    private Map<String, String> envVars;
 
     /**
      * Crea un nuevo proyecto.
@@ -84,10 +86,21 @@ public final class Project {
      * @throws NullPointerException si algún parámetro es null
      */
     public Project(String name, Path path, ProjectType type) {
-        this.name = Objects.requireNonNull(name, "Project name cannot be null");
-        this.path = Objects.requireNonNull(path, "Project path cannot be null");
-        this.type = Objects.requireNonNull(type, "Project type cannot be null");
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Project name cannot be null or blank");
+        }
+        if (path == null) {
+            throw new IllegalArgumentException("Project path cannot be null");
+        }
+        if (type == null) {
+            throw new IllegalArgumentException("Project type cannot be null");
+        }
+
+        this.name = name;
+        this.path = path;
+        this.type = type;
         this.commands = new HashMap<>();
+        this.envVars = new HashMap<>();
         this.lastModified = Instant.now();
     }
 
@@ -251,5 +264,74 @@ public final class Project {
     @Override
     public int hashCode() {
         return Objects.hash(name, path);
+    }
+    /**
+     * Agrega o actualiza una variable de entorno.
+     *
+     * @param key nombre de la variable
+     * @param value valor de la variable
+     */
+    public void addEnvVar(String key, String value) {
+        if (key == null || key.isBlank()) {
+            throw new IllegalArgumentException("Environment variable key cannot be null or blank");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Environment variable value cannot be null");
+        }
+
+        this.envVars.put(key, value);
+        this.lastModified = Instant.now();
+    }
+
+    /**
+     * Obtiene una variable de entorno.
+     *
+     * @param key nombre de la variable
+     * @return valor de la variable o null si no existe
+     */
+    public String getEnvVar(String key) {
+        return this.envVars.get(key);
+    }
+
+    /**
+     * Verifica si existe una variable de entorno.
+     *
+     * @param key nombre de la variable
+     * @return true si existe
+     */
+    public boolean hasEnvVar(String key) {
+        return this.envVars.containsKey(key);
+    }
+
+    /**
+     * Elimina una variable de entorno.
+     *
+     * @param key nombre de la variable
+     * @return true si se eliminó
+     */
+    public boolean removeEnvVar(String key) {
+        boolean removed = this.envVars.remove(key) != null;
+        if (removed) {
+            this.lastModified = Instant.now();
+        }
+        return removed;
+    }
+
+    /**
+     * Obtiene todas las variables de entorno.
+     *
+     * @return mapa inmutable de variables
+     */
+    public Map<String, String> envVars() {
+        return Map.copyOf(this.envVars);
+    }
+
+    /**
+     * Obtiene la cantidad de variables de entorno configuradas.
+     *
+     * @return cantidad de variables
+     */
+    public int envVarCount() {
+        return this.envVars.size();
     }
 }

@@ -2,27 +2,33 @@ package pm.cli;
 
 import pm.core.Project;
 import pm.util.GitIntegration;
+
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
 /**
- * Formatea output para la consola con colores y estructura.
+ * Formateador de salida con colores ANSI para la interfaz CLI.
  *
- * <p>Proporciona métodos para:
+ * <p>Proporciona métodos para mostrar mensajes formateados con colores
+ * y estilos consistentes en toda la aplicación.
+ *
+ * <p>Colores disponibles:
  * <ul>
- *   <li>Mensajes de éxito/error con emojis</li>
- *   <li>Tablas formateadas</li>
- *   <li>Colores ANSI para terminal</li>
- *   <li>Formato consistente en toda la aplicación</li>
+ *   <li>Verde: mensajes de éxito</li>
+ *   <li>Rojo: mensajes de error</li>
+ *   <li>Amarillo: advertencias</li>
+ *   <li>Azul: información</li>
+ *   <li>Cyan: datos destacados (rutas, valores)</li>
+ *   <li>Gris: información secundaria</li>
  * </ul>
  *
  * <p>Ejemplo de uso:
  * <pre>{@code
- * OutputFormatter.success("Project added successfully");
- * OutputFormatter.error("Project not found");
- * OutputFormatter.info("Building project...");
+ * OutputFormatter.success("Proyecto creado exitosamente");
+ * OutputFormatter.error("No se pudo encontrar el archivo");
+ * OutputFormatter.info("Compilando proyecto...");
  * }</pre>
  *
  * @author SoftDryzz
@@ -31,26 +37,18 @@ import java.util.Map;
  */
 public class OutputFormatter {
 
-    // Códigos ANSI para colores
-    // Solo se usan en terminals que los soportan (la mayoría modernos)
-    private static final String RESET = "\u001B[0m";
-    private static final String GREEN = "\u001B[32m";
-    private static final String RED = "\u001B[31m";
-    private static final String YELLOW = "\u001B[33m";
-    private static final String BLUE = "\u001B[34m";
-    private static final String CYAN = "\u001B[36m";
-    private static final String GRAY = "\u001B[90m";
-    private static final String BOLD = "\u001B[1m";
+    // Códigos de color ANSI
+    public static final String GREEN = "\u001B[32m";
+    public static final String RED = "\u001B[31m";
+    public static final String YELLOW = "\u001B[33m";
+    public static final String BLUE = "\u001B[34m";
+    public static final String CYAN = "\u001B[36m";
+    public static final String GRAY = "\u001B[90m";
+    public static final String BOLD = "\u001B[1m";
+    public static final String RESET = "\u001B[0m";
 
     /**
-     * Constructor privado - clase utility.
-     */
-    private OutputFormatter() {
-        throw new AssertionError("OutputFormatter cannot be instantiated");
-    }
-
-    /**
-     * Muestra mensaje de éxito.
+     * Muestra un mensaje de éxito (verde, con ✓).
      *
      * @param message mensaje a mostrar
      */
@@ -59,16 +57,16 @@ public class OutputFormatter {
     }
 
     /**
-     * Muestra mensaje de error.
+     * Muestra un mensaje de error (rojo, con ✗).
      *
      * @param message mensaje a mostrar
      */
     public static void error(String message) {
-        System.err.println(RED + "❌ " + message + RESET);
+        System.out.println(RED + "❌ " + message + RESET);
     }
 
     /**
-     * Muestra mensaje de advertencia.
+     * Muestra una advertencia (amarillo, con ⚠).
      *
      * @param message mensaje a mostrar
      */
@@ -77,7 +75,7 @@ public class OutputFormatter {
     }
 
     /**
-     * Muestra mensaje informativo.
+     * Muestra un mensaje informativo (azul, con ℹ).
      *
      * @param message mensaje a mostrar
      */
@@ -86,14 +84,15 @@ public class OutputFormatter {
     }
 
     /**
-     * Muestra título de sección.
+     * Muestra un encabezado de sección (negrita, cyan, con subrayado).
      *
-     * @param title título a mostrar
+     * @param title título de la sección
      */
     public static void section(String title) {
         System.out.println();
         System.out.println(BOLD + CYAN + title + RESET);
-        System.out.println(CYAN + "─".repeat(title.length()) + RESET);
+        System.out.println("─".repeat(title.length()));
+        System.out.println();
     }
 
     /**
@@ -115,6 +114,11 @@ public class OutputFormatter {
         // Mostrar comandos
         if (project.commandCount() > 0) {
             System.out.println("  Commands: " + project.commandCount());
+        }
+
+        // Mostrar variables de entorno
+        if (project.envVarCount() > 0) {
+            System.out.println("  Environment Variables: " + project.envVarCount());
         }
 
         // Mostrar información de Git (si es un repo)
@@ -164,18 +168,23 @@ public class OutputFormatter {
     }
 
     /**
-     * Muestra lista de proyectos en formato tabla.
+     * Muestra una lista de proyectos en formato tabla.
      *
-     * @param projects mapa de proyectos (key: nombre, value: Project)
+     * @param projects mapa de proyectos (nombre → proyecto)
      */
     public static void printProjectList(Map<String, Project> projects) {
         if (projects.isEmpty()) {
-            info("No projects registered yet");
-            System.out.println("Use 'pm add <name> --path <path>' to register a project");
+            System.out.println(GRAY + "No projects registered yet." + RESET);
+            System.out.println();
+            System.out.println("Add your first project with:");
+            System.out.println("  " + CYAN + "pm add <name> --path <path>" + RESET);
             return;
         }
 
-        section("Registered Projects (" + projects.size() + ")");
+        System.out.println();
+        System.out.println("Registered Projects (" + projects.size() + ")");
+        System.out.println("─".repeat(23));
+        System.out.println();
 
         for (Project project : projects.values()) {
             printProject(project);
@@ -183,59 +192,97 @@ public class OutputFormatter {
     }
 
     /**
-     * Muestra lista de comandos de un proyecto.
+     * Muestra los comandos disponibles de un proyecto.
      *
-     * @param project proyecto
+     * @param project proyecto del cual mostrar comandos
      */
     public static void printCommands(Project project) {
-        Map<String, String> commands = project.commands();
-
-        if (commands.isEmpty()) {
-            warning("No commands configured for this project");
+        if (project.commandCount() == 0) {
+            System.out.println(GRAY + "No commands configured for this project." + RESET);
             return;
         }
 
-        section("Available Commands for " + project.name());
+        System.out.println();
+        System.out.println("Available Commands for " + BOLD + project.name() + RESET);
+        System.out.println("─".repeat(Math.max(40, "Available Commands for ".length() + project.name().length())));
+        System.out.println();
 
-        // Calcular ancho máximo del nombre de comando para alineación
-        int maxNameLength = commands.keySet().stream()
+        // Calcular padding para alinear las flechas
+        int maxCommandLength = project.commands().keySet().stream()
                 .mapToInt(String::length)
                 .max()
-                .orElse(10);
+                .orElse(0);
 
-        for (Map.Entry<String, String> entry : commands.entrySet()) {
-            String name = entry.getKey();
-            String command = entry.getValue();
+        // Mostrar cada comando
+        project.commands().forEach((name, command) -> {
+            String padding = " ".repeat(maxCommandLength - name.length());
+            System.out.println("  " + GREEN + name + RESET + padding + " → " + CYAN + command + RESET);
+        });
 
-            // Formatear con padding para alinear
-            System.out.printf("  %-" + maxNameLength + "s  →  %s%s%s%n",
-                    BOLD + name + RESET,
-                    GRAY,
-                    command,
-                    RESET);
-        }
+        // Mostrar variables de entorno si existen
+        printEnvVars(project);
     }
 
     /**
-     * Formatea una duración de forma legible.
+     * Muestra las variables de entorno de un proyecto.
      *
-     * @param duration duración
-     * @return string formateado (ej: "2 hours", "30 minutes", "5 seconds")
+     * @param project proyecto del cual mostrar variables
+     */
+    public static void printEnvVars(Project project) {
+        if (project.envVarCount() == 0) {
+            return;
+        }
+
+        System.out.println();
+        System.out.println(BOLD + "Environment Variables" + RESET);
+        System.out.println("─".repeat(Math.max(40, "Environment Variables".length())));
+        System.out.println();
+
+        // Calcular padding para alinear
+        int maxKeyLength = project.envVars().keySet().stream()
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
+
+        // Mostrar cada variable
+        project.envVars().forEach((key, value) -> {
+            String padding = " ".repeat(maxKeyLength - key.length());
+            System.out.println("  " + GREEN + key + RESET + padding + " = " + CYAN + value + RESET);
+        });
+    }
+
+    /**
+     * Formatea una duración en un string legible.
+     *
+     * <p>Ejemplos:
+     * <ul>
+     *   <li>45 segundos → "45 seconds"</li>
+     *   <li>2 minutos → "2 minutes"</li>
+     *   <li>1 hora → "1 hour"</li>
+     *   <li>3 días → "3 days"</li>
+     * </ul>
+     *
+     * @param duration duración a formatear
+     * @return string formateado
      */
     private static String formatDuration(Duration duration) {
         long seconds = duration.getSeconds();
 
         if (seconds < 60) {
             return seconds + " second" + (seconds != 1 ? "s" : "");
-        } else if (seconds < 3600) {
-            long minutes = seconds / 60;
-            return minutes + " minute" + (minutes != 1 ? "s" : "");
-        } else if (seconds < 86400) {
-            long hours = seconds / 3600;
-            return hours + " hour" + (hours != 1 ? "s" : "");
-        } else {
-            long days = seconds / 86400;
-            return days + " day" + (days != 1 ? "s" : "");
         }
+
+        long minutes = seconds / 60;
+        if (minutes < 60) {
+            return minutes + " minute" + (minutes != 1 ? "s" : "");
+        }
+
+        long hours = minutes / 60;
+        if (hours < 24) {
+            return hours + " hour" + (hours != 1 ? "s" : "");
+        }
+
+        long days = hours / 24;
+        return days + " day" + (days != 1 ? "s" : "");
     }
 }

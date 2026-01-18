@@ -122,6 +122,7 @@ public class ProjectStore {
         String type;  // String en vez de ProjectType
         Map<String, String> commands;
         String lastModified;  // String en vez de Instant
+        Map<String, String> envVars;
 
         /**
          * Convierte un Project a DTO.
@@ -132,6 +133,7 @@ public class ProjectStore {
             dto.path = project.path().toString();
             dto.type = project.type().name();
             dto.commands = new HashMap<>(project.commands());
+            dto.envVars = new HashMap<>(project.envVars());
             dto.lastModified = project.lastModified().toString();
             return dto;
         }
@@ -148,6 +150,10 @@ public class ProjectStore {
 
             if (commands != null) {
                 commands.forEach(project::addCommand);
+            }
+
+            if (envVars != null) {
+                envVars.forEach(project::addEnvVar);
             }
 
             return project;

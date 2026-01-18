@@ -20,21 +20,6 @@ import java.util.stream.Stream;
  *   <li>Unknown: ninguno de los anteriores</li>
  * </ul>
  *
- * <p>Orden de prioridad:
- * Si un proyecto tiene múltiples archivos (ej: build.gradle Y pom.xml),
- * se detecta en este orden: Gradle > Maven > Node.js > .NET > Python
- *
- * <p>Ejemplo de uso:
- * <pre>{@code
- * Path projectPath = Paths.get("/home/user/myapp");
- * ProjectTypeDetector detector = new ProjectTypeDetector();
- * ProjectType type = detector.detect(projectPath);
- *
- * if (type == ProjectType.GRADLE) {
- *     System.out.println("Es un proyecto Gradle");
- * }
- * }</pre>
- *
  * @author SoftDryzz
  * @version 1.0.0
  * @since 1.0.0
@@ -48,7 +33,7 @@ public class ProjectTypeDetector {
      * @return tipo de proyecto detectado (nunca null, retorna UNKNOWN si no detecta)
      * @throws IllegalArgumentException si projectPath es null o no existe
      */
-    public ProjectType detect(Path projectPath) {
+    public static ProjectType detect(Path projectPath) {
         // Validar argumentos
         if (projectPath == null) {
             throw new IllegalArgumentException("Project path cannot be null");
@@ -102,7 +87,7 @@ public class ProjectTypeDetector {
      * @param fileName nombre del archivo a buscar
      * @return true si el archivo existe, false en caso contrario
      */
-    private boolean fileExists(Path directory, String fileName) {
+    private static boolean fileExists(Path directory, String fileName) {
         Path filePath = directory.resolve(fileName);
         return Files.exists(filePath) && Files.isRegularFile(filePath);
     }
@@ -115,7 +100,7 @@ public class ProjectTypeDetector {
      * @param directory directorio donde buscar
      * @return true si encuentra al menos un archivo de proyecto .NET
      */
-    private boolean hasCsprojFile(Path directory) {
+    private static boolean hasCsprojFile(Path directory) {
         try (Stream<Path> files = Files.list(directory)) {
             return files.anyMatch(path -> {
                 String name = path.getFileName().toString().toLowerCase();

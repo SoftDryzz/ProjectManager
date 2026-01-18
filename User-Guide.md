@@ -99,6 +99,20 @@ pm add mi-api --path C:\projects\mi-api
 
 ---
 
+#### Registrar un proyecto con variables de entorno
+```bash
+pm add <nombre> --path <ruta> --env "KEY1=value1,KEY2=value2"
+```
+
+**Ejemplo:**
+```bash
+pm add backend --path C:\projects\backend --env "PORT=3000,DEBUG=true,DB_HOST=localhost"
+```
+
+**Las variables se configuran una sola vez y se usan automáticamente** en todos los comandos (build, run, test).
+
+---
+
 #### Registrar un proyecto (especificando tipo)
 ```bash
 pm add <nombre> --path <ruta> --type <tipo>
@@ -141,6 +155,8 @@ pm info minecraft-client
 - Ruta completa
 - Última modificación
 - Comandos disponibles
+- Variables de entorno configuradas
+- Estado de Git (si es repositorio)
 
 ---
 
@@ -203,7 +219,7 @@ pm build <nombre>
 pm build minecraft-client
 ```
 
-Ejecuta el comando de build configurado (ej: `gradle build`, `mvn package`, `npm run build`)
+Ejecuta el comando de build configurado (ej: `gradle build`, `mvn package`, `npm run build`) **con las variables de entorno automáticamente**.
 
 ---
 
@@ -217,7 +233,7 @@ pm run <nombre>
 pm run minecraft-client
 ```
 
-Ejecuta el comando de ejecución configurado (ej: `gradle run`, `mvn exec:java`, `npm start`)
+Ejecuta el comando de ejecución configurado (ej: `gradle run`, `mvn exec:java`, `npm start`) **con las variables de entorno automáticamente**.
 
 ---
 
@@ -231,7 +247,7 @@ pm test <nombre>
 pm test mi-api
 ```
 
-Ejecuta los tests del proyecto (ej: `gradle test`, `mvn test`, `npm test`)
+Ejecuta los tests del proyecto (ej: `gradle test`, `mvn test`, `npm test`) **con las variables de entorno automáticamente**.
 
 ---
 
@@ -263,6 +279,93 @@ pm -v
 
 ---
 
+## 🔧 Variables de Entorno
+
+### ¿Qué Son?
+
+Las variables de entorno son configuraciones que tu aplicación necesita para ejecutarse, como puertos, claves de API, URLs de bases de datos, etc.
+
+---
+
+### ¿Cómo Funcionan en ProjectManager?
+
+1. **Registras el proyecto con variables:**
+```bash
+   pm add api --path ~/api --env "PORT=8080,DEBUG=true"
+```
+
+2. **Las variables se guardan en la configuración del proyecto**
+
+3. **Se inyectan automáticamente** cuando ejecutas `pm build`, `pm run` o `pm test`
+
+---
+
+### Ejemplos de Uso
+
+#### Proyecto con Puerto Configurable
+```bash
+# Registrar con puerto
+pm add web-server --path ~/server --env "PORT=3000"
+
+# Ejecutar (usa PORT=3000 automáticamente)
+pm run web-server
+```
+
+---
+
+#### Proyecto con Múltiples Variables
+```bash
+# API con varias configuraciones
+pm add backend --path ~/backend --env "PORT=8080,DB_HOST=localhost,DB_USER=admin,API_KEY=secret123"
+
+# Compilar (variables disponibles en tiempo de compilación)
+pm build backend
+
+# Ejecutar (variables disponibles en tiempo de ejecución)
+pm run backend
+```
+
+---
+
+#### Maven con Configuración de Memoria
+```bash
+# Configurar memoria para Maven
+pm add large-project --path ~/project --env "MAVEN_OPTS=-Xms512m -Xmx2048m"
+
+# Maven usará esa configuración
+pm build large-project
+```
+
+---
+
+### Ver Variables Configuradas
+```bash
+pm info nombre-proyecto
+```
+
+**Muestra:**
+```
+Environment Variables
+─────────────────────
+
+  PORT    = 8080
+  DEBUG   = true
+  API_KEY = secret123
+```
+
+---
+
+### Modificar Variables
+
+**Por ahora:** Editar manualmente el archivo `projects.json`
+
+**Ubicación:**
+- Windows: `C:\Users\Usuario\.projectmanager\projects.json`
+- Linux/Mac: `~/.projectmanager/projects.json`
+
+🚧 **Feature planeada:** `pm env add/remove/update` para gestionar variables desde CLI.
+
+---
 
 ## 🌿 Integración Git
 
@@ -350,6 +453,7 @@ minecraft-client (Gradle)
   Path: C:\projects\minecraft-client
   Modified: 2 hours ago
   Commands: 4
+  Environment Variables: 2
 
   Git:
     Branch: feature/new-commands
@@ -364,6 +468,12 @@ Available Commands for minecraft-client
   run    →  gradle runClient
   test   →  gradle test
   clean  →  gradle clean
+
+Environment Variables
+─────────────────────
+
+  DEBUG      = true
+  GAME_MODE  = creative
 ```
 
 ---
@@ -440,8 +550,6 @@ Si no está instalado: https://git-scm.com/downloads
 
 ---
 
-
-
 ## 💡 Casos de Uso
 
 ### Caso 1: Múltiples Proyectos con Diferentes Tecnologías
@@ -502,19 +610,24 @@ pm run frontend
 
 ---
 
-### Caso 4: Cambio Rápido Entre Proyectos
+### Caso 4: Diferentes Configuraciones por Proyecto
 
-**Problema:** Trabajas en múltiples proyectos al día y cambiar de directorio es tedioso.
+**Problema:** Tienes 3 APIs con diferentes puertos y necesitas recordar cuál usa cuál.
 
 **Con ProjectManager:**
 ```bash
-# Estás en cualquier carpeta
-C:\Users\Documents> pm build proyecto-a
-C:\Users\Documents> pm run proyecto-b
-C:\Users\Documents> pm test proyecto-c
+# Registrar cada una con su puerto
+pm add api-users --path ~/api-users --env "PORT=3000"
+pm add api-products --path ~/api-products --env "PORT=3001"
+pm add api-orders --path ~/api-orders --env "PORT=3002"
+
+# Ejecutar cualquiera (usa su puerto automáticamente)
+pm run api-users     # Puerto 3000
+pm run api-products  # Puerto 3001
+pm run api-orders    # Puerto 3002
 ```
 
-✅ **Ejecuta comandos desde cualquier ubicación**
+✅ **No recordar configuraciones, todo automático**
 
 ---
 
@@ -552,6 +665,10 @@ ProjectManager guarda la información de tus proyectos en:
       "test": "gradle test",
       "clean": "gradle clean"
     },
+    "envVars": {
+      "DEBUG": "true",
+      "GAME_MODE": "creative"
+    },
     "lastModified": "2025-01-18T15:30:00Z"
   }
 }
@@ -561,19 +678,18 @@ ProjectManager guarda la información de tus proyectos en:
 
 ⚠️ **No recomendado para usuarios normales**
 
-Si necesitas modificar comandos manualmente:
+Si necesitas modificar comandos o variables manualmente:
 
 1. Abre el archivo `projects.json`
-2. Modifica el campo `commands`
+2. Modifica el campo `commands` o `envVars`
 3. Guarda el archivo
 
-**Ejemplo - Cambiar comando de ejecución:**
+**Ejemplo - Agregar variable de entorno:**
 ```json
-"commands": {
-  "build": "gradle build",
-  "run": "gradle runClient --args='custom-args'",  ← Modificado
-  "test": "gradle test",
-  "clean": "gradle clean"
+"envVars": {
+  "DEBUG": "true",
+  "PORT": "8080",
+  "NEW_VAR": "new_value"  ← Agregado
 }
 ```
 
@@ -591,12 +707,16 @@ En un archivo JSON ubicado en:
 
 Sí, pero **no es recomendado**. Es mejor usar los comandos de `pm` para evitar errores de sintaxis.
 
+### ¿Las variables de entorno son seguras?
+
+Las variables se guardan en **texto plano** en el archivo JSON. **No guardes claves secretas o contraseñas** en producción. Para desarrollo local está bien.
+
 ### ¿Qué pasa si muevo un proyecto a otra carpeta?
 
 Debes actualizar la ruta:
 ```bash
 pm remove proyecto-viejo
-pm add proyecto-viejo --path C:\nueva\ruta
+pm add proyecto-viejo --path C:\nueva\ruta --env "VAR1=value1"
 ```
 
 ### ¿Puedo cambiar los comandos por defecto?
@@ -748,24 +868,42 @@ Luego elimina `~/bin` del PATH en tu `.bashrc` o `.zshrc`.
 
 ---
 
+### Las variables de entorno no se están usando
+
+**Causa:** Puede que el comando no esté usando el método correcto.
+
+**Verificación:**
+
+1. Confirma que las variables están configuradas:
+```bash
+   pm info nombre-proyecto
+```
+
+2. Las variables deberían aparecer en la sección "Environment Variables"
+
+3. Si no aparecen, registra el proyecto de nuevo con `--env`
+
+---
+
 ## 📝 Cheatsheet Rápido
 ```bash
 # === GESTIÓN ===
-pm add <name> --path <path>       # Registrar proyecto
-pm list                           # Listar todos
-pm info <name>                    # Ver detalles
-pm commands <name>                # Ver comandos disponibles
-pm remove <name>                  # Eliminar (con confirmación)
-pm remove <name> --force          # Eliminar (sin confirmación)
+pm add <name> --path <path>                    # Registrar proyecto
+pm add <name> --path <path> --env "K=v,K2=v2" # Registrar con variables
+pm list                                        # Listar todos
+pm info <name>                                 # Ver detalles completos
+pm commands <name>                             # Ver comandos disponibles
+pm remove <name>                               # Eliminar (con confirmación)
+pm remove <name> --force                       # Eliminar (sin confirmación)
 
 # === EJECUCIÓN ===
-pm build <name>                   # Compilar
-pm run <name>                     # Ejecutar
-pm test <name>                    # Ejecutar tests
+pm build <name>                                # Compilar (con env vars)
+pm run <name>                                  # Ejecutar (con env vars)
+pm test <name>                                 # Ejecutar tests (con env vars)
 
 # === AYUDA ===
-pm help                           # Ayuda general
-pm version                        # Ver versión
+pm help                                        # Ayuda general
+pm version                                     # Ver versión
 ```
 
 ---
@@ -784,8 +922,8 @@ pm version
 
 # 4. Registrar tus proyectos
 pm add proyecto1 --path C:\projects\proyecto1
-pm add proyecto2 --path C:\projects\proyecto2
-pm add proyecto3 --path C:\projects\proyecto3
+pm add proyecto2 --path C:\projects\proyecto2 --env "PORT=8080"
+pm add proyecto3 --path C:\projects\proyecto3 --env "DEBUG=true,API_URL=localhost"
 
 # 5. Verificar que se registraron
 pm list
@@ -801,10 +939,10 @@ pm list
 # Compilar un proyecto
 pm build proyecto1
 
-# Ejecutar un proyecto
-pm run proyecto1
+# Ejecutar un proyecto (usa variables automáticamente)
+pm run proyecto2
 
-# Ver información de un proyecto
+# Ver información de un proyecto (incluye variables y Git)
 pm info proyecto1
 
 # Ver comandos disponibles
@@ -825,19 +963,25 @@ Ahora que conoces ProjectManager:
    pm add proyecto2 --path C:\projects\proyecto2
 ```
 
-2. **Úsalo en tu workflow diario**
+2. **Agrega variables de entorno donde las necesites**
+```bash
+   pm add api --path C:\projects\api --env "PORT=3000,DEBUG=true"
+```
+
+3. **Úsalo en tu workflow diario**
 ```bash
    pm build proyecto1
    pm run proyecto1
 ```
 
-3. **Explora comandos disponibles**
+4. **Explora la integración con Git**
 ```bash
-   pm commands proyecto1
+   pm info proyecto1  # Ve branch, cambios y commits pendientes
 ```
 
-4. **Comparte con tu equipo**
+5. **Comparte con tu equipo**
    - Todos usan los mismos comandos
+   - Configuraciones consistentes con variables de entorno
    - Onboarding más rápido
 
 ---

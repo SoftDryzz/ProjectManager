@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
+import java.util.Map;
 
 /**
  * Ejecuta comandos del sistema operativo.
@@ -53,10 +54,10 @@ public class CommandExecutor {
         ProcessBuilder processBuilder = new ProcessBuilder(shellCommand);
 
         // Configurar directorio de trabajo
-        processBuilder.directory(workingDirectory.toFile());
+                processBuilder.directory(workingDirectory.toFile());
 
         // Redirigir stderr a stdout para capturar todo el output
-        processBuilder.redirectErrorStream(true);
+                processBuilder.redirectErrorStream(true);
 
         // Iniciar proceso
         long startTime = System.currentTimeMillis();
@@ -157,6 +158,113 @@ public class CommandExecutor {
             // Linux/Mac: usar sh
             return new String[]{"sh", "-c", command};
         }
+    }
+    /**
+     * Ejecuta un comando del sistema con variables de entorno personalizadas.
+     *
+     * @param command comando a ejecutar
+     * @param workingDirectory directorio donde ejecutar
+     * @param timeoutSeconds timeout en segundos (0 = sin timeout)
+     * @param envVars variables de entorno adicionales
+     * @return resultado de la ejecución
+     * @throws IOException si falla la ejecución
+     * @throws InterruptedException si el proceso es interrumpido
+     */
+    public ExecutionResult execute(String command, Path workingDirectory, long timeoutSeconds, Map<String, String> envVars)
+            throws IOException, InterruptedException {
+
+        // Validar parámetros
+        if (command == null || command.isBlank()) {
+            throw new IllegalArgumentException("Command cannot be null or blank");
+        }
+
+        if (workingDirectory == null) {
+            throw new IllegalArgumentException("Working directory cannot be null");
+        }
+
+        // Detectar sistema operativo para usar el shell correcto
+        String[] shellCommand = getShellCommand(command);
+
+        // Crear ProcessBuilder
+        ProcessBuilder processBuilder = new ProcessBuilder(shellCommand);
+
+        // Configurar directorio de trabajo
+        processBuilder.directory(workingDirectory.toFile());
+
+        // Agregar variables de entorno personalizadas
+        if (envVars != null && !envVars.isEmpty()) {
+            Map<String, String> environment = processBuilder.environment();
+            environment.putAll(envVars);
+        }
+
+        // Redirigir stderr a stdout para capturar todo el output
+        processBuilder.redirectErrorStream(true);
+
+        // Iniciar proceso
+        long startTime = System.currentTimeMillis();
+        Process process = processBuilder.start();
+
+        // Crear thread para leer output en tiempo real
+        Thread outputReader = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Mostrar output en tiempo real
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading process output: " + e.getMessage());
+            }
+        });
+
+        // Iniciar lectura de output
+        outputReader.start();
+
+        // Variable para almacenar el exit code
+        int exitCode;
+        boolean finished;
+
+        // Esperar a que termine el proceso (con timeout si se especifica)
+        if (timeoutSeconds > 0) {
+            finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
+
+            if (!finished) {
+                // Timeout alcanzado, matar proceso
+                process.destroyForcibly();
+                outputReader.interrupt();
+
+                long duration = System.currentTimeMillis() - startTime;
+                return new ExecutionResult(
+                        false,
+                        -1,
+                        duration,
+                        "Process timed out after " + timeoutSeconds + " seconds"
+                );
+            }
+
+            // Proceso terminó, obtener exit code
+            exitCode = process.waitFor();
+        } else {
+            // Sin timeout, esperar indefinidamente y obtener exit code
+            exitCode = process.waitFor();
+            finished = true;
+        }
+
+        // Esperar a que termine de leer el output
+        outputReader.join(1000); // Max 1 segundo
+
+        // Calcular duración
+        long duration = System.currentTimeMillis() - startTime;
+
+        // Crear resultado
+        return new ExecutionResult(
+                exitCode == 0,  // success si exitCode es 0
+                exitCode,
+                duration,
+                exitCode == 0 ? "Command completed successfully" : "Command failed"
+        );
     }
 
     /**

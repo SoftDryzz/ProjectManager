@@ -118,61 +118,62 @@ public class ProjectManager {
      *
      * @param args argumentos del comando
      */
-    private static void handleAdd(String[] args) {
+    private static void handleAdd(String[] args) {// Parsear argumentos
         ArgsParser parser = new ArgsParser(args);
 
-        // Validar argumentos
-        // args[0] = "add", args[1] = nombre del proyecto
-        String projectName = parser.getPositional(1);
-        if (projectName == null || projectName.isBlank()) {
+        String name = parser.getPositional(1);
+        String pathFlag = parser.getFlag("path");
+        String typeFlag = parser.getFlag("type");
+
+        if (name == null || name.isBlank()) {
             OutputFormatter.error("Project name is required");
-            System.out.println("Usage: pm add <name> --path <path> [--type <type>]");
+            System.out.println("Usage: pm add <name> --path <path> [--type <type>] [--env <vars>]");
             System.exit(1);
         }
 
-        // Obtener path del proyecto
-        String pathStr = parser.getFlag("path");
-        if (pathStr == null || pathStr.isBlank()) {
+        if (pathFlag == null || pathFlag.isBlank()) {
             OutputFormatter.error("Project path is required");
-            System.out.println("Usage: pm add <name> --path <path> [--type <type>]");
+            System.out.println("Usage: pm add <name> --path <path> [--type <type>] [--env <vars>]");
             System.exit(1);
         }
 
-        // Convertir a Path y expandir ~ si es necesario
-        Path projectPath = Paths.get(pathStr);
-        if (pathStr.startsWith("~")) {
-            // Expandir ~ a home directory
-            projectPath = Paths.get(System.getProperty("user.home") + pathStr.substring(1));
-        }
+    // Expandir ~ a home directory
+            String expandedPath = pathFlag.replace("~", System.getProperty("user.home"));
+            Path projectPath = Paths.get(expandedPath).toAbsolutePath().normalize();
 
-        // Validar que el path existe
-        if (!Files.exists(projectPath)) {
-            OutputFormatter.error("Path does not exist: " + projectPath);
-            System.exit(1);
-        }
-
-        if (!Files.isDirectory(projectPath)) {
-            OutputFormatter.error("Path is not a directory: " + projectPath);
-            System.exit(1);
-        }
-
-        try {
-            // Verificar si ya existe un proyecto con ese nombre
-            Project existing = store.findProject(projectName);
-            if (existing != null) {
-                OutputFormatter.error("Project '" + projectName + "' already exists");
-                System.out.println("Use 'pm remove " + projectName + "' to remove it first");
+    // Verificar que el path existe
+            if (!Files.exists(projectPath)) {
+                OutputFormatter.error("Path does not exist: " + projectPath);
                 System.exit(1);
             }
 
-            // Detectar tipo de proyecto
-            ProjectType type;
-            String typeFlag = parser.getFlag("type");
+            if (!Files.isDirectory(projectPath)) {
+                OutputFormatter.error("Path is not a directory: " + projectPath);
+                System.exit(1);
+            }
 
-            if (typeFlag != null) {
-                // Usuario especificó el tipo manualmente
+    // Verificar que el proyecto no existe ya
+            ProjectStore store = new ProjectStore();
+            try {
+                Project existing = store.findProject(name);
+                if (existing != null) {
+                    OutputFormatter.error("Project '" + name + "' already exists");
+                    System.exit(1);
+                }
+            } catch (IOException e) {
+                OutputFormatter.error("Failed to check existing projects: " + e.getMessage());
+                System.exit(1);
+            }
+
+            System.out.println();
+            OutputFormatter.info("Detecting project type...");
+            System.out.println();
+
+    // Detectar tipo de proyecto
+            ProjectType detectedType;
+            if (typeFlag != null && !typeFlag.isBlank()) {
                 try {
-                    type = ProjectType.valueOf(typeFlag.toUpperCase());
+                    detectedType = ProjectType.valueOf(typeFlag.toUpperCase());
                 } catch (IllegalArgumentException e) {
                     OutputFormatter.error("Invalid project type: " + typeFlag);
                     System.out.println("Valid types: GRADLE, MAVEN, NODEJS, DOTNET, PYTHON");
@@ -180,48 +181,36 @@ public class ProjectManager {
                     return;
                 }
             } else {
-                // Auto-detectar tipo
-                OutputFormatter.info("Detecting project type...");
-                type = detector.detect(projectPath);
-
-                if (type == ProjectType.UNKNOWN) {
-                    OutputFormatter.warning("Could not detect project type");
-                    System.out.println("You can specify it manually with --type <type>");
-                    System.out.println("Valid types: GRADLE, MAVEN, NODEJS, DOTNET, PYTHON");
-                    System.out.println();
-                    System.out.print("Continue with UNKNOWN type? (y/n): ");
-
-                    // Leer respuesta del usuario
-                    String response = System.console() != null
-                            ? System.console().readLine()
-                            : "n";
-
-                    if (!response.toLowerCase().startsWith("y")) {
-                        System.out.println("Aborted.");
-                        System.exit(0);
-                    }
-                }
+                detectedType = ProjectTypeDetector.detect(projectPath);
             }
 
-            // Crear proyecto
-            Project project = new Project(projectName, projectPath, type);
+    // Crear proyecto
+            Project project = new Project(name, projectPath, detectedType);
 
-            // Configurar comandos por defecto según el tipo
-            CommandConfigurator.configure(project);
+    // Configurar comandos por defecto según el tipo
+            CommandConfigurator.configureDefaultCommands(project);
 
-            // Guardar proyecto
+    // Configurar variables de entorno si se proporcionaron
+            String envFlag = parser.getFlag("env");
+            if (envFlag != null && !envFlag.isBlank()) {
+                parseAndSetEnvVars(project, envFlag);
+            }
+        // Guardar proyecto
+        try {
             store.saveProject(project);
 
-            // Confirmar al usuario
             System.out.println();
-            OutputFormatter.success("Project '" + projectName + "' registered successfully");
+            OutputFormatter.success("Project '" + project.name() + "' registered successfully");
             System.out.println();
-            System.out.println("  Name: " + projectName);
-            System.out.println("  Type: " + type.displayName());
-            System.out.println("  Path: " + projectPath);
+            System.out.println("  Name: " + project.name());
+            System.out.println("  Type: " + project.type().displayName());
+            System.out.println("  Path: " + project.path());
             System.out.println("  Commands: " + project.commandCount() + " configured");
+            if (project.envVarCount() > 0) {
+                System.out.println("  Environment Variables: " + project.envVarCount() + " configured");
+            }
             System.out.println();
-            System.out.println("Use 'pm commands " + projectName + "' to see available commands");
+            System.out.println("Use 'pm commands " + project.name() + "' to see available commands");
 
         } catch (IOException e) {
             OutputFormatter.error("Failed to save project: " + e.getMessage());
@@ -313,12 +302,13 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            // Ejecutar comando
-            CommandExecutor.ExecutionResult result = executor.execute(
-                    buildCommand,
-                    project.path(),
-                    300  // timeout: 5 minutos
-            );
+            // Ejecutar con variables de entorno si están configuradas
+            CommandExecutor.ExecutionResult result;
+            if (project.envVarCount() > 0) {
+                result = executor.execute(buildCommand, project.path(), 300, project.envVars());
+            } else {
+                result = executor.execute(buildCommand, project.path(), 300);
+            }
 
             // Mostrar resultado
             System.out.println();
@@ -387,12 +377,14 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            // Ejecutar sin timeout (puede correr indefinidamente)
-            CommandExecutor.ExecutionResult result = executor.execute(
-                    runCommand,
-                    project.path(),
-                    0  // sin timeout
-            );
+            // Ejecutar con variables de entorno si están configuradas
+
+            CommandExecutor.ExecutionResult result;
+            if (project.envVarCount() > 0) {
+                result = executor.execute(runCommand, project.path(), 0, project.envVars());
+            } else {
+                result = executor.execute(runCommand, project.path(), 0);
+            }
 
             System.out.println();
             System.out.println("─".repeat(60));
@@ -458,11 +450,14 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            CommandExecutor.ExecutionResult result = executor.execute(
-                    testCommand,
-                    project.path(),
-                    600  // timeout: 10 minutos para tests
-            );
+
+            // Ejecutar con variables de entorno si están configuradas
+            CommandExecutor.ExecutionResult result;
+            if (project.envVarCount() > 0) {
+                result = executor.execute(testCommand, project.path(), 600, project.envVars());
+            } else {
+                result = executor.execute(testCommand, project.path(), 600); //timeout: 10 minutos para tests
+            }
 
             System.out.println();
             System.out.println("─".repeat(60));
@@ -690,5 +685,52 @@ public class ProjectManager {
     private static void printVersion() {
         System.out.println("ProjectManager " + Constants.VERSION);
         System.out.println("Java " + System.getProperty("java.version"));
+    }
+    /**
+     * Parsea y configura variables de entorno desde un string.
+     *
+     * Formato esperado: "KEY1=value1,KEY2=value2,KEY3=value3"
+     *
+     * @param project proyecto al que agregar las variables
+     * @param envString string con las variables
+     */
+    private static void parseAndSetEnvVars(Project project, String envString) {
+        if (envString == null || envString.isBlank()) {
+            return;
+        }
+
+        String[] pairs = envString.split(",");
+        int added = 0;
+
+        for (String pair : pairs) {
+            pair = pair.trim();
+
+            if (pair.isEmpty()) {
+                continue;
+            }
+
+            int equalsIndex = pair.indexOf('=');
+
+            if (equalsIndex == -1) {
+                OutputFormatter.warning("Invalid environment variable format (missing '='): " + pair);
+                continue;
+            }
+
+            String key = pair.substring(0, equalsIndex).trim();
+            String value = pair.substring(equalsIndex + 1).trim();
+
+            if (key.isEmpty()) {
+                OutputFormatter.warning("Invalid environment variable (empty key): " + pair);
+                continue;
+            }
+
+            project.addEnvVar(key, value);
+            added++;
+        }
+
+        if (added > 0) {
+            System.out.println(OutputFormatter.GRAY + "  Configured " + added +
+                    " environment variable" + (added > 1 ? "s" : "") + OutputFormatter.RESET);
+        }
     }
 }
