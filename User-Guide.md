@@ -1024,9 +1024,9 @@ Ahora que conoces ProjectManager:
 
 ## 📚 Recursos Adicionales
 
-- **README principal:** [README.md](../README.md)
-- **Guía de instalación:** [INSTALL.md](../scripts/INSTALL.md)
-- **Código fuente:** [src/main/java/pm/](../src/main/java/pm/)
+- **README principal:** [README.md](README.md)
+- **Guía de instalación:** [INSTALL.md](/scripts/INSTALL.md)
+- **Código fuente:** [src/main/java/pm/](/src/main/java/pm/)
 
 ---
 
