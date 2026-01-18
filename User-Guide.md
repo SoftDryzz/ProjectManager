@@ -263,6 +263,185 @@ pm -v
 
 ---
 
+
+## 🌿 Integración Git
+
+### ¿Qué es?
+
+ProjectManager detecta automáticamente si tu proyecto es un repositorio Git y muestra información útil cuando ejecutas `pm info`.
+
+---
+
+### Información que Muestra
+
+#### 1. Branch Actual
+```bash
+pm info myproject
+```
+
+**Muestra:**
+```
+Git:
+  Branch: feature/new-feature
+```
+
+**Útil para:** Saber en qué rama estás sin hacer `git branch`
+
+---
+
+#### 2. Estado del Working Tree
+
+**Posibles estados:**
+
+**Working tree limpio:**
+```
+Git:
+  Status: ✓ Clean working tree
+```
+
+**Con cambios:**
+```
+Git:
+  Status: 3 staged, 2 modified, 1 untracked
+```
+
+**Significado:**
+- **staged:** Archivos agregados con `git add` (listos para commit)
+- **modified:** Archivos modificados pero NO agregados todavía
+- **untracked:** Archivos nuevos que Git no rastrea
+
+---
+
+#### 3. Commits Pendientes de Push
+
+**Sin commits pendientes:**
+```
+Git:
+  Unpushed: ✓ Up to date
+```
+
+**Con commits pendientes:**
+```
+Git:
+  Unpushed: 3 commits
+```
+
+**Útil para:** Recordar hacer push antes de cerrar la PC
+
+---
+
+### Ejemplo Completo
+```bash
+pm info minecraft-client
+```
+
+**Salida:**
+```
+╔════════════════════════════════╗
+║  ProjectManager v1.0.0         ║
+║  Manage your projects          ║
+╚════════════════════════════════╝
+
+
+Project Information
+───────────────────
+
+minecraft-client (Gradle)
+  Path: C:\projects\minecraft-client
+  Modified: 2 hours ago
+  Commands: 4
+
+  Git:
+    Branch: feature/new-commands
+    Status: 2 modified, 1 untracked
+    Unpushed: 3 commits
+
+
+Available Commands for minecraft-client
+────────────────────────────────────────
+
+  build  →  gradle build
+  run    →  gradle runClient
+  test   →  gradle test
+  clean  →  gradle clean
+```
+
+---
+
+### Casos de Uso Git Integration
+
+#### Caso 1: Verificar Branch Antes de Trabajar
+```bash
+# ¿En qué branch estoy?
+pm info myproject
+
+# Git:
+#   Branch: master  ← ¡Cuidado! Estás en master
+```
+
+**Evita:** Hacer cambios en la rama equivocada
+
+---
+
+#### Caso 2: Recordar Hacer Commit
+```bash
+pm info myproject
+
+# Git:
+#   Status: 5 modified  ← Tienes cambios sin commitear
+```
+
+**Recuerda:** Hacer commit antes de cerrar sesión
+
+---
+
+#### Caso 3: Recordar Hacer Push
+```bash
+pm info myproject
+
+# Git:
+#   Unpushed: 7 commits  ← ¡Tienes trabajo sin subir!
+```
+
+**Evita:** Perder trabajo si se daña tu PC
+
+---
+
+### Proyectos Sin Git
+
+Si un proyecto **no es un repositorio Git**, simplemente no se muestra la sección Git:
+```
+Project Information
+───────────────────
+
+myproject (Maven)
+  Path: C:\projects\myproject
+  Modified: 1 day ago
+  Commands: 4
+
+Available Commands for myproject
+  build  →  mvn package
+  ...
+```
+
+---
+
+### Requisitos
+
+- **Git instalado** en tu sistema
+- **Proyecto debe ser un repositorio Git** (tener carpeta `.git`)
+
+**Verificar que Git está instalado:**
+```bash
+git --version
+```
+
+Si no está instalado: https://git-scm.com/downloads
+
+---
+
+
+
 ## 💡 Casos de Uso
 
 ### Caso 1: Múltiples Proyectos con Diferentes Tecnologías

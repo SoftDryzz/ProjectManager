@@ -4,7 +4,7 @@
 [![Maven](https://img.shields.io/badge/Maven-3.6+-blue.svg)](https://maven.apache.org/)
 [![Status](https://img.shields.io/badge/Status-In%20Development-yellow.svg)]()
 
-**ProjectManager** es una herramienta CLI para gestionar múltiples proyectos de desarrollo desde un solo lugar. Detecta automáticamente el tipo de proyecto y unifica los comandos de build, ejecución y testing.
+**ProjectManager** es una herramienta CLI para gestionar múltiples proyectos de desarrollo desde un solo lugar. Detecta automáticamente el tipo de proyecto, unifica los comandos de build/ejecución/testing, y muestra información de Git.
 
 > ⚠️ **En Desarrollo Activo:** Este proyecto está en construcción y muchas funcionalidades están siendo implementadas.
 
@@ -17,21 +17,23 @@
 - 📦 **Gestión centralizada** - todos tus proyectos en un solo lugar
 - ⚡ **Ejecución rápida** de builds, tests y comandos personalizados
 - 💾 **Persistencia** - configuración guardada en JSON
+- 🌿 **Integración Git** - ve branch, status y commits pendientes
 - 🌐 **Multi-plataforma** - Windows, Linux y Mac
 
 ---
 
 ## 📋 Requisitos
 
-- Java 17 o superior
+- Java 17 o superior (recomendado: Java 21 LTS)
 - Maven 3.6 o superior
+- Git (opcional, para mostrar información de repositorios)
 
 ---
 
 ## 🚀 Instalación Rápida
 ```bash
 # 1. Clonar repositorio
-git clone https://github.com/tu-usuario/ProjectManager.git
+git clone https://github.com/SoftDryzz/ProjectManager.git
 cd ProjectManager
 
 # 2. Compilar
@@ -61,7 +63,7 @@ pm version
 | `pm run <name>` | Ejecutar un proyecto |
 | `pm test <name>` | Ejecutar tests |
 | `pm commands <name>` | Ver comandos disponibles |
-| `pm info <name>` | Ver información detallada |
+| `pm info <name>` | Ver información detallada (incluye Git) |
 | `pm remove <name>` | Eliminar proyecto |
 | `pm scan <name>` | 🚧 Escanear comandos (en desarrollo) |
 | `pm help` | Mostrar ayuda |
@@ -78,14 +80,30 @@ pm list
 # Compilar proyecto
 pm build minecraft-client
 
-# Ejecutar proyecto
-pm run minecraft-client
-
-# Ver comandos disponibles
-pm commands minecraft-client
-
-# Ver información completa
+# Ver información completa con Git
 pm info minecraft-client
+```
+
+**Ejemplo de salida con Git:**
+```
+Project Information
+───────────────────
+
+minecraft-client (Gradle)
+  Path: /home/user/projects/minecraft-client
+  Modified: 5 minutes ago
+  Commands: 4
+
+  Git:
+    Branch: feature/new-commands
+    Status: 2 modified, 1 untracked
+    Unpushed: 3 commits
+
+Available Commands
+  build  →  gradle build
+  run    →  gradle runClient
+  test   →  gradle test
+  clean  →  gradle clean
 ```
 
 ---
@@ -112,11 +130,13 @@ ProjectManager/
 │   ├── detector/                 # Detección de tipo
 │   ├── executor/                 # Ejecución de comandos
 │   ├── storage/                  # Persistencia JSON
-│   └── util/                     # Utilidades
+│   └── util/                     # Utilidades (Git, Adapters)
 ├── scripts/
 │   ├── install.ps1               # Instalador Windows
 │   ├── install.sh                # Instalador Linux/Mac
 │   └── INSTALL.md                # Documentación
+├── docs/
+│   └── USER_GUIDE.md             # Guía de usuario completa
 └── pom.xml
 ```
 
@@ -130,6 +150,18 @@ Los proyectos se guardan en:
 
 ---
 
+## 🌿 Integración Git
+
+ProjectManager muestra automáticamente información de Git cuando usas `pm info`:
+
+- **Branch actual** - sabe en qué rama estás trabajando
+- **Working tree status** - archivos modificados, staged, sin seguimiento
+- **Commits pendientes** - cuántos commits no has pusheado
+
+**Solo se muestra si el proyecto es un repositorio Git.**
+
+---
+
 ## 🚧 Roadmap
 
 ### ✅ Completado
@@ -138,13 +170,15 @@ Los proyectos se guardan en:
 - [x] Comandos: add, list, build, run, test, info, remove
 - [x] Persistencia en JSON
 - [x] Instaladores multi-plataforma
+- [x] Guía de usuario completa
+- [x] Integración con Git (branch, status, commits pendientes)
+- [x] GitHub Actions (CI/CD)
 
 ### 🔨 En Desarrollo
 - [ ] Comando `scan` para detectar anotaciones @Command
-- [ ] Integración con Git
+- [ ] Alias de comandos personalizados
 - [ ] Variables de entorno por proyecto
 - [ ] Hooks pre/post comandos
-- [ ] Alias de comandos personalizados
 - [ ] Tests unitarios
 
 ---
@@ -178,7 +212,7 @@ Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detall
 ## 🙏 Agradecimientos
 
 - Anthropic Claude por asistencia en desarrollo
-- Comunidad de Java y Maven 
+- Comunidad de Java y Maven
 
 ---
 
