@@ -9,26 +9,26 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
- * Formateador de salida con colores ANSI para la interfaz CLI.
+ * Output formatter with ANSI colors for the CLI interface.
  *
- * <p>Proporciona métodos para mostrar mensajes formateados con colores
- * y estilos consistentes en toda la aplicación.
+ * <p>Provides methods for displaying formatted messages with consistent
+ * colors and styles throughout the application.
  *
- * <p>Colores disponibles:
+ * <p>Available colors:
  * <ul>
- *   <li>Verde: mensajes de éxito</li>
- *   <li>Rojo: mensajes de error</li>
- *   <li>Amarillo: advertencias</li>
- *   <li>Azul: información</li>
- *   <li>Cyan: datos destacados (rutas, valores)</li>
- *   <li>Gris: información secundaria</li>
+ * <li>Green: success messages</li>
+ * <li>Red: error messages</li>
+ * <li>Yellow: warnings</li>
+ * <li>Blue: information</li>
+ * <li>Cyan: highlighted data (paths, values)</li>
+ * <li>Gray: secondary information</li>
  * </ul>
  *
- * <p>Ejemplo de uso:
+ * <p>Usage example:
  * <pre>{@code
- * OutputFormatter.success("Proyecto creado exitosamente");
- * OutputFormatter.error("No se pudo encontrar el archivo");
- * OutputFormatter.info("Compilando proyecto...");
+ * OutputFormatter.success("Project created successfully");
+ * OutputFormatter.error("Could not find the file");
+ * OutputFormatter.info("Compiling project...");
  * }</pre>
  *
  * @author SoftDryzz
@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class OutputFormatter {
 
-    // Códigos de color ANSI
+    // ANSI color codes
     public static final String GREEN = "\u001B[32m";
     public static final String RED = "\u001B[31m";
     public static final String YELLOW = "\u001B[33m";
@@ -48,45 +48,45 @@ public class OutputFormatter {
     public static final String RESET = "\u001B[0m";
 
     /**
-     * Muestra un mensaje de éxito (verde, con ✓).
+     * Displays a success message (green, with ✓).
      *
-     * @param message mensaje a mostrar
+     * @param message message to display
      */
     public static void success(String message) {
         System.out.println(GREEN + "✅ " + message + RESET);
     }
 
     /**
-     * Muestra un mensaje de error (rojo, con ✗).
+     * Displays an error message (red, with ✗).
      *
-     * @param message mensaje a mostrar
+     * @param message message to display
      */
     public static void error(String message) {
         System.out.println(RED + "❌ " + message + RESET);
     }
 
     /**
-     * Muestra una advertencia (amarillo, con ⚠).
+     * Displays a warning (yellow, with ⚠).
      *
-     * @param message mensaje a mostrar
+     * @param message message to display
      */
     public static void warning(String message) {
         System.out.println(YELLOW + "⚠️  " + message + RESET);
     }
 
     /**
-     * Muestra un mensaje informativo (azul, con ℹ).
+     * Displays an informational message (blue, with ℹ).
      *
-     * @param message mensaje a mostrar
+     * @param message message to display
      */
     public static void info(String message) {
         System.out.println(BLUE + "ℹ️  " + message + RESET);
     }
 
     /**
-     * Muestra un encabezado de sección (negrita, cyan, con subrayado).
+     * Displays a section header (bold, cyan, with underline).
      *
-     * @param title título de la sección
+     * @param title section title
      */
     public static void section(String title) {
         System.out.println();
@@ -96,44 +96,44 @@ public class OutputFormatter {
     }
 
     /**
-     * Muestra información de un proyecto en formato legible.
+     * Displays project information in a readable format.
      *
-     * @param project proyecto a mostrar
+     * @param project project to display
      */
     public static void printProject(Project project) {
         System.out.println(BOLD + project.name() + RESET + " " +
                 GRAY + "(" + project.type().displayName() + ")" + RESET);
         System.out.println("  Path: " + CYAN + project.path() + RESET);
 
-        // Mostrar última modificación
+        // Show last modification
         Instant lastMod = project.lastModified();
         Duration ago = Duration.between(lastMod, Instant.now());
         String timeAgo = formatDuration(ago);
         System.out.println("  Modified: " + GRAY + timeAgo + " ago" + RESET);
 
-        // Mostrar comandos
+        // Show commands
         if (project.commandCount() > 0) {
             System.out.println("  Commands: " + project.commandCount());
         }
 
-        // Mostrar variables de entorno
+        // Show environment variables
         if (project.envVarCount() > 0) {
             System.out.println("  Environment Variables: " + project.envVarCount());
         }
 
-        // Mostrar información de Git (si es un repo)
+        // Show Git information (if it's a repo)
         printGitInfo(project.path());
 
         System.out.println();
     }
 
     /**
-     * Muestra información de Git si el proyecto es un repositorio.
+     * Displays Git information if the project is a repository.
      *
-     * @param projectPath ruta del proyecto
+     * @param projectPath project path
      */
     private static void printGitInfo(Path projectPath) {
-        // Verificar si es un repositorio Git
+        // Check if it's a Git repository
         if (!GitIntegration.isGitRepository(projectPath)) {
             return;
         }
@@ -141,13 +141,13 @@ public class OutputFormatter {
         System.out.println();
         System.out.println("  " + BOLD + "Git:" + RESET);
 
-        // Branch actual
+        //Current Branch
         String branch = GitIntegration.getCurrentBranch(projectPath);
         if (branch != null) {
             System.out.println("    Branch: " + GREEN + branch + RESET);
         }
 
-        // Estado (archivos modificados, etc)
+        // Status (modified files, etc.)
         GitIntegration.GitStatus status = GitIntegration.getStatus(projectPath);
         if (status != null) {
             if (status.isClean()) {
@@ -157,7 +157,7 @@ public class OutputFormatter {
             }
         }
 
-        // Commits pendientes de push
+        // Commits pending push
         int commitsAhead = GitIntegration.getCommitsAhead(projectPath);
         if (commitsAhead > 0) {
             System.out.println("    Unpushed: " + YELLOW + commitsAhead + " commit" +
@@ -168,9 +168,9 @@ public class OutputFormatter {
     }
 
     /**
-     * Muestra una lista de proyectos en formato tabla.
+     * Displays a list of projects in table format.
      *
-     * @param projects mapa de proyectos (nombre → proyecto)
+     * @param projects map of projects (name → project)
      */
     public static void printProjectList(Map<String, Project> projects) {
         if (projects.isEmpty()) {
@@ -192,9 +192,9 @@ public class OutputFormatter {
     }
 
     /**
-     * Muestra los comandos disponibles de un proyecto.
+     * Displays available commands for a project.
      *
-     * @param project proyecto del cual mostrar comandos
+     * @param project project to show commands for
      */
     public static void printCommands(Project project) {
         if (project.commandCount() == 0) {
@@ -207,26 +207,26 @@ public class OutputFormatter {
         System.out.println("─".repeat(Math.max(40, "Available Commands for ".length() + project.name().length())));
         System.out.println();
 
-        // Calcular padding para alinear las flechas
+        // Calculate padding to align the arrows
         int maxCommandLength = project.commands().keySet().stream()
                 .mapToInt(String::length)
                 .max()
                 .orElse(0);
 
-        // Mostrar cada comando
+        // Show each command
         project.commands().forEach((name, command) -> {
             String padding = " ".repeat(maxCommandLength - name.length());
             System.out.println("  " + GREEN + name + RESET + padding + " → " + CYAN + command + RESET);
         });
 
-        // Mostrar variables de entorno si existen
+        // Show environment variables if they exist
         printEnvVars(project);
     }
 
     /**
-     * Muestra las variables de entorno de un proyecto.
+     * Displays the environment variables of a project.
      *
-     * @param project proyecto del cual mostrar variables
+     * @param project project to show variables for
      */
     public static void printEnvVars(Project project) {
         if (project.envVarCount() == 0) {
@@ -238,13 +238,13 @@ public class OutputFormatter {
         System.out.println("─".repeat(Math.max(40, "Environment Variables".length())));
         System.out.println();
 
-        // Calcular padding para alinear
+        // Calculate padding to align
         int maxKeyLength = project.envVars().keySet().stream()
                 .mapToInt(String::length)
                 .max()
                 .orElse(0);
 
-        // Mostrar cada variable
+        // Show each variable
         project.envVars().forEach((key, value) -> {
             String padding = " ".repeat(maxKeyLength - key.length());
             System.out.println("  " + GREEN + key + RESET + padding + " = " + CYAN + value + RESET);
@@ -252,18 +252,18 @@ public class OutputFormatter {
     }
 
     /**
-     * Formatea una duración en un string legible.
+     * Formats a duration into a readable string.
      *
-     * <p>Ejemplos:
+     * <p>Examples:
      * <ul>
-     *   <li>45 segundos → "45 seconds"</li>
-     *   <li>2 minutos → "2 minutes"</li>
-     *   <li>1 hora → "1 hour"</li>
-     *   <li>3 días → "3 days"</li>
+     * <li>45 seconds → "45 seconds"</li>
+     * <li>2 minutes → "2 minutes"</li>
+     * <li>1 hour → "1 hour"</li>
+     * <li>3 days → "3 days"</li>
      * </ul>
      *
-     * @param duration duración a formatear
-     * @return string formateado
+     * @param duration duration to format
+     * @return formatted string
      */
     private static String formatDuration(Duration duration) {
         long seconds = duration.getSeconds();

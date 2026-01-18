@@ -18,7 +18,7 @@ import static pm.util.Constants.CONFIG_DIR;
 import static pm.util.Constants.PROJECTS_FILE;
 
 /**
- * Gestor de persistencia de proyectos usando JSON.
+ * Project persistence manager using JSON.
  */
 public class ProjectStore {
 
@@ -31,12 +31,12 @@ public class ProjectStore {
     }
 
     /**
-     * Guarda todos los proyectos en JSON.
+     * Saves all projects to JSON.
      */
     public void save(Map<String, Project> projects) throws IOException {
         ensureConfigDirExists();
 
-        // Convertir Projects a DTOs
+        // Convert Projects to DTOs
         Map<String, ProjectDTO> dtos = new HashMap<>();
         for (Map.Entry<String, Project> entry : projects.entrySet()) {
             dtos.put(entry.getKey(), ProjectDTO.fromProject(entry.getValue()));
@@ -47,7 +47,7 @@ public class ProjectStore {
     }
 
     /**
-     * Carga todos los proyectos desde JSON.
+     * Loads all projects from JSON.
      */
     public Map<String, Project> load() throws IOException {
         if (!Files.exists(PROJECTS_FILE)) {
@@ -61,7 +61,7 @@ public class ProjectStore {
 
         Map<String, ProjectDTO> dtos = gson.fromJson(json, typeToken.getType());
 
-        // Convertir DTOs a Projects
+        // Convert DTOs to Projects
         Map<String, Project> projects = new HashMap<>();
         if (dtos != null) {
             for (Map.Entry<String, ProjectDTO> entry : dtos.entrySet()) {
@@ -73,7 +73,7 @@ public class ProjectStore {
     }
 
     /**
-     * Guarda un proyecto específico.
+     * Saves a specific project.
      */
     public void saveProject(Project project) throws IOException {
         Map<String, Project> projects = load();
@@ -82,7 +82,7 @@ public class ProjectStore {
     }
 
     /**
-     * Elimina un proyecto.
+     * Deletes a project.
      */
     public boolean removeProject(String projectName) throws IOException {
         Map<String, Project> projects = load();
@@ -96,7 +96,7 @@ public class ProjectStore {
     }
 
     /**
-     * Busca un proyecto por nombre.
+     * Finds a project by name.
      */
     public Project findProject(String projectName) throws IOException {
         Map<String, Project> projects = load();
@@ -104,7 +104,7 @@ public class ProjectStore {
     }
 
     /**
-     * Crea el directorio de configuración si no existe.
+     * Creates the configuration directory if it does not exist.
      */
     private void ensureConfigDirExists() throws IOException {
         if (!Files.exists(CONFIG_DIR)) {
@@ -113,19 +113,19 @@ public class ProjectStore {
     }
 
     /**
-     * DTO (Data Transfer Object) para serialización JSON.
-     * Usa tipos simples que Gson puede manejar sin problemas.
+     * DTO (Data Transfer Object) for JSON serialization.
+     * Uses simple types that Gson can handle without issues.
      */
     private static class ProjectDTO {
         String name;
-        String path;  // String en vez de Path
-        String type;  // String en vez de ProjectType
+        String path;          // String instead of Path
+        String type;          // String instead of ProjectType
         Map<String, String> commands;
-        String lastModified;  // String en vez de Instant
+        String lastModified;  // String instead of Instant
         Map<String, String> envVars;
 
         /**
-         * Convierte un Project a DTO.
+         * Converts a Project to DTO.
          */
         static ProjectDTO fromProject(Project project) {
             ProjectDTO dto = new ProjectDTO();
@@ -139,7 +139,7 @@ public class ProjectStore {
         }
 
         /**
-         * Convierte un DTO a Project.
+         * Converts a DTO to Project.
          */
         Project toProject() {
             Project project = new Project(

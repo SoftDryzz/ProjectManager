@@ -17,30 +17,30 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- * Clase principal de ProjectManager - CLI para gestionar múltiples proyectos.
+ * Main class for ProjectManager - CLI to manage multiple projects.
  *
- * <p><b>¿Qué hace ProjectManager?</b>
+ * <p><b>What does ProjectManager do?</b>
  * <ul>
- *   <li>Registra proyectos de diferentes tipos (Java, C#, Node.js, etc)</li>
- *   <li>Detecta automáticamente el tipo de proyecto</li>
- *   <li>Ejecuta comandos (build, run, test) sin recordar sintaxis específica</li>
- *   <li>Escanea código fuente para encontrar comandos (ej: @Command en Minecraft)</li>
- *   <li>Mantiene un registro centralizado de todos tus proyectos</li>
+ * <li>Registers projects of different types (Java, C#, Node.js, etc.)</li>
+ * <li>Automatically detects the project type</li>
+ * <li>Executes commands (build, run, test) without remembering specific syntax</li>
+ * <li>Scans source code to find commands (e.g., @Command in Minecraft)</li>
+ * <li>Maintains a centralized registry of all your projects</li>
  * </ul>
  *
- * <p><b>Comandos disponibles:</b>
- * * <pre>
- *  * pm add NAME --path PATH          Register new project
- *  * pm list                          List all projects
- *  * pm build NAME                    Build project
- *  * pm run NAME                      Run project
- *  * pm test NAME                     Run tests
- *  * pm scan NAME                     Scan for commands in code
- *  * pm commands NAME                 List available commands
- *  * pm remove NAME                   Remove project
- *  * pm info NAME                     Show project information
- *  * pm help                          Show help
- *  * </pre>
+ * <p><b>Available commands:</b>
+ * <pre>
+ * * pm add NAME --path PATH          Register new project
+ * * pm list                          List all projects
+ * * pm build NAME                    Build project
+ * * pm run NAME                      Run project
+ * * pm test NAME                     Run tests
+ * * pm scan NAME                     Scan for commands in code
+ * * pm commands NAME                 List available commands
+ * * pm remove NAME                   Remove project
+ * * pm info NAME                     Show project information
+ * * pm help                          Show help
+ * </pre>
  *
  * @author SoftDryzz
  * @version 1.0.0
@@ -48,15 +48,15 @@ import java.util.Map;
  */
 public class ProjectManager {
 
-    // Instancias de servicios (pattern: dependency injection manual)
+    // Service instances (manual dependency injection pattern)
     private static final ProjectStore store = new ProjectStore();
     private static final ProjectTypeDetector detector = new ProjectTypeDetector();
     private static final CommandExecutor executor = new CommandExecutor();
 
     /**
-     * Punto de entrada de la aplicación.
+     * Application entry point.
      *
-     * @param args argumentos de línea de comandos
+     * @param args command-line arguments
      */
     public static void main(String[] args) {
         printBanner();
@@ -88,7 +88,7 @@ public class ProjectManager {
                 }
             }
         } catch (Exception e) {
-            // Capturar cualquier excepción no manejada
+            // Capture any unhandled exceptions
             OutputFormatter.error("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             System.exit(1);
@@ -96,29 +96,30 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: ADD (Registrar nuevo proyecto)
+    // COMMAND: ADD (Register new project)
     // ============================================================
 
     /**
-     * Handler para el comando "add".
-     * Registra un nuevo proyecto en ProjectManager.
+     * Handler for the "add" command.
+     * Registers a new project in ProjectManager.
      *
      * <p>Usage: {@code pm add NAME --path PATH [--type TYPE]}
      *
-     * <p>Proceso:
+     * <p>Process:
      * <ol>
-     *   <li>Validar argumentos (nombre y path son obligatorios)</li>
-     *   <li>Validar que el path existe y es un directorio</li>
-     *   <li>Detectar tipo de proyecto (o usar --type si se especifica)</li>
-     *   <li>Crear objeto Project</li>
-     *   <li>Configurar comandos por defecto</li>
-     *   <li>Guardar en projects.json</li>
-     *   <li>Confirmar al usuario</li>
+     * <li>Validate arguments (name and path are required)</li>
+     * <li>Validate that path exists and is a directory</li>
+     * <li>Detect project type (or use --type if specified)</li>
+     * <li>Create Project object</li>
+     * <li>Configure default commands</li>
+     * <li>Save to projects.json</li>
+     * <li>Confirm to the user</li>
      * </ol>
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
-    private static void handleAdd(String[] args) {// Parsear argumentos
+    private static void handleAdd(String[] args) {
+        // Parse arguments
         ArgsParser parser = new ArgsParser(args);
 
         String name = parser.getPositional(1);
@@ -137,65 +138,65 @@ public class ProjectManager {
             System.exit(1);
         }
 
-    // Expandir ~ a home directory
-            String expandedPath = pathFlag.replace("~", System.getProperty("user.home"));
-            Path projectPath = Paths.get(expandedPath).toAbsolutePath().normalize();
+        // Expand ~ to home directory
+        String expandedPath = pathFlag.replace("~", System.getProperty("user.home"));
+        Path projectPath = Paths.get(expandedPath).toAbsolutePath().normalize();
 
-    // Verificar que el path existe
-            if (!Files.exists(projectPath)) {
-                OutputFormatter.error("Path does not exist: " + projectPath);
+        // Verify path exists
+        if (!Files.exists(projectPath)) {
+            OutputFormatter.error("Path does not exist: " + projectPath);
+            System.exit(1);
+        }
+
+        if (!Files.isDirectory(projectPath)) {
+            OutputFormatter.error("Path is not a directory: " + projectPath);
+            System.exit(1);
+        }
+
+        // Verify project doesn't already exist
+        try {
+            Project existing = store.findProject(name);
+            if (existing != null) {
+                OutputFormatter.error("Project '" + name + "' already exists");
                 System.exit(1);
             }
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to check existing projects: " + e.getMessage());
+            System.exit(1);
+        }
 
-            if (!Files.isDirectory(projectPath)) {
-                OutputFormatter.error("Path is not a directory: " + projectPath);
-                System.exit(1);
-            }
+        System.out.println();
+        OutputFormatter.info("Detecting project type...");
+        System.out.println();
 
-    // Verificar que el proyecto no existe ya
-            ProjectStore store = new ProjectStore();
+        // Detect project type
+        ProjectType detectedType;
+        if (typeFlag != null && !typeFlag.isBlank()) {
             try {
-                Project existing = store.findProject(name);
-                if (existing != null) {
-                    OutputFormatter.error("Project '" + name + "' already exists");
-                    System.exit(1);
-                }
-            } catch (IOException e) {
-                OutputFormatter.error("Failed to check existing projects: " + e.getMessage());
+                detectedType = ProjectType.valueOf(typeFlag.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                OutputFormatter.error("Invalid project type: " + typeFlag);
+                System.out.println("Valid types: GRADLE, MAVEN, NODEJS, DOTNET, PYTHON");
                 System.exit(1);
+                return;
             }
+        } else {
+            detectedType = ProjectTypeDetector.detect(projectPath);
+        }
 
-            System.out.println();
-            OutputFormatter.info("Detecting project type...");
-            System.out.println();
+        // Create project
+        Project project = new Project(name, projectPath, detectedType);
 
-    // Detectar tipo de proyecto
-            ProjectType detectedType;
-            if (typeFlag != null && !typeFlag.isBlank()) {
-                try {
-                    detectedType = ProjectType.valueOf(typeFlag.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    OutputFormatter.error("Invalid project type: " + typeFlag);
-                    System.out.println("Valid types: GRADLE, MAVEN, NODEJS, DOTNET, PYTHON");
-                    System.exit(1);
-                    return;
-                }
-            } else {
-                detectedType = ProjectTypeDetector.detect(projectPath);
-            }
+        // Configure default commands based on type
+        CommandConfigurator.configureDefaultCommands(project);
 
-    // Crear proyecto
-            Project project = new Project(name, projectPath, detectedType);
+        // Configure environment variables if provided
+        String envFlag = parser.getFlag("env");
+        if (envFlag != null && !envFlag.isBlank()) {
+            parseAndSetEnvVars(project, envFlag);
+        }
 
-    // Configurar comandos por defecto según el tipo
-            CommandConfigurator.configureDefaultCommands(project);
-
-    // Configurar variables de entorno si se proporcionaron
-            String envFlag = parser.getFlag("env");
-            if (envFlag != null && !envFlag.isBlank()) {
-                parseAndSetEnvVars(project, envFlag);
-            }
-        // Guardar proyecto
+        // Save project
         try {
             store.saveProject(project);
 
@@ -219,23 +220,23 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: LIST (Listar proyectos)
+    // COMMAND: LIST (List projects)
     // ============================================================
 
     /**
-     * Handler para el comando "list".
-     * Lista todos los proyectos registrados.
+     * Handler for the "list" command.
+     * Lists all registered projects.
      *
-     * <p>Uso: pm list
+     * <p>Usage: pm list
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
     private static void handleList(String[] args) {
         try {
-            // Cargar todos los proyectos
+            // Load all projects
             Map<String, Project> projects = store.load();
 
-            // Usar OutputFormatter para mostrar
+            // Use OutputFormatter to display
             OutputFormatter.printProjectList(projects);
 
         } catch (IOException e) {
@@ -245,30 +246,30 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: BUILD (Compilar proyecto)
+    // COMMAND: BUILD (Build project)
     // ============================================================
 
     /**
-     * Handler para el comando "build".
-     * Compila el proyecto especificado.
+     * Handler for the "build" command.
+     * Compiles the specified project.
      *
      * <p>Usage: {@code pm build NAME}
      *
-     * <p>Proceso:
+     * <p>Process:
      * <ol>
-     *   <li>Buscar proyecto por nombre</li>
-     *   <li>Obtener comando "build"</li>
-     *   <li>Ejecutar en el directorio del proyecto</li>
-     *   <li>Mostrar output en tiempo real</li>
-     *   <li>Reportar éxito/fallo</li>
+     * <li>Find project by name</li>
+     * <li>Retrieve "build" command</li>
+     * <li>Execute in the project directory</li>
+     * <li>Show output in real-time</li>
+     * <li>Report success/failure</li>
      * </ol>
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
     private static void handleBuild(String[] args) {
         ArgsParser parser = new ArgsParser(args);
 
-        // Obtener nombre del proyecto
+        // Get project name
         String projectName = parser.getPositional(1);
         if (projectName == null || projectName.isBlank()) {
             OutputFormatter.error("Project name is required");
@@ -277,7 +278,7 @@ public class ProjectManager {
         }
 
         try {
-            // Buscar proyecto
+            // Find project
             Project project = store.findProject(projectName);
             if (project == null) {
                 OutputFormatter.error("Project '" + projectName + "' not found");
@@ -285,7 +286,7 @@ public class ProjectManager {
                 System.exit(1);
             }
 
-            // Obtener comando build
+            // Get build command
             String buildCommand = project.getCommand("build");
             if (buildCommand == null) {
                 OutputFormatter.error("No 'build' command configured for this project");
@@ -293,7 +294,7 @@ public class ProjectManager {
                 System.exit(1);
             }
 
-            // Mostrar información
+            // Display info
             System.out.println();
             OutputFormatter.info("Building " + projectName + "...");
             System.out.println("Command: " + buildCommand);
@@ -302,7 +303,7 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            // Ejecutar con variables de entorno si están configuradas
+            // Execute with env vars if configured
             CommandExecutor.ExecutionResult result;
             if (project.envVarCount() > 0) {
                 result = executor.execute(buildCommand, project.path(), 300, project.envVars());
@@ -310,7 +311,7 @@ public class ProjectManager {
                 result = executor.execute(buildCommand, project.path(), 300);
             }
 
-            // Mostrar resultado
+            // Show result
             System.out.println();
             System.out.println("─".repeat(60));
             System.out.println();
@@ -335,16 +336,16 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: RUN (Ejecutar proyecto)
+    // COMMAND: RUN (Run project)
     // ============================================================
 
     /**
-     * Handler para el comando "run".
-     * Ejecuta el proyecto especificado.
+     * Handler for the "run" command.
+     * Executes the specified project.
      *
      * <p>Usage: {@code pm run NAME}
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
     private static void handleRun(String[] args) {
         ArgsParser parser = new ArgsParser(args);
@@ -377,8 +378,7 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            // Ejecutar con variables de entorno si están configuradas
-
+            // Execute with env vars if configured
             CommandExecutor.ExecutionResult result;
             if (project.envVarCount() > 0) {
                 result = executor.execute(runCommand, project.path(), 0, project.envVars());
@@ -409,16 +409,16 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: TEST (Ejecutar tests)
+    // COMMAND: TEST (Run tests)
     // ============================================================
 
     /**
-     * Handler para el comando "test".
-     * Ejecuta los tests del proyecto.
+     * Handler for the "test" command.
+     * Executes the project's tests.
      *
      * <p>Usage: {@code pm test NAME}
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
     private static void handleTest(String[] args) {
         ArgsParser parser = new ArgsParser(args);
@@ -451,12 +451,12 @@ public class ProjectManager {
             System.out.println();
 
 
-            // Ejecutar con variables de entorno si están configuradas
+            // Execute with env vars if configured
             CommandExecutor.ExecutionResult result;
             if (project.envVarCount() > 0) {
                 result = executor.execute(testCommand, project.path(), 600, project.envVars());
             } else {
-                result = executor.execute(testCommand, project.path(), 600); //timeout: 10 minutos para tests
+                result = executor.execute(testCommand, project.path(), 600); // timeout: 10 mins for tests
             }
 
             System.out.println();
@@ -482,18 +482,18 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: SCAN (Escanear comandos en código)
+    // COMMAND: SCAN (Scan commands in code)
     // ============================================================
 
     /**
-     * Handler para el comando "scan".
-     * Escanea el código fuente buscando comandos.
+     * Handler for the "scan" command.
+     * Scans source code for commands.
      *
      * <p>Usage: {@code pm scan NAME}
      *
-     * <p>TODO: Implementar scanner de anotaciones @Command
+     * <p>TODO: Implement @Command annotation scanner
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
     private static void handleScan(String[] args) {
         OutputFormatter.info("Scan command - Coming soon");
@@ -502,16 +502,16 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: COMMANDS (Listar comandos disponibles)
+    // COMMAND: COMMANDS (List available commands)
     // ============================================================
 
     /**
-     * Handler para el comando "commands".
-     * Lista los comandos disponibles para un proyecto.
+     * Handler for the "commands" command.
+     * Lists available commands for a project.
      *
      * <p>Usage: {@code pm commands NAME}
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
     private static void handleCommands(String[] args) {
         ArgsParser parser = new ArgsParser(args);
@@ -530,7 +530,7 @@ public class ProjectManager {
                 System.exit(1);
             }
 
-            // Usar OutputFormatter para mostrar comandos
+            // Use OutputFormatter to show commands
             OutputFormatter.printCommands(project);
 
         } catch (IOException e) {
@@ -540,16 +540,16 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: REMOVE (Eliminar proyecto)
+    // COMMAND: REMOVE (Remove project)
     // ============================================================
 
     /**
-     * Handler para el comando "remove".
-     * Elimina un proyecto del registro.
+     * Handler for the "remove" command.
+     * Removes a project from the registry.
      *
      * <p>Usage: {@code pm remove NAME}
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
     private static void handleRemove(String[] args) {
         ArgsParser parser = new ArgsParser(args);
@@ -562,14 +562,14 @@ public class ProjectManager {
         }
 
         try {
-            // Verificar que existe
+            // Verify project exists
             Project project = store.findProject(projectName);
             if (project == null) {
                 OutputFormatter.error("Project '" + projectName + "' not found");
                 System.exit(1);
             }
 
-            // Confirmar eliminación (a menos que se use --force)
+            // Confirm removal (unless --force flag is used)
             if (!parser.hasFlag("force")) {
                 System.out.println("About to remove project:");
                 System.out.println("  Name: " + project.name());
@@ -587,7 +587,7 @@ public class ProjectManager {
                 }
             }
 
-            // Eliminar
+            // Remove project
             boolean removed = store.removeProject(projectName);
 
             if (removed) {
@@ -603,16 +603,16 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // COMANDO: INFO (Mostrar información del proyecto)
+    // COMMAND: INFO (Show project information)
     // ============================================================
 
     /**
-     * Handler para el comando "info".
-     * Muestra información detallada de un proyecto.
+     * Handler for the "info" command.
+     * Shows detailed project information.
      *
      * <p>Usage: {@code pm info NAME}
      *
-     * @param args argumentos del comando
+     * @param args command arguments
      */
     private static void handleInfo(String[] args) {
         ArgsParser parser = new ArgsParser(args);
@@ -631,7 +631,7 @@ public class ProjectManager {
                 System.exit(1);
             }
 
-            // Mostrar información detallada
+            // Show detailed info
             OutputFormatter.section("Project Information");
             OutputFormatter.printProject(project);
             OutputFormatter.printCommands(project);
@@ -643,7 +643,7 @@ public class ProjectManager {
     }
 
     // ============================================================
-    // OUTPUT Y AYUDA
+    // OUTPUT AND HELP
     // ============================================================
 
     private static void printBanner() {
@@ -686,13 +686,14 @@ public class ProjectManager {
         System.out.println("ProjectManager " + Constants.VERSION);
         System.out.println("Java " + System.getProperty("java.version"));
     }
+
     /**
-     * Parsea y configura variables de entorno desde un string.
+     * Parses and configures environment variables from a string.
      *
-     * Formato esperado: "KEY1=value1,KEY2=value2,KEY3=value3"
+     * Expected format: "KEY1=value1,KEY2=value2,KEY3=value3"
      *
-     * @param project proyecto al que agregar las variables
-     * @param envString string con las variables
+     * @param project project to add variables to
+     * @param envString string containing the variables
      */
     private static void parseAndSetEnvVars(Project project, String envString) {
         if (envString == null || envString.isBlank()) {

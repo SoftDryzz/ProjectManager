@@ -8,16 +8,16 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 /**
- * Detecta automáticamente el tipo de proyecto analizando archivos.
+ * Automatically detects the project type by analyzing files.
  *
- * <p>Estrategia de detección:
+ * <p>Detection strategy:
  * <ul>
- *   <li>Gradle: presencia de build.gradle o build.gradle.kts</li>
- *   <li>Maven: presencia de pom.xml</li>
- *   <li>Node.js: presencia de package.json</li>
- *   <li>.NET: presencia de archivos *.csproj o *.fsproj</li>
- *   <li>Python: presencia de requirements.txt o setup.py</li>
- *   <li>Unknown: ninguno de los anteriores</li>
+ * <li>Gradle: presence of build.gradle or build.gradle.kts</li>
+ * <li>Maven: presence of pom.xml</li>
+ * <li>Node.js: presence of package.json</li>
+ * <li>.NET: presence of *.csproj or *.fsproj files</li>
+ * <li>Python: presence of requirements.txt or setup.py</li>
+ * <li>Unknown: none of the above</li>
  * </ul>
  *
  * @author SoftDryzz
@@ -27,14 +27,14 @@ import java.util.stream.Stream;
 public class ProjectTypeDetector {
 
     /**
-     * Detecta el tipo de proyecto analizando archivos en el directorio.
+     * Detects the project type by analyzing files in the directory.
      *
-     * @param projectPath ruta al directorio del proyecto
-     * @return tipo de proyecto detectado (nunca null, retorna UNKNOWN si no detecta)
-     * @throws IllegalArgumentException si projectPath es null o no existe
+     * @param projectPath path to the project directory
+     * @return detected project type (never null, returns UNKNOWN if not detected)
+     * @throws IllegalArgumentException if projectPath is null or does not exist
      */
     public static ProjectType detect(Path projectPath) {
-        // Validar argumentos
+        // Validate arguments
         if (projectPath == null) {
             throw new IllegalArgumentException("Project path cannot be null");
         }
@@ -47,9 +47,9 @@ public class ProjectTypeDetector {
             throw new IllegalArgumentException("Project path is not a directory: " + projectPath);
         }
 
-        // Detectar en orden de prioridad
+        // Detect in priority order
 
-        // 1. Gradle (build.gradle o build.gradle.kts)
+        // 1. Gradle (build.gradle or build.gradle.kts)
         if (fileExists(projectPath, Constants.FILE_BUILD_GRADLE) ||
                 fileExists(projectPath, Constants.FILE_BUILD_GRADLE_KTS)) {
             return ProjectType.GRADLE;
@@ -76,16 +76,16 @@ public class ProjectTypeDetector {
             return ProjectType.PYTHON;
         }
 
-        // No se pudo detectar
+        // Could not detect
         return ProjectType.UNKNOWN;
     }
 
     /**
-     * Verifica si existe un archivo con nombre específico en el directorio.
+     * Checks if a file with a specific name exists in the directory.
      *
-     * @param directory directorio donde buscar
-     * @param fileName nombre del archivo a buscar
-     * @return true si el archivo existe, false en caso contrario
+     * @param directory directory to search in
+     * @param fileName name of the file to search for
+     * @return true if the file exists, false otherwise
      */
     private static boolean fileExists(Path directory, String fileName) {
         Path filePath = directory.resolve(fileName);
@@ -93,12 +93,12 @@ public class ProjectTypeDetector {
     }
 
     /**
-     * Verifica si existe algún archivo .csproj en el directorio.
+     * Checks if any .csproj file exists in the directory.
      *
-     * <p>Busca archivos que terminen en .csproj o .fsproj (C# y F#).
+     * <p>Searches for files ending in .csproj or .fsproj (C# and F#).
      *
-     * @param directory directorio donde buscar
-     * @return true si encuentra al menos un archivo de proyecto .NET
+     * @param directory directory to search in
+     * @return true if at least one .NET project file is found
      */
     private static boolean hasCsprojFile(Path directory) {
         try (Stream<Path> files = Files.list(directory)) {

@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.time.Instant;
 
 /**
- * Adapter de Gson para serializar/deserializar objetos Instant.
+ * Gson Adapter for serializing/deserializing Instant objects.
  *
- * Gson no puede serializar Instant directamente en Java 17+
- * debido a restricciones de reflexión del módulo java.base.
+ * Gson cannot serialize Instant directly in Java 17+
+ * due to reflection restrictions in the java.base module.
  *
  * @author SoftDryzz
  * @version 1.0.0

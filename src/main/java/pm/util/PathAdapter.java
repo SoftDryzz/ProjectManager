@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Adapter de Gson para serializar/deserializar objetos Path.
+ * Gson Adapter for serializing/deserializing Path objects.
  *
  * @author SoftDryzz
  * @version 1.0.0
@@ -17,6 +17,13 @@ import java.nio.file.Paths;
  */
 public class PathAdapter extends TypeAdapter<Path> {
 
+    /**
+     * Writes the Path object to JSON as a String.
+     *
+     * @param out the JSON writer
+     * @param value the Path to serialize
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     public void write(JsonWriter out, Path value) throws IOException {
         if (value == null) {
@@ -26,6 +33,13 @@ public class PathAdapter extends TypeAdapter<Path> {
         }
     }
 
+    /**
+     * Reads a String from JSON and converts it back into a Path object.
+     *
+     * @param in the JSON reader
+     * @return the deserialized Path
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     public Path read(JsonReader in) throws IOException {
         String pathString = in.nextString();

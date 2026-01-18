@@ -8,15 +8,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.Map;
 
 /**
- * Ejecuta comandos del sistema operativo.
+ * Executes operating system commands.
  *
- * <p>Responsabilidades:
+ * <p>Responsibilities:
  * <ul>
- *   <li>Ejecutar comandos shell (build, run, test)</li>
- *   <li>Capturar stdout y stderr en tiempo real</li>
- *   <li>Manejar códigos de salida</li>
- *   <li>Ejecutar en el directorio correcto</li>
- *   <li>Manejar timeouts para comandos largos</li>
+ * <li>Execute shell commands (build, run, test)</li>
+ * <li>Capture stdout and stderr in real-time</li>
+ * <li>Handle exit codes</li>
+ * <li>Execute in the correct directory</li>
+ * <li>Handle timeouts for long-running commands</li>
  * </ul>
  *
  * @author SoftDryzz
@@ -26,19 +26,19 @@ import java.util.Map;
 public class CommandExecutor {
 
     /**
-     * Ejecuta un comando del sistema.
+     * Executes a system command.
      *
-     * @param command comando a ejecutar (ej: "gradle build")
-     * @param workingDirectory directorio donde ejecutar
-     * @param timeoutSeconds timeout en segundos (0 = sin timeout)
-     * @return resultado de la ejecución
-     * @throws IOException si falla la ejecución
-     * @throws InterruptedException si el proceso es interrumpido
+     * @param command command to execute (e.g., "gradle build")
+     * @param workingDirectory directory where to execute
+     * @param timeoutSeconds timeout in seconds (0 = no timeout)
+     * @return execution result
+     * @throws IOException if execution fails
+     * @throws InterruptedException if the process is interrupted
      */
     public ExecutionResult execute(String command, Path workingDirectory, long timeoutSeconds)
             throws IOException, InterruptedException {
 
-        // Validar parámetros
+        // Validate parameters
         if (command == null || command.isBlank()) {
             throw new IllegalArgumentException("Command cannot be null or blank");
         }
@@ -47,23 +47,23 @@ public class CommandExecutor {
             throw new IllegalArgumentException("Working directory cannot be null");
         }
 
-        // Detectar sistema operativo para usar el shell correcto
+        // Detect operating system to use the correct shell
         String[] shellCommand = getShellCommand(command);
 
-        // Crear ProcessBuilder
+        // Create ProcessBuilder
         ProcessBuilder processBuilder = new ProcessBuilder(shellCommand);
 
-        // Configurar directorio de trabajo
+        // Set working directory
                 processBuilder.directory(workingDirectory.toFile());
 
-        // Redirigir stderr a stdout para capturar todo el output
+        // Redirect stderr to stdout to capture all output
                 processBuilder.redirectErrorStream(true);
 
-        // Iniciar proceso
+        // Start process
         long startTime = System.currentTimeMillis();
         Process process = processBuilder.start();
 
-        // Crear thread para leer output en tiempo real
+        // Create thread to read output in real-time
         Thread outputReader = new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()))) {
@@ -78,19 +78,19 @@ public class CommandExecutor {
             }
         });
 
-        // Iniciar lectura de output
+        // Start output reading
         outputReader.start();
 
-        // Variable para almacenar el exit code
+        // Variable to store the exit code
         int exitCode;
         boolean finished;
 
-        // Esperar a que termine el proceso (con timeout si se especifica)
+        // Wait for process to finish (with timeout if specified)
         if (timeoutSeconds > 0) {
             finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
 
             if (!finished) {
-                // Timeout alcanzado, matar proceso
+                // Timeout reached, forcibly kill process
                 process.destroyForcibly();
                 outputReader.interrupt();
 
@@ -103,21 +103,21 @@ public class CommandExecutor {
                 );
             }
 
-            // Proceso terminó, obtener exit code
+            // Process finished, get exit code
             exitCode = process.waitFor();
         } else {
-            // Sin timeout, esperar indefinidamente y obtener exit code
+            // No timeout, wait indefinitely and get exit code
             exitCode = process.waitFor();
             finished = true;
         }
 
-        // Esperar a que termine de leer el output
+        // Wait for output reading to finish
         outputReader.join(1000); // Max 1 segundo
 
-        // Calcular duración
+        // Calculate duration
         long duration = System.currentTimeMillis() - startTime;
 
-        // Crear resultado
+        // Create result
         return new ExecutionResult(
                 exitCode == 0,  // success si exitCode es 0
                 exitCode,
@@ -127,13 +127,13 @@ public class CommandExecutor {
     }
 
     /**
-     * Ejecuta un comando sin timeout.
+     * Executes a command without a timeout.
      *
-     * @param command comando a ejecutar
-     * @param workingDirectory directorio donde ejecutar
-     * @return resultado de la ejecución
-     * @throws IOException si falla la ejecución
-     * @throws InterruptedException si el proceso es interrumpido
+     * @param command command to execute
+     * @param workingDirectory directory where to execute
+     * @return execution result
+     * @throws IOException if execution fails
+     * @throws InterruptedException if the process is interrupted
      */
     public ExecutionResult execute(String command, Path workingDirectory)
             throws IOException, InterruptedException {
@@ -141,12 +141,12 @@ public class CommandExecutor {
     }
 
     /**
-     * Obtiene el comando shell según el sistema operativo.
+     * Gets the shell command based on the operating system.
      *
-     * <p>En Windows usa cmd.exe, en Unix usa sh.
+     * <p>Uses cmd.exe on Windows, sh on Unix.
      *
-     * @param command comando a ejecutar
-     * @return array con el comando shell apropiado
+     * @param command command to execute
+     * @return array with the appropriate shell command
      */
     private String[] getShellCommand(String command) {
         String os = System.getProperty("os.name").toLowerCase();
@@ -160,20 +160,20 @@ public class CommandExecutor {
         }
     }
     /**
-     * Ejecuta un comando del sistema con variables de entorno personalizadas.
+     * Executes a system command with custom environment variables.
      *
-     * @param command comando a ejecutar
-     * @param workingDirectory directorio donde ejecutar
-     * @param timeoutSeconds timeout en segundos (0 = sin timeout)
-     * @param envVars variables de entorno adicionales
-     * @return resultado de la ejecución
-     * @throws IOException si falla la ejecución
-     * @throws InterruptedException si el proceso es interrumpido
+     * @param command command to execute
+     * @param workingDirectory directory where to execute
+     * @param timeoutSeconds timeout in seconds (0 = no timeout)
+     * @param envVars additional environment variables
+     * @return execution result
+     * @throws IOException if execution fails
+     * @throws InterruptedException if the process is interrupted
      */
     public ExecutionResult execute(String command, Path workingDirectory, long timeoutSeconds, Map<String, String> envVars)
             throws IOException, InterruptedException {
 
-        // Validar parámetros
+        // Validate parameters
         if (command == null || command.isBlank()) {
             throw new IllegalArgumentException("Command cannot be null or blank");
         }
@@ -182,36 +182,36 @@ public class CommandExecutor {
             throw new IllegalArgumentException("Working directory cannot be null");
         }
 
-        // Detectar sistema operativo para usar el shell correcto
+        // Detect operating system to use the correct shell
         String[] shellCommand = getShellCommand(command);
 
-        // Crear ProcessBuilder
+        // Create ProcessBuilder
         ProcessBuilder processBuilder = new ProcessBuilder(shellCommand);
 
-        // Configurar directorio de trabajo
+        // Set working directory
         processBuilder.directory(workingDirectory.toFile());
 
-        // Agregar variables de entorno personalizadas
+        // Add custom environment variables
         if (envVars != null && !envVars.isEmpty()) {
             Map<String, String> environment = processBuilder.environment();
             environment.putAll(envVars);
         }
 
-        // Redirigir stderr a stdout para capturar todo el output
+        // Redirect stderr to stdout to capture all output
         processBuilder.redirectErrorStream(true);
 
-        // Iniciar proceso
+        // Start process
         long startTime = System.currentTimeMillis();
         Process process = processBuilder.start();
 
-        // Crear thread para leer output en tiempo real
+        // Create thread to read output in real-time
         Thread outputReader = new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()))) {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // Mostrar output en tiempo real
+                    // Show output in real-time
                     System.out.println(line);
                 }
             } catch (IOException e) {
@@ -219,19 +219,19 @@ public class CommandExecutor {
             }
         });
 
-        // Iniciar lectura de output
+        // Start output reading
         outputReader.start();
 
-        // Variable para almacenar el exit code
+        // Variable to store the exit code
         int exitCode;
         boolean finished;
 
-        // Esperar a que termine el proceso (con timeout si se especifica)
+        // Wait for process to finish (with timeout if specified)
         if (timeoutSeconds > 0) {
             finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
 
             if (!finished) {
-                // Timeout alcanzado, matar proceso
+                // Timeout reached, forcibly kill process
                 process.destroyForcibly();
                 outputReader.interrupt();
 
@@ -244,21 +244,21 @@ public class CommandExecutor {
                 );
             }
 
-            // Proceso terminó, obtener exit code
+            // Process finished, get exit code
             exitCode = process.waitFor();
         } else {
-            // Sin timeout, esperar indefinidamente y obtener exit code
+            // No timeout, wait indefinitely and get exit code
             exitCode = process.waitFor();
             finished = true;
         }
 
-        // Esperar a que termine de leer el output
+        // Wait for output reading to finish
         outputReader.join(1000); // Max 1 segundo
 
-        // Calcular duración
+        // Calculate duration
         long duration = System.currentTimeMillis() - startTime;
 
-        // Crear resultado
+        // Create result
         return new ExecutionResult(
                 exitCode == 0,  // success si exitCode es 0
                 exitCode,
@@ -268,20 +268,20 @@ public class CommandExecutor {
     }
 
     /**
-     * Resultado de la ejecución de un comando.
+     * Result of a command execution.
      *
-     * <p>Record inmutable que contiene:
+     * <p>Immutable record containing:
      * <ul>
-     *   <li>success - si el comando terminó exitosamente</li>
-     *   <li>exitCode - código de salida del proceso</li>
-     *   <li>durationMs - duración en milisegundos</li>
-     *   <li>message - mensaje descriptivo</li>
+     * <li>success - if the command finished successfully</li>
+     * <li>exitCode - process exit code</li>
+     * <li>durationMs - duration in milliseconds</li>
+     * <li>message - descriptive message</li>
      * </ul>
      *
-     * @param success true si exitCode == 0
-     * @param exitCode código de salida del proceso
-     * @param durationMs duración en milisegundos
-     * @param message mensaje descriptivo
+     * @param success true if exitCode == 0
+     * @param exitCode process exit code
+     * @param durationMs duration in milliseconds
+     * @param message descriptive message
      */
     public record ExecutionResult(
             boolean success,
@@ -290,18 +290,18 @@ public class CommandExecutor {
             String message
     ) {
         /**
-         * Obtiene la duración en segundos.
+         * Gets the duration in seconds.
          *
-         * @return duración en segundos (redondeado)
+         * @return duration in seconds (rounded)
          */
         public long durationSeconds() {
             return durationMs / 1000;
         }
 
         /**
-         * Formatea la duración de forma legible.
+         * Formats the duration in a readable way.
          *
-         * @return string con formato "Xs" o "Xm Ys"
+         * @return string with format "Xs" or "Xm Ys"
          */
         public String formattedDuration() {
             long seconds = durationMs / 1000;

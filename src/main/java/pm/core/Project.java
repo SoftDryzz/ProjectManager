@@ -10,21 +10,21 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Representa un proyecto registrado en ProjectManager.
+ * Represents a project registered in ProjectManager.
  *
- * <p>Un proyecto contiene:
+ * <p>A project contains:
  * <ul>
- *   <li>Nombre único identificador</li>
- *   <li>Ruta en el sistema de archivos</li>
- *   <li>Tipo de proyecto (Gradle, Maven, etc)</li>
- *   <li>Mapa de comandos disponibles (build, run, test, etc)</li>
- *   <li>Timestamp de última modificación</li>
+ * <li>Unique identifying name</li>
+ * <li>Path in the file system</li>
+ * <li>Project type (Gradle, Maven, etc.)</li>
+ * <li>Map of available commands (build, run, test, etc.)</li>
+ * <li>Last modification timestamp</li>
  * </ul>
  *
- * <p>La clase es inmutable en sus campos core (name, path, type).
- * Los comandos pueden ser agregados/modificados dinámicamente.
+ * <p>The class is immutable in its core fields (name, path, type).
+ * Commands can be added/modified dynamically.
  *
- * <p>Ejemplo de uso:
+ * <p>Usage example:
  * <pre>{@code
  * Path projectPath = Paths.get("/home/user/myapp");
  * Project project = new Project("myapp", projectPath, ProjectType.GRADLE);
@@ -41,49 +41,49 @@ import java.util.Objects;
 public final class Project {
 
     /**
-     * Nombre único del proyecto.
-     * Usado como identificador para ejecutar comandos (ej: pm build myapp).
-     * Inmutable después de la creación.
+     * Unique project name.
+     * Used as an identifier to execute commands (e.g., pm build myapp).
+     * Immutable after creation.
      */
     private final String name;
 
     /**
-     * Ruta absoluta del proyecto en el sistema de archivos.
-     * Apunta al directorio raíz del proyecto.
-     * Inmutable después de la creación.
+     * Absolute project path in the file system.
+     * Points to the root directory of the project.
+     * Immutable after creation.
      */
     private final Path path;
 
     /**
-     * Tipo de proyecto (Gradle, Maven, Node.js, etc).
-     * Determina qué comandos por defecto se usan.
-     * Inmutable después de la creación.
+     * Project type (Gradle, Maven, Node.js, etc.).
+     * Determines which default commands are used.
+     * Immutable after creation.
      */
     private final ProjectType type;
 
     /**
-     * Mapa de comandos disponibles para este proyecto.
-     * Key: nombre del comando (ej: "build", "run", "test")
-     * Value: comando shell a ejecutar (ej: "gradle build")
+     * Map of available commands for this project.
+     * Key: command name (e.g., "build", "run", "test")
+     * Value: shell command to execute (e.g., "gradle build")
      *
-     * Puede ser modificado con addCommand() y removeCommand().
+     * Can be modified using addCommand() and removeCommand().
      */
     private final Map<String, String> commands;
 
     /**
-     * Timestamp de la última modificación del proyecto.
-     * Se actualiza automáticamente cuando se agregan/quitan comandos.
+     * Timestamp of the project's last modification.
+     * Automatically updated when commands are added or removed.
      */
     private Instant lastModified;
     private Map<String, String> envVars;
 
     /**
-     * Crea un nuevo proyecto.
+     * Creates a new project.
      *
-     * @param name nombre único del proyecto (no puede ser null)
-     * @param path ruta absoluta del proyecto (no puede ser null)
-     * @param type tipo de proyecto (no puede ser null)
-     * @throws NullPointerException si algún parámetro es null
+     * @param name unique project name (cannot be null)
+     * @param path absolute project path (cannot be null)
+     * @param type project type (cannot be null)
+     * @throws IllegalArgumentException if name or file are empty, or line is negative
      */
     public Project(String name, Path path, ProjectType type) {
         if (name == null || name.isBlank()) {
@@ -105,70 +105,70 @@ public final class Project {
     }
 
     // ============================================================
-    // GETTERS (estilo moderno sin prefijo 'get')
+    // GETTERS (modern style without 'get' prefix)
     // ============================================================
 
     /**
-     * Obtiene el nombre del proyecto.
+     * Gets the project name.
      *
-     * @return nombre del proyecto
+     * @return project name
      */
     public String name() {
         return name;
     }
 
     /**
-     * Obtiene la ruta del proyecto.
+     * Gets the project path.
      *
-     * @return ruta absoluta del directorio del proyecto
+     * @return absolute path of the project directory
      */
     public Path path() {
         return path;
     }
 
     /**
-     * Obtiene el tipo de proyecto.
+     * Gets the project type.
      *
-     * @return tipo de proyecto (GRADLE, MAVEN, etc)
+     * @return project type (GRADLE, MAVEN, etc.)
      */
     public ProjectType type() {
         return type;
     }
 
     /**
-     * Obtiene una copia inmutable del mapa de comandos.
+     * Gets an immutable copy of the commands map.
      *
-     * Los cambios en el Map retornado NO afectan el proyecto.
-     * Usar addCommand() para agregar comandos.
+     * Changes to the returned Map do NOT affect the project.
+     * Use addCommand() to add commands.
      *
-     * @return copia inmutable de los comandos disponibles
+     * @return immutable copy of available commands
      */
     public Map<String, String> commands() {
         return Map.copyOf(commands);
     }
 
     /**
-     * Obtiene el timestamp de última modificación.
+     * Gets the last modification timestamp.
      *
-     * @return instante de la última modificación
+     * @return instant of the last modification
      */
     public Instant lastModified() {
         return lastModified;
     }
 
     // ============================================================
-    // GESTIÓN DE COMANDOS
+    // COMMAND MANAGEMENT
     // ============================================================
 
     /**
-     * Agrega un comando al proyecto.
+     * Adds a command to the project.
      *
-     * Si ya existe un comando con el mismo nombre, se sobrescribe.
-     * Actualiza automáticamente el timestamp de modificación.
+     * If a command with the same name already exists, it is overwritten.
+     * Automatically updates the modification timestamp.
      *
-     * @param commandName nombre del comando (ej: "build", "run")
-     * @param commandLine línea de comando a ejecutar (ej: "gradle build")
-     * @throws NullPointerException si algún parámetro es null
+     * @param commandName command name (e.g., "build", "run")
+     * @param commandLine command line to execute (e.g., "gradle build")
+     * @throws NullPointerException if any parameter is null
      */
     public void addCommand(String commandName, String commandLine) {
         Objects.requireNonNull(commandName, "Command name cannot be null");
@@ -179,32 +179,32 @@ public final class Project {
     }
 
     /**
-     * Obtiene el comando asociado a un nombre.
+     * Gets the command associated with a name.
      *
-     * @param commandName nombre del comando a buscar
-     * @return línea de comando, o null si no existe
+     * @param commandName name of the command to find
+     * @return command line, or null if it does not exist
      */
     public String getCommand(String commandName) {
         return commands.get(commandName);
     }
 
     /**
-     * Verifica si existe un comando con el nombre dado.
+     * Checks if a command with the given name exists.
      *
-     * @param commandName nombre del comando a verificar
-     * @return true si el comando existe, false en caso contrario
+     * @param commandName name of the command to check
+     * @return true if the command exists, false otherwise
      */
     public boolean hasCommand(String commandName) {
         return commands.containsKey(commandName);
     }
 
     /**
-     * Elimina un comando del proyecto.
+     * Removes a command from the project.
      *
-     * Si el comando no existe, no hace nada.
-     * Actualiza el timestamp de modificación.
+     * Does nothing if the command does not exist.
+     * Updates the modification timestamp.
      *
-     * @param commandName nombre del comando a eliminar
+     * @param commandName name of the command to remove
      */
     public void removeCommand(String commandName) {
         commands.remove(commandName);
@@ -212,24 +212,24 @@ public final class Project {
     }
 
     /**
-     * Obtiene la cantidad de comandos registrados.
+     * Gets the number of registered commands.
      *
-     * @return número de comandos disponibles
+     * @return number of available commands
      */
     public int commandCount() {
         return commands.size();
     }
 
     // ============================================================
-    // MÉTODOS OBJECT
+    // OBJECT METHODS
     // ============================================================
 
     /**
-     * Representación en string del proyecto.
+     * String representation of the project.
      *
-     * Formato: Project{name='...', type=..., path=...}
+     * Format: Project{name='...', type=..., path=...}
      *
-     * @return representación textual del proyecto
+     * @return textual representation of the project
      */
     @Override
     public String toString() {
@@ -238,13 +238,13 @@ public final class Project {
     }
 
     /**
-     * Compara este proyecto con otro objeto.
+     * Compares this project with another object.
      *
-     * Dos proyectos son iguales si tienen el mismo nombre y path.
-     * El tipo y comandos no afectan la igualdad.
+     * Two projects are equal if they have the same name and path.
+     * Type and commands do not affect equality.
      *
-     * @param obj objeto a comparar
-     * @return true si son iguales, false en caso contrario
+     * @param obj object to compare
+     * @return true if they are equal, false otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -255,21 +255,21 @@ public final class Project {
     }
 
     /**
-     * Genera el código hash del proyecto.
+     * Generates the project's hash code.
      *
-     * Basado en name y path (consistente con equals).
+     * Based on name and path (consistent with equals).
      *
-     * @return código hash
+     * @return hash code
      */
     @Override
     public int hashCode() {
         return Objects.hash(name, path);
     }
     /**
-     * Agrega o actualiza una variable de entorno.
+     * Adds or updates an environment variable.
      *
-     * @param key nombre de la variable
-     * @param value valor de la variable
+     * @param key variable name
+     * @param value variable value
      */
     public void addEnvVar(String key, String value) {
         if (key == null || key.isBlank()) {
@@ -284,30 +284,30 @@ public final class Project {
     }
 
     /**
-     * Obtiene una variable de entorno.
+     * Gets an environment variable.
      *
-     * @param key nombre de la variable
-     * @return valor de la variable o null si no existe
+     * @param key variable name
+     * @return variable value or null if it doesn't exist
      */
     public String getEnvVar(String key) {
         return this.envVars.get(key);
     }
 
     /**
-     * Verifica si existe una variable de entorno.
+     * Checks if an environment variable exists.
      *
-     * @param key nombre de la variable
-     * @return true si existe
+     * @param key variable name
+     * @return true if it exists
      */
     public boolean hasEnvVar(String key) {
         return this.envVars.containsKey(key);
     }
 
     /**
-     * Elimina una variable de entorno.
+     * Removes an environment variable.
      *
-     * @param key nombre de la variable
-     * @return true si se eliminó
+     * @param key variable name
+     * @return true if it was removed
      */
     public boolean removeEnvVar(String key) {
         boolean removed = this.envVars.remove(key) != null;
@@ -318,18 +318,18 @@ public final class Project {
     }
 
     /**
-     * Obtiene todas las variables de entorno.
+     * Gets all environment variables.
      *
-     * @return mapa inmutable de variables
+     * @return immutable map of variables
      */
     public Map<String, String> envVars() {
         return Map.copyOf(this.envVars);
     }
 
     /**
-     * Obtiene la cantidad de variables de entorno configuradas.
+     * Gets the number of configured environment variables.
      *
-     * @return cantidad de variables
+     * @return count of variables
      */
     public int envVarCount() {
         return this.envVars.size();

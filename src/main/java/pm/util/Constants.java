@@ -4,15 +4,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Constantes globales de la aplicación ProjectManager.
+ * Global constants for the ProjectManager application.
  *
- * Esta clase centraliza todos los valores constantes usados en el proyecto:
- * - Rutas de archivos y directorios de configuración
- * - Comandos por defecto para diferentes tipos de proyecto
- * - Nombres de archivos para detección de tipo de proyecto
+ * This class centralizes all constant values used in the project:
+ * - File paths and configuration directories
+ * - Default commands for different project types
+ * - File names for project type detection
  *
- * La clase es final y tiene constructor privado para prevenir instanciación
- * (patrón utility class).
+ * The class is final and has a private constructor to prevent instantiation
+ * (utility class pattern).
  *
  * @author SoftDryzz
  * @version 1.0.0
@@ -21,215 +21,215 @@ import java.nio.file.Paths;
 public final class Constants {
 
     /**
-     * Constructor privado para prevenir instanciación.
-     * Esta clase solo contiene constantes estáticas.
+     * Private constructor to prevent instantiation.
+     * This class only contains static constants.
      *
-     * @throws AssertionError siempre, para indicar que no se debe instanciar
+     * @throws AssertionError always, to indicate that it should not be instantiated
      */
     private Constants() {
         throw new AssertionError("Constants class cannot be instantiated");
     }
 
     // ============================================================
-    // VERSIÓN DE LA APLICACIÓN
+    // APPLICATION VERSION
     // ============================================================
 
     /**
-     * Versión actual de ProjectManager.
-     * Sigue Semantic Versioning (MAJOR.MINOR.PATCH).
+     * Current version of ProjectManager.
+     * Follows Semantic Versioning (MAJOR.MINOR.PATCH).
      */
     public static final String VERSION = "1.0.0";
 
     // ============================================================
-    // DIRECTORIOS Y ARCHIVOS DEL SISTEMA
+    // SYSTEM DIRECTORIES AND FILES
     // ============================================================
 
     /**
-     * Directorio home del usuario actual.
-     * Obtenido de la propiedad del sistema "user.home".
+     * Home directory of the current user.
+     * Obtained from the system property "user.home".
      *
-     * Ejemplos:
-     * - Linux/Mac: /home/usuario o /Users/usuario
-     * - Windows: C:\Users\ usuario
+     * Examples:
+     * - Linux/Mac: /home/user or /Users/user
+     * - Windows: C:\Users\ user
      */
     public static final Path HOME = Paths.get(System.getProperty("user.home"));
 
     /**
-     * Directorio de configuración de ProjectManager.
-     * Se crea en: ~/.projectmanager/
+     * Configuration directory for ProjectManager.
+     * Created at: ~/.projectmanager/
      *
-     * Aquí se almacenan:
-     * - projects.json (lista de proyectos registrados)
-     * - cache/ (caché de escaneos)
-     * - logs/ (logs de ejecución)
+     * Stored here:
+     * - projects.json (list of registered projects)
+     * - cache/ (scan cache)
+     * - logs/ (execution logs)
      */
     public static final Path CONFIG_DIR = HOME.resolve(".projectmanager");
 
     /**
-     * Archivo JSON que contiene la lista de proyectos registrados.
-     * Ruta: ~/.projectmanager/projects.json
+     * JSON file containing the list of registered projects.
+     * Path: ~/.projectmanager/projects.json
      *
-     * Estructura del archivo:
+     * File structure:
      * {
-     *   "minecraft-client": {
-     *     "name": "minecraft-client",
-     *     "path": "/home/user/projects/minecraft-client",
-     *     "type": "GRADLE",
-     *     "commands": {
-     *       "build": "gradle build",
-     *       "run": "gradle runClient"
-     *     }
-     *   }
+     * "minecraft-client": {
+     * "name": "minecraft-client",
+     * "path": "/home/user/projects/minecraft-client",
+     * "type": "GRADLE",
+     * "commands": {
+     * "build": "gradle build",
+     * "run": "gradle runClient"
+     * }
+     * }
      * }
      */
     public static final Path PROJECTS_FILE = CONFIG_DIR.resolve("projects.json");
 
     /**
-     * Directorio de caché para almacenar resultados de escaneos.
-     * Ruta: ~/.projectmanager/cache/
+     * Cache directory to store scanning results.
+     * Path: ~/.projectmanager/cache/
      *
-     * Se usa para evitar re-escanear proyectos grandes.
+     * Used to avoid re-scanning large projects.
      */
     public static final Path CACHE_DIR = CONFIG_DIR.resolve("cache");
 
     // ============================================================
-    // COMANDOS POR DEFECTO - GRADLE
+    // DEFAULT COMMANDS - GRADLE
     // ============================================================
 
     /**
-     * Comando por defecto para compilar proyectos Gradle.
-     * Ejecuta todas las tareas de compilación y genera el JAR.
+     * Default command to compile Gradle projects.
+     * Executes all build tasks and generates the JAR.
      */
     public static final String BUILD_GRADLE = "gradle build";
 
     /**
-     * Comando por defecto para ejecutar proyectos Gradle.
-     * Usa la tarea "run" definida en build.gradle.
+     * Default command to run Gradle projects.
+     * Uses the "run" task defined in build.gradle.
      */
     public static final String RUN_GRADLE = "gradle run";
 
     /**
-     * Comando por defecto para ejecutar tests en proyectos Gradle.
-     * Ejecuta todos los tests con JUnit.
+     * Default command to run tests in Gradle projects.
+     * Executes all tests using JUnit.
      */
     public static final String TEST_GRADLE = "gradle test";
 
     /**
-     * Comando para limpiar archivos generados en proyectos Gradle.
-     * Borra el directorio build/.
+     * Command to clean generated files in Gradle projects.
+     * Deletes the build/ directory.
      */
     public static final String CLEAN_GRADLE = "gradle clean";
 
     // ============================================================
-    // COMANDOS POR DEFECTO - MAVEN
+    // DEFAULT COMMANDS - MAVEN
     // ============================================================
 
     /**
-     * Comando por defecto para compilar proyectos Maven.
-     * Ejecuta las fases: compile, test, package.
+     * Default command to compile Maven projects.
+     * Executes phases: compile, test, package.
      */
     public static final String BUILD_MAVEN = "mvn package";
 
     /**
-     * Comando por defecto para ejecutar proyectos Maven.
-     * Usa el plugin exec-maven-plugin.
-     * Requiere configuración en pom.xml.
+     * Default command to run Maven projects.
+     * Uses the exec-maven-plugin.
+     * Requires configuration in pom.xml.
      */
     public static final String RUN_MAVEN = "mvn exec:java";
 
     /**
-     * Comando por defecto para ejecutar tests en proyectos Maven.
-     * Ejecuta la fase test (JUnit/TestNG).
+     * Default command to run tests in Maven projects.
+     * Executes the test phase (JUnit/TestNG).
      */
     public static final String TEST_MAVEN = "mvn test";
 
     /**
-     * Comando para limpiar archivos generados en proyectos Maven.
-     * Borra el directorio target/.
+     * Command to clean generated files in Maven projects.
+     * Deletes the target/ directory.
      */
     public static final String CLEAN_MAVEN = "mvn clean";
 
     // ============================================================
-    // COMANDOS POR DEFECTO - NODE.JS
+    // DEFAULT COMMANDS - NODE.JS
     // ============================================================
 
     /**
-     * Comando por defecto para compilar proyectos Node.js.
-     * Ejecuta el script "build" definido en package.json.
+     * Default command to compile Node.js projects.
+     * Executes the "build" script defined in package.json.
      */
     public static final String BUILD_NPM = "npm run build";
 
     /**
-     * Comando por defecto para ejecutar proyectos Node.js.
-     * Ejecuta el script "start" definido en package.json.
+     * Default command to run Node.js projects.
+     * Executes the "start" script defined in package.json.
      */
     public static final String RUN_NPM = "npm start";
 
     /**
-     * Comando por defecto para ejecutar tests en proyectos Node.js.
-     * Ejecuta el script "test" (típicamente Jest, Mocha, etc).
+     * Default command to run tests in Node.js projects.
+     * Executes the "test" script (typically Jest, Mocha, etc.).
      */
     public static final String TEST_NPM = "npm test";
 
     // ============================================================
-    // COMANDOS POR DEFECTO - .NET
+    // DEFAULT COMMANDS - .NET
     // ============================================================
 
     /**
-     * Comando por defecto para compilar proyectos .NET (C#/F#).
-     * Compila el proyecto y genera DLL/EXE.
+     * Default command to compile .NET projects (C#/F#).
+     * Compiles the project and generates DLL/EXE.
      */
     public static final String BUILD_DOTNET = "dotnet build";
 
     /**
-     * Comando por defecto para ejecutar proyectos .NET.
-     * Ejecuta la aplicación compilada.
+     * Default command to run .NET projects.
+     * Runs the compiled application.
      */
     public static final String RUN_DOTNET = "dotnet run";
 
     /**
-     * Comando por defecto para ejecutar tests en proyectos .NET.
-     * Usa xUnit, NUnit o MSTest.
+     * Default command to run tests in .NET projects.
+     * Uses xUnit, NUnit, or MSTest.
      */
     public static final String TEST_DOTNET = "dotnet test";
 
     // ============================================================
-    // ARCHIVOS DE DETECCIÓN DE TIPO DE PROYECTO
+    // PROJECT TYPE DETECTION FILES
     // ============================================================
 
     /**
-     * Nombre del archivo de configuración de Gradle.
-     * Si existe este archivo en la raíz del proyecto, es un proyecto Gradle.
+     * Gradle configuration file name.
+     * If this file exists in the project root, it is a Gradle project.
      */
     public static final String FILE_BUILD_GRADLE = "build.gradle";
 
     /**
-     * Nombre del archivo de configuración de Gradle con Kotlin DSL.
-     * Alternativa a build.gradle usando sintaxis Kotlin.
+     * Gradle configuration file name using Kotlin DSL.
+     * Alternative to build.gradle using Kotlin syntax.
      */
     public static final String FILE_BUILD_GRADLE_KTS = "build.gradle.kts";
 
     /**
-     * Nombre del archivo de configuración de Maven.
-     * Si existe este archivo en la raíz del proyecto, es un proyecto Maven.
+     * Maven configuration file name.
+     * If this file exists in the project root, it is a Maven project.
      */
     public static final String FILE_POM_XML = "pom.xml";
 
     /**
-     * Nombre del archivo de configuración de Node.js.
-     * Contiene metadata del proyecto npm y scripts.
+     * Node.js configuration file name.
+     * Contains npm project metadata and scripts.
      */
     public static final String FILE_PACKAGE_JSON = "package.json";
 
     /**
-     * Extensión de archivos de proyecto .NET.
-     * Ejemplos: MyApp.csproj, MyLib.fsproj
+     * Extension for .NET project files.
+     * Examples: MyApp.csproj, MyLib.fsproj
      */
     public static final String FILE_CSPROJ = ".csproj";
 
     /**
-     * Archivo de dependencias de Python.
-     * Contiene lista de paquetes pip necesarios.
+     * Python dependency file.
+     * Contains the list of required pip packages.
      */
     public static final String FILE_REQUIREMENTS_TXT = "requirements.txt";
 }

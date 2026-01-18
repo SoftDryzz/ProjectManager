@@ -1,23 +1,23 @@
 package pm.detector;
 
 /**
- * Enumeración de tipos de proyecto soportados por ProjectManager.
+ * Enumeration of project types supported by ProjectManager.
  *
- * Cada tipo representa un sistema de build o ecosistema de desarrollo diferente.
- * ProjectManager puede auto-detectar el tipo basándose en archivos presentes
- * en el directorio del proyecto.
+ * Each type represents a different build system or development ecosystem.
+ * ProjectManager can auto-detect the type based on files present
+ * in the project directory.
  *
- * <p>Tipos soportados:
+ * <p>Supported types:
  * <ul>
- *   <li>{@link #GRADLE} - Proyectos Java/Kotlin con Gradle</li>
- *   <li>{@link #MAVEN} - Proyectos Java con Maven</li>
- *   <li>{@link #NODEJS} - Proyectos JavaScript/TypeScript con npm</li>
- *   <li>{@link #DOTNET} - Proyectos C#/F# con dotnet CLI</li>
- *   <li>{@link #PYTHON} - Proyectos Python con pip</li>
- *   <li>{@link #UNKNOWN} - Tipo no identificado</li>
+ * <li>{@link #GRADLE} - Java/Kotlin projects with Gradle</li>
+ * <li>{@link #MAVEN} - Java projects with Maven</li>
+ * <li>{@link #NODEJS} - JavaScript/TypeScript projects with npm</li>
+ * <li>{@link #DOTNET} - C#/F# projects with dotnet CLI</li>
+ * <li>{@link #PYTHON} - Python projects with pip</li>
+ * <li>{@link #UNKNOWN} - Unidentified type</li>
  * </ul>
  *
- * <p>Ejemplo de uso:
+ * <p>Usage example:
  * <pre>{@code
  * ProjectType type = ProjectType.GRADLE;
  * System.out.println(type.displayName()); // Output: "Gradle"
@@ -30,81 +30,81 @@ package pm.detector;
 public enum ProjectType {
 
     /**
-     * Proyecto Java/Kotlin que usa Gradle como sistema de build.
+     * Java/Kotlin project using Gradle as the build system.
      *
-     * <p>Detección: Presencia de build.gradle o build.gradle.kts
-     * <p>Comandos típicos: gradle build, gradle run, gradle test
+     * <p>Detection: Presence of build.gradle or build.gradle.kts
+     * <p>Typical commands: gradle build, gradle run, gradle test
      */
     GRADLE("Gradle"),
 
     /**
-     * Proyecto Java que usa Maven como sistema de build.
+     * Java project using Maven as the build system.
      *
-     * <p>Detección: Presencia de pom.xml
-     * <p>Comandos típicos: mvn package, mvn exec:java, mvn test
+     * <p>Detection: Presence of pom.xml
+     * <p>Typical commands: mvn package, mvn exec:java, mvn test
      */
     MAVEN("Maven"),
 
     /**
-     * Proyecto JavaScript/TypeScript que usa npm como gestor de paquetes.
+     * JavaScript/TypeScript project using npm as the package manager.
      *
-     * <p>Detección: Presencia de package.json
-     * <p>Comandos típicos: npm run build, npm start, npm test
+     * <p>Detection: Presence of package.json
+     * <p>Typical commands: npm run build, npm start, npm test
      */
     NODEJS("Node.js"),
 
     /**
-     * Proyecto C#/F# que usa dotnet CLI.
+     * C#/F# project using dotnet CLI.
      *
-     * <p>Detección: Presencia de archivos *.csproj o *.fsproj
-     * <p>Comandos típicos: dotnet build, dotnet run, dotnet test
+     * <p>Detection: Presence of *.csproj or *.fsproj files
+     * <p>Typical commands: dotnet build, dotnet run, dotnet test
      */
     DOTNET(".NET"),
 
     /**
-     * Proyecto Python que usa pip como gestor de paquetes.
+     * Python project using pip as the package manager.
      *
-     * <p>Detección: Presencia de requirements.txt o setup.py
-     * <p>Comandos típicos: pip install -r requirements.txt, python main.py
+     * <p>Detection: Presence of requirements.txt or setup.py
+     * <p>Typical commands: pip install -r requirements.txt, python main.py
      */
     PYTHON("Python"),
 
     /**
-     * Tipo de proyecto desconocido o no soportado.
+     * Unknown or unsupported project type.
      *
-     * <p>Se usa cuando no se puede determinar el tipo automáticamente.
-     * El usuario puede especificar comandos manualmente.
+     * <p>Used when the type cannot be automatically determined.
+     * The user can specify commands manually.
      */
     UNKNOWN("Unknown");
 
     /**
-     * Nombre legible del tipo de proyecto.
-     * Usado para mostrar en la interfaz de usuario.
+     * Readable name of the project type.
+     * Used for display in the user interface.
      */
     private final String displayName;
 
     /**
-     * Constructor del enum.
+     * Enum constructor.
      *
-     * @param displayName nombre legible para mostrar al usuario
+     * @param displayName readable name to show to the user
      */
     ProjectType(String displayName) {
         this.displayName = displayName;
     }
 
     /**
-     * Obtiene el nombre legible del tipo de proyecto.
+     * Gets the readable name of the project type.
      *
-     * @return nombre del tipo de proyecto (ej: "Gradle", "Maven")
+     * @return project type name (e.g., "Gradle", "Maven")
      */
     public String displayName() {
         return displayName;
     }
 
     /**
-     * Verifica si el tipo es conocido (no UNKNOWN).
+     * Checks if the type is known (not UNKNOWN).
      *
-     * @return true si el tipo fue detectado correctamente, false si es UNKNOWN
+     * @return true if the type was correctly detected, false if it is UNKNOWN
      */
     public boolean isKnown() {
         return this != UNKNOWN;

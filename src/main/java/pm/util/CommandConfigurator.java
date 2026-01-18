@@ -4,25 +4,25 @@ import pm.core.Project;
 import pm.detector.ProjectType;
 
 /**
- * Configura comandos por defecto según el tipo de proyecto.
+ * Configures default commands based on the project type.
  *
- * <p>Cada tipo de proyecto tiene comandos estándar:
+ * <p>Each project type has standard commands:
  * <ul>
- *   <li>Gradle: gradle build, gradle run, gradle test</li>
- *   <li>Maven: mvn package, mvn exec:java, mvn test</li>
- *   <li>Node.js: npm run build, npm start, npm test</li>
- *   <li>.NET: dotnet build, dotnet run, dotnet test</li>
+ * <li>Gradle: gradle build, gradle run, gradle test</li>
+ * <li>Maven: mvn package, mvn exec:java, mvn test</li>
+ * <li>Node.js: npm run build, npm start, npm test</li>
+ * <li>.NET: dotnet build, dotnet run, dotnet test</li>
  * </ul>
  *
- * <p>Los comandos se agregan automáticamente al registrar un proyecto.
- * El usuario puede sobrescribirlos después si lo desea.
+ * <p>Commands are automatically added when registering a project.
+ * The user can overwrite them later if desired.
  *
- * <p>Ejemplo de uso:
+ * <p>Usage example:
  * <pre>{@code
  * Project project = new Project("myapp", path, ProjectType.GRADLE);
  * CommandConfigurator.configure(project);
  *
- * // Ahora project tiene comandos:
+ * // Now project has commands:
  * // build -> "gradle build"
  * // run   -> "gradle run"
  * // test  -> "gradle test"
@@ -35,20 +35,20 @@ import pm.detector.ProjectType;
 public class CommandConfigurator {
 
     /**
-     * Constructor privado - clase utility.
+     * Private constructor - utility class.
      */
     private CommandConfigurator() {
         throw new AssertionError("CommandConfigurator cannot be instantiated");
     }
 
     /**
-     * Configura comandos por defecto según el tipo de proyecto.
+     * Configures default commands based on the project type.
      *
-     * <p>Si el proyecto ya tiene comandos, NO se sobrescriben.
-     * Solo se agregan los que faltan.
+     * <p>If the project already has commands, they are NOT overwritten.
+     * Only missing ones are added.
      *
-     * @param project proyecto al que agregar comandos
-     * @throws IllegalArgumentException si project es null
+     * @param project project to add commands to
+     * @throws IllegalArgumentException if project is null
      */
     public static void configureDefaultCommands(Project project) {
         if (project == null) {
@@ -64,16 +64,16 @@ public class CommandConfigurator {
             case DOTNET -> configureDotNet(project);
             case PYTHON -> configurePython(project);
             case UNKNOWN -> {
-                // No configurar comandos para proyectos desconocidos
-                // El usuario tendrá que agregarlos manualmente
+                // Do not configure commands for unknown projects
+                // The user will have to add them manually
             }
         }
     }
 
     /**
-     * Configura comandos para proyectos Gradle.
+     * Configures commands for Gradle projects.
      *
-     * @param project proyecto Gradle
+     * @param project Gradle project
      */
     private static void configureGradle(Project project) {
         addIfAbsent(project, "build", Constants.BUILD_GRADLE);
@@ -83,9 +83,9 @@ public class CommandConfigurator {
     }
 
     /**
-     * Configura comandos para proyectos Maven.
+     * Configures commands for Maven projects.
      *
-     * @param project proyecto Maven
+     * @param project Maven project
      */
     private static void configureMaven(Project project) {
         addIfAbsent(project, "build", Constants.BUILD_MAVEN);
@@ -95,9 +95,9 @@ public class CommandConfigurator {
     }
 
     /**
-     * Configura comandos para proyectos Node.js.
+     * Configures commands for Node.js projects.
      *
-     * @param project proyecto Node.js
+     * @param project Node.js project
      */
     private static void configureNodeJS(Project project) {
         addIfAbsent(project, "build", Constants.BUILD_NPM);
@@ -106,9 +106,9 @@ public class CommandConfigurator {
     }
 
     /**
-     * Configura comandos para proyectos .NET.
+     * Configures commands for .NET projects.
      *
-     * @param project proyecto .NET
+     * @param project .NET project
      */
     private static void configureDotNet(Project project) {
         addIfAbsent(project, "build", Constants.BUILD_DOTNET);
@@ -117,24 +117,24 @@ public class CommandConfigurator {
     }
 
     /**
-     * Configura comandos para proyectos Python.
+     * Configures commands for Python projects.
      *
-     * @param project proyecto Python
+     * @param project Python project
      */
     private static void configurePython(Project project) {
-        // Python no tiene comandos estándar universales
-        // Depende mucho del proyecto (Django, Flask, script simple, etc)
-        // Dejar que el usuario los configure manualmente
+        // Python does not have universal standard commands
+        // It depends heavily on the project (Django, Flask, simple script, etc.)
+        // Let the user configure them manually
     }
 
     /**
-     * Agrega un comando solo si no existe ya.
+     * Adds a command only if it doesn't already exist.
      *
-     * <p>Previene sobrescribir comandos personalizados del usuario.
+     * <p>Prevents overwriting user's custom commands.
      *
-     * @param project proyecto
-     * @param commandName nombre del comando
-     * @param commandLine línea de comando
+     * @param project project
+     * @param commandName command name
+     * @param commandLine command line
      */
     private static void addIfAbsent(Project project, String commandName, String commandLine) {
         if (!project.hasCommand(commandName)) {

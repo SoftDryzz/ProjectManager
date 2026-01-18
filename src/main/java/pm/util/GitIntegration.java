@@ -7,13 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Utilidad para obtener información de Git de un proyecto.
+ * Utility to obtain Git information from a project.
  *
- * <p>Proporciona información como:
+ * <p>Provides information such as:
  * <ul>
- *   <li>Branch actual</li>
- *   <li>Estado de archivos (modificados, sin seguimiento)</li>
- *   <li>Commits pendientes de push</li>
+ * <li>Current branch</li>
+ * <li>File status (modified, untracked)</li>
+ * <li>Commits pending push</li>
  * </ul>
  *
  * @author SoftDryzz
@@ -23,10 +23,10 @@ import java.nio.file.Path;
 public class GitIntegration {
 
     /**
-     * Verifica si un directorio es un repositorio Git.
+     * Checks if a directory is a Git repository.
      *
-     * @param projectPath ruta del proyecto
-     * @return true si existe la carpeta .git
+     * @param projectPath project path
+     * @return true if the .git folder exists
      */
     public static boolean isGitRepository(Path projectPath) {
         Path gitDir = projectPath.resolve(".git");
@@ -34,10 +34,10 @@ public class GitIntegration {
     }
 
     /**
-     * Obtiene el nombre del branch actual.
+     * Gets the name of the current branch.
      *
-     * @param projectPath ruta del proyecto
-     * @return nombre del branch o null si falla
+     * @param projectPath project path
+     * @return branch name or null if it fails
      */
     public static String getCurrentBranch(Path projectPath) {
         try {
@@ -49,10 +49,10 @@ public class GitIntegration {
     }
 
     /**
-     * Obtiene el estado del repositorio (archivos modificados, sin seguimiento, etc).
+     * Gets the repository status (modified files, untracked, etc.).
      *
-     * @param projectPath ruta del proyecto
-     * @return objeto GitStatus con la información
+     * @param projectPath project path
+     * @return GitStatus object with the information
      */
     public static GitStatus getStatus(Path projectPath) {
         try {
@@ -98,10 +98,10 @@ public class GitIntegration {
     }
 
     /**
-     * Obtiene la cantidad de commits pendientes de push.
+     * Gets the number of commits ahead of the remote (pending push).
      *
-     * @param projectPath ruta del proyecto
-     * @return número de commits o -1 si falla
+     * @param projectPath project path
+     * @return number of commits or -1 if it fails
      */
     public static int getCommitsAhead(Path projectPath) {
         try {
@@ -119,11 +119,11 @@ public class GitIntegration {
     }
 
     /**
-     * Ejecuta un comando de Git y retorna el output.
+     * Executes a Git command and returns the output.
      *
-     * @param workingDir directorio donde ejecutar
-     * @param command comando y argumentos
-     * @return output del comando o null si falla
+     * @param workingDir directory where to execute
+     * @param command command and arguments
+     * @return command output or null if it fails
      */
     private static String executeGitCommand(Path workingDir, String... command) {
         try {
@@ -157,7 +157,7 @@ public class GitIntegration {
     }
 
     /**
-     * Clase para representar el estado de Git.
+     * Class to represent the Git status.
      */
     public static class GitStatus {
         private final int modified;

@@ -4,21 +4,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Parser de argumentos de línea de comandos.
+ * Command-line argument parser.
  *
- * <p>Parsea argumentos en formato:
+ * <p>Parses arguments in the format:
  * <pre>
  * pm add myproject --path /home/user/project --type gradle
  * </pre>
  *
- * <p>Extrae:
+ * <p>Extracts:
  * <ul>
- *   <li>Argumentos posicionales (sin --): ["add", "myproject"]</li>
- *   <li>Flags con valor (--path /home/...): {path: "/home/..."}</li>
- *   <li>Flags booleanos (--force): {force: "true"}</li>
+ * <li>Positional arguments (without --): ["add", "myproject"]</li>
+ * <li>Value flags (--path /home/...): {path: "/home/..."}</li>
+ * <li>Boolean flags (--force): {force: "true"}</li>
  * </ul>
  *
- * <p>Ejemplo de uso:
+ * <p>Usage example:
  * <pre>{@code
  * String[] args = {"add", "myapp", "--path", "/home/user/myapp", "--force"};
  * ArgsParser parser = new ArgsParser(args);
@@ -36,57 +36,57 @@ import java.util.Map;
 public class ArgsParser {
 
     /**
-     * Argumentos posicionales (sin --).
-     * Índice 0 = comando, índice 1 = primer argumento, etc.
+     * Positional arguments (without --).
+     * Index 0 = command, index 1 = first argument, etc.
      */
     private final String[] positional;
 
     /**
-     * Flags con sus valores.
-     * Key: nombre del flag (sin --)
-     * Value: valor del flag (o "true" si es booleano)
+     * Flags with their values.
+     * Key: flag name (without --)
+     * Value: flag value (or "true" if it is boolean)
      */
     private final Map<String, String> flags;
 
     /**
      * Constructor.
-     * Parsea los argumentos y los separa en posicionales y flags.
+     * Parses the arguments and separates them into positionals and flags.
      *
-     * @param args argumentos de línea de comandos
+     * @param args command-line arguments
      */
     public ArgsParser(String[] args) {
         this.flags = new HashMap<>();
 
-        // Contar cuántos argumentos posicionales hay
+        // Count how many positional arguments exist
         int positionalCount = 0;
         for (String arg : args) {
             if (!arg.startsWith("--")) {
                 positionalCount++;
             } else {
-                break; // Los posicionales siempre van primero
+                break; // Positionals always come first
             }
         }
 
-        // Extraer argumentos posicionales
+        // Extract positional arguments
         this.positional = new String[positionalCount];
         System.arraycopy(args, 0, positional, 0, positionalCount);
 
-        // Parsear flags (--key value o --flag)
+        // Parse flags (--key value or --flag)
         for (int i = positionalCount; i < args.length; i++) {
             String arg = args[i];
 
             if (arg.startsWith("--")) {
-                // Remover el prefijo "--"
+                // Remove the "--" prefix
                 String key = arg.substring(2);
 
-                // Verificar si tiene valor (siguiente argumento no empieza con --)
+                // Check if it has a value (next argument does not start with --)
                 if (i + 1 < args.length && !args[i + 1].startsWith("--")) {
-                    // Flag con valor: --path /home/user
+                    // Value flag: --path /home/user
                     String value = args[i + 1];
                     flags.put(key, value);
-                    i++; // Saltar el valor
+                    i++; // Skip the value
                 } else {
-                    // Flag booleano: --force
+                    // Boolean flag: --force
                     flags.put(key, "true");
                 }
             }
@@ -94,10 +94,10 @@ public class ArgsParser {
     }
 
     /**
-     * Obtiene un argumento posicional por índice.
+     * Gets a positional argument by index.
      *
-     * @param index índice (0 = primer posicional)
-     * @return argumento o null si no existe
+     * @param index index (0 = first positional)
+     * @return argument or null if it doesn't exist
      */
     public String getPositional(int index) {
         if (index >= 0 && index < positional.length) {
@@ -107,41 +107,41 @@ public class ArgsParser {
     }
 
     /**
-     * Obtiene el valor de un flag.
+     * Gets the value of a flag.
      *
-     * @param key nombre del flag (sin --)
-     * @return valor del flag o null si no existe
+     * @param key flag name (without --)
+     * @return flag value or null if it doesn't exist
      */
     public String getFlag(String key) {
         return flags.get(key);
     }
 
     /**
-     * Obtiene el valor de un flag con valor por defecto.
+     * Gets the value of a flag with a default value.
      *
-     * @param key nombre del flag
-     * @param defaultValue valor por defecto si no existe
-     * @return valor del flag o defaultValue
+     * @param key flag name
+     * @param defaultValue default value if it doesn't exist
+     * @return flag value or defaultValue
      */
     public String getFlag(String key, String defaultValue) {
         return flags.getOrDefault(key, defaultValue);
     }
 
     /**
-     * Verifica si existe un flag.
+     * Checks if a flag exists.
      *
-     * @param key nombre del flag
-     * @return true si el flag existe
+     * @param key flag name
+     * @return true if the flag exists
      */
     public boolean hasFlag(String key) {
         return flags.containsKey(key);
     }
 
     /**
-     * Obtiene un flag como boolean.
+     * Gets a flag as a boolean.
      *
-     * @param key nombre del flag
-     * @return true si el flag existe y no es "false", false en caso contrario
+     * @param key flag name
+     * @return true if the flag exists and is not "false", false otherwise
      */
     public boolean getBooleanFlag(String key) {
         String value = flags.get(key);
@@ -149,9 +149,9 @@ public class ArgsParser {
     }
 
     /**
-     * Obtiene la cantidad de argumentos posicionales.
+     * Gets the total count of positional arguments.
      *
-     * @return cantidad de posicionales
+     * @return count of positionals
      */
     public int positionalCount() {
         return positional.length;
