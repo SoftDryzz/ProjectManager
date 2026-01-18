@@ -96,7 +96,7 @@ pm add project-name --path C:\path\to\your\project
 **Example:**
 
 ```bash
-pm add minecraft-client --path C:\Users\PcVIP\projects\minecraft-client
+pm add web-api --path C:\Users\User\projects\web-api
 
 ```
 
@@ -110,14 +110,14 @@ pm add minecraft-client --path C:\Users\PcVIP\projects\minecraft-client
 
 ℹ️  Detecting project type...
 
-✅ Project 'minecraft-client' registered successfully
+✅ Project 'web-api' registered successfully
 
-  Name: minecraft-client
+  Name: web-api
   Type: Gradle
-  Path: C:\Users\PcVIP\projects\minecraft-client
+  Path: C:\Users\User\projects\web-api
   Commands: 4 configured
 
-Use 'pm commands minecraft-client' to see available commands
+Use 'pm commands web-api' to see available commands
 
 ```
 
@@ -136,8 +136,8 @@ pm list
 Registered Projects (1)
 ───────────────────────
 
-minecraft-client (Gradle)
-  Path: C:\Users\PcVIP\projects\minecraft-client
+web-api (Gradle)
+  Path: C:\Users\User\projects\web-api
   Modified: 2 minutes ago
   Commands: 4
 
@@ -148,7 +148,7 @@ minecraft-client (Gradle)
 ### Step 4: Build Your Project
 
 ```bash
-pm build minecraft-client
+pm build web-api
 
 ```
 
@@ -238,7 +238,7 @@ pm info <name>
 **Example:**
 
 ```bash
-pm info minecraft-client
+pm info web-api
 
 ```
 
@@ -271,18 +271,18 @@ pm cmd <name>
 **Example:**
 
 ```bash
-pm commands minecraft-client
+pm commands web-api
 
 ```
 
 **Output:**
 
 ```
-Available Commands for minecraft-client
+Available Commands for web-api
 ────────────────────────────────────────
 
   build  →  gradle build
-  run    →  gradle runClient
+  run    →  gradle run
   test   →  gradle test
   clean  →  gradle clean
 
@@ -327,7 +327,7 @@ pm build <name>
 **Example:**
 
 ```bash
-pm build minecraft-client
+pm build web-api
 
 ```
 
@@ -345,7 +345,7 @@ pm run <name>
 **Example:**
 
 ```bash
-pm run minecraft-client
+pm run web-api
 
 ```
 
@@ -589,7 +589,7 @@ Git:
 ### Full Example
 
 ```bash
-pm info minecraft-client
+pm info web-api
 
 ```
 
@@ -605,23 +605,23 @@ pm info minecraft-client
 Project Information
 ───────────────────
 
-minecraft-client (Gradle)
-  Path: C:\projects\minecraft-client
+web-api (Gradle)
+  Path: C:\projects\web-api
   Modified: 2 hours ago
   Commands: 4
   Environment Variables: 2
 
   Git:
-    Branch: feature/new-commands
+    Branch: feature/api-endpoints
     Status: 2 modified, 1 untracked
     Unpushed: 3 commits
 
 
-Available Commands for minecraft-client
+Available Commands for web-api
 ────────────────────────────────────────
 
   build  →  gradle build
-  run    →  gradle runClient
+  run    →  gradle run
   test   →  gradle test
   clean  →  gradle clean
 
@@ -755,7 +755,7 @@ pm build project3
 
 ### Case 2: Forgot a Project's Commands
 
-**Problem:** You don't remember if a project uses `gradle run` or `gradle runClient`.
+**Problem:** You don't remember if a project uses `gradle run`.
 
 **Solution:**
 
@@ -833,13 +833,13 @@ ProjectManager saves your project information in:
 
 ```json
 {
-  "minecraft-client": {
-    "name": "minecraft-client",
-    "path": "C:\\Users\\PcVIP\\projects\\minecraft-client",
+  "web-api": {
+    "name": "web-api",
+    "path": "C:\\Users\\User\\projects\\web-api",
     "type": "GRADLE",
     "commands": {
       "build": "gradle build",
-      "run": "gradle runClient",
+      "run": "gradle run",
       "test": "gradle test",
       "clean": "gradle clean"
     },
@@ -993,7 +993,7 @@ pm add project-name --path C:\path --type GRADLE
 1. Verify the path exists: `dir C:\path\to\project`.
 2. Use the full path (not relative):
 * ❌ Bad: `pm add project --path .\my-project`
-* ✅ Good: `pm add project --path C:\Users\PcVIP\projects\my-project`
+* ✅ Good: `pm add project --path C:\Users\User\projects\my-project`
 
 
 3. If using `~`, use the full path on Windows (tildes don't always resolve correctly in all shells).

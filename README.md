@@ -75,19 +75,19 @@ pm version
 
 ```bash
 # Register a project (automatic detection)
-pm add minecraft-client --path ~/projects/minecraft-client
+pm add web-api --path ~/projects/web-api
 
 # Register with environment variables
-pm add api --path ~/api --env "PORT=8080,DEBUG=true,API_KEY=secret"
+pm add web-api --path ~/web-api --env "PORT=8080,DEBUG=true,web-api_KEY=secret"
 
 # List registered projects
 pm list
 
 # Build project (automatically uses environment variables)
-pm build api
+pm build web-api
 
 # View full info with Git and variables
-pm info api
+pm info web-api
 ```
 
 **Example output with Git and Variables:**
@@ -96,8 +96,8 @@ pm info api
 Project Information
 ───────────────────
 
-api (Maven)
-  Path: /home/user/projects/api
+web-api (Maven)
+  Path: /home/user/projects/web-api
   Modified: 5 minutes ago
   Commands: 4
   Environment Variables: 3
@@ -107,7 +107,7 @@ api (Maven)
     Status: 2 modified, 1 untracked
     Unpushed: 3 commits
 
-Available Commands for api
+Available Commands for web-api
 ────────────────────────────
 
   build  →  mvn package

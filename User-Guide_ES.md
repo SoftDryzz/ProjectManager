@@ -68,26 +68,26 @@ pm add nombre-proyecto --path C:\ruta\a\tu\proyecto
 
 **Ejemplo:**
 ```bash
-pm add minecraft-client --path C:\Users\PcVIP\projects\minecraft-client
+pm add web-api --path C:\Users\PcVIP\projects\web-api
 ```
 
 **Salida esperada:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.0.0        ║
-║  Manage your projects          ║
+�? ProjectManager v1.0.0        �?
+�? Manage your projects          �?
 ╚════════════════════════════════╝
 
 ℹ️  Detecting project type...
 
-✅ Project 'minecraft-client' registered successfully
+�?Project 'web-api' registered successfully
 
-  Name: minecraft-client
+  Name: web-api
   Type: Gradle
-  Path: C:\Users\PcVIP\projects\minecraft-client
+  Path: C:\Users\PcVIP\projects\web-api
   Commands: 4 configured
 
-Use 'pm commands minecraft-client' to see available commands
+Use 'pm commands web-api' to see available commands
 ```
 
 ---
@@ -102,8 +102,8 @@ pm list
 Registered Projects (1)
 ───────────────────────
 
-minecraft-client (Gradle)
-  Path: C:\Users\PcVIP\projects\minecraft-client
+web-api (Gradle)
+  Path: C:\Users\PcVIP\projects\web-api
   Modified: 2 minutes ago
   Commands: 4
 ```
@@ -112,7 +112,7 @@ minecraft-client (Gradle)
 
 ### Paso 4: Compilar Tu Proyecto
 ```bash
-pm build minecraft-client
+pm build web-api
 ```
 
 ProjectManager ejecuta el comando de build apropiado (ej: `gradle build`) sin que tengas que recordarlo.
@@ -182,7 +182,7 @@ pm info <nombre>
 
 **Ejemplo:**
 ```bash
-pm info minecraft-client
+pm info web-api
 ```
 
 **Muestra:**
@@ -208,18 +208,18 @@ pm cmd <nombre>
 
 **Ejemplo:**
 ```bash
-pm commands minecraft-client
+pm commands web-api
 ```
 
 **Salida:**
 ```
-Available Commands for minecraft-client
+Available Commands for web-api
 ────────────────────────────────────────
 
-  build  →  gradle build
-  run    →  gradle runClient
-  test   →  gradle test
-  clean  →  gradle clean
+  build  �? gradle build
+  run    �? gradle run
+  test   �? gradle test
+  clean  �? gradle clean
 ```
 
 ---
@@ -252,7 +252,7 @@ pm build <nombre>
 
 **Ejemplo:**
 ```bash
-pm build minecraft-client
+pm build web-api
 ```
 
 Ejecuta el comando de build configurado (ej: `gradle build`, `mvn package`, `npm run build`) **con las variables de entorno automáticamente**.
@@ -266,7 +266,7 @@ pm run <nombre>
 
 **Ejemplo:**
 ```bash
-pm run minecraft-client
+pm run web-api
 ```
 
 Ejecuta el comando de ejecución configurado (ej: `gradle run`, `mvn exec:java`, `npm start`) **con las variables de entorno automáticamente**.
@@ -435,7 +435,7 @@ Git:
 **Working tree limpio:**
 ```
 Git:
-  Status: ✓ Clean working tree
+  Status: �?Clean working tree
 ```
 
 **Con cambios:**
@@ -456,7 +456,7 @@ Git:
 **Sin commits pendientes:**
 ```
 Git:
-  Unpushed: ✓ Up to date
+  Unpushed: �?Up to date
 ```
 
 **Con commits pendientes:**
@@ -471,39 +471,39 @@ Git:
 
 ### Ejemplo Completo
 ```bash
-pm info minecraft-client
+pm info web-api
 ```
 
 **Salida:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.0.0         ║
-║  Manage your projects          ║
+�? ProjectManager v1.0.0         �?
+�? Manage your projects          �?
 ╚════════════════════════════════╝
 
 
 Project Information
 ───────────────────
 
-minecraft-client (Gradle)
-  Path: C:\projects\minecraft-client
+web-api (Gradle)
+  Path: C:\projects\web-api
   Modified: 2 hours ago
   Commands: 4
   Environment Variables: 2
 
   Git:
-    Branch: feature/new-commands
+    Branch: feature/api-endpoints
     Status: 2 modified, 1 untracked
     Unpushed: 3 commits
 
 
-Available Commands for minecraft-client
+Available Commands for web-api
 ────────────────────────────────────────
 
-  build  →  gradle build
-  run    →  gradle runClient
-  test   →  gradle test
-  clean  →  gradle clean
+  build  �? gradle build
+  run    �? gradle run
+  test   �? gradle test
+  clean  �? gradle clean
 
 Environment Variables
 ─────────────────────
@@ -522,7 +522,7 @@ Environment Variables
 pm info myproject
 
 # Git:
-#   Branch: master  ← ¡Cuidado! Estás en master
+#   Branch: master  �?¡Cuidado! Estás en master
 ```
 
 **Evita:** Hacer cambios en la rama equivocada
@@ -534,7 +534,7 @@ pm info myproject
 pm info myproject
 
 # Git:
-#   Status: 5 modified  ← Tienes cambios sin commitear
+#   Status: 5 modified  �?Tienes cambios sin commitear
 ```
 
 **Recuerda:** Hacer commit antes de cerrar sesión
@@ -546,7 +546,7 @@ pm info myproject
 pm info myproject
 
 # Git:
-#   Unpushed: 7 commits  ← ¡Tienes trabajo sin subir!
+#   Unpushed: 7 commits  �?¡Tienes trabajo sin subir!
 ```
 
 **Evita:** Perder trabajo si se daña tu PC
@@ -566,7 +566,7 @@ myproject (Maven)
   Commands: 4
 
 Available Commands for myproject
-  build  →  mvn package
+  build  �? mvn package
   ...
 ```
 
@@ -614,13 +614,13 @@ pm build proyecto2
 pm build proyecto3
 ```
 
-✅ **Mismo comando para todos, sin cambiar de carpeta**
+�?**Mismo comando para todos, sin cambiar de carpeta**
 
 ---
 
 ### Caso 2: Olvidaste los Comandos de un Proyecto
 
-**Problema:** No recuerdas si un proyecto usa `gradle run` o `gradle runClient`.
+**Problema:** No recuerdas si un proyecto usa `gradle run` o `gradle run`.
 
 **Solución:**
 ```bash
@@ -642,7 +642,7 @@ pm test api
 pm run frontend
 ```
 
-✅ **Comandos consistentes para todo el equipo**
+�?**Comandos consistentes para todo el equipo**
 
 ---
 
@@ -663,11 +663,11 @@ pm run api-products  # Puerto 3001
 pm run api-orders    # Puerto 3002
 ```
 
-✅ **No recordar configuraciones, todo automático**
+�?**No recordar configuraciones, todo automático**
 
 ---
 
-## 🗂️ Tipos de Proyecto Soportados
+## 🗂�?Tipos de Proyecto Soportados
 
 | Tipo | Archivos de Detección | Comandos Configurados |
 |------|----------------------|---------------------|
@@ -679,7 +679,7 @@ pm run api-orders    # Puerto 3002
 
 ---
 
-## 🛠️ Configuración Avanzada
+## 🛠�?Configuración Avanzada
 
 ### Ubicación del Archivo de Configuración
 
@@ -691,13 +691,13 @@ ProjectManager guarda la información de tus proyectos en:
 ### Estructura del Archivo `projects.json`
 ```json
 {
-  "minecraft-client": {
-    "name": "minecraft-client",
-    "path": "C:\\Users\\PcVIP\\projects\\minecraft-client",
+  "web-api": {
+    "name": "web-api",
+    "path": "C:\\Users\\PcVIP\\projects\\web-api",
     "type": "GRADLE",
     "commands": {
       "build": "gradle build",
-      "run": "gradle runClient",
+      "run": "gradle run",
       "test": "gradle test",
       "clean": "gradle clean"
     },
@@ -725,13 +725,13 @@ Si necesitas modificar comandos o variables manualmente:
 "envVars": {
   "DEBUG": "true",
   "PORT": "8080",
-  "NEW_VAR": "new_value"  ← Agregado
+  "NEW_VAR": "new_value"  �?Agregado
 }
 ```
 
 ---
 
-## ❓ Preguntas Frecuentes (FAQ)
+## �?Preguntas Frecuentes (FAQ)
 
 ### ¿Dónde se guardan mis proyectos?
 
@@ -867,19 +867,19 @@ Luego elimina `~/bin` del PATH en tu `.bashrc` o `.zshrc`.
 
 2. Usa la ruta completa (no relativa):
 ```bash
-   # ❌ Mal
+   # �?Mal
    pm add proyecto --path .\mi-proyecto
 
-   # ✅ Bien
+   # �?Bien
    pm add proyecto --path C:\Users\PcVIP\projects\mi-proyecto
 ```
 
 3. Si usas `~`, usa la ruta completa en Windows:
 ```bash
-   # ❌ En Windows no funciona bien
+   # �?En Windows no funciona bien
    pm add proyecto --path ~/projects/proyecto
 
-   # ✅ Usa esto
+   # �?Usa esto
    pm add proyecto --path C:\Users\PcVIP\projects\proyecto
 ```
 

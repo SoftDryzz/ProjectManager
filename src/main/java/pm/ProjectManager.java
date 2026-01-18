@@ -17,29 +17,29 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- * Main class for ProjectManager - CLI to manage multiple projects.
+ * Main class of ProjectManager - CLI for managing multiple projects.
  *
  * <p><b>What does ProjectManager do?</b>
  * <ul>
  * <li>Registers projects of different types (Java, C#, Node.js, etc.)</li>
  * <li>Automatically detects the project type</li>
- * <li>Executes commands (build, run, test) without remembering specific syntax</li>
+ * <li>Executes commands (build, run, test) without needing to remember specific syntax</li>
  * <li>Scans source code to find commands (e.g., @Command in Minecraft)</li>
  * <li>Maintains a centralized registry of all your projects</li>
  * </ul>
  *
  * <p><b>Available commands:</b>
  * <pre>
- * * pm add NAME --path PATH          Register new project
- * * pm list                          List all projects
- * * pm build NAME                    Build project
- * * pm run NAME                      Run project
- * * pm test NAME                     Run tests
- * * pm scan NAME                     Scan for commands in code
- * * pm commands NAME                 List available commands
- * * pm remove NAME                   Remove project
- * * pm info NAME                     Show project information
- * * pm help                          Show help
+ * pm add NAME --path PATH [--env VARS]  Register new project
+ * pm list                               List all projects
+ * pm build NAME                         Build project
+ * pm run NAME                           Run project
+ * pm test NAME                          Run tests
+ * pm scan NAME                          Scan for commands in code
+ * pm commands NAME                      List available commands
+ * pm remove NAME                        Remove project
+ * pm info NAME                          Show project information
+ * pm help                               Show help
  * </pre>
  *
  * @author SoftDryzz
@@ -657,29 +657,30 @@ public class ProjectManager {
 
     private static void printHelp() {
         System.out.println("""
-            Usage: pm <command> [options]
-            
-            Commands:
-              add <name> --path <path>    Register a new project
-              list, ls                    List all projects
-              build <name>                Build project
-              run <name>                  Run project
-              test <name>                 Run tests
-              scan <name>                 Scan for commands in code
-              commands, cmd <name>        List available commands
-              remove, rm <name>           Remove project
-              info <name>                 Show project details
-              help                        Show this help
-              version                     Show version
-            
-            Examples:
-              pm add minecraft --path ~/projects/minecraft-client
-              pm list
-              pm build minecraft
-              pm run minecraft
-              pm commands minecraft
-              pm info minecraft
-            """);
+        Usage: pm <command> [options]
+        
+        Commands:
+          add <name> --path <path> [--env <vars>]  Register a new project
+          list, ls                                  List all projects
+          build <name>                              Build project
+          run <name>                                Run project
+          test <name>                               Run tests
+          scan <name>                               Scan for commands in code
+          commands, cmd <name>                      List available commands
+          remove, rm <name>                         Remove project
+          info <name>                               Show project details
+          help                                      Show this help
+          version                                   Show version
+        
+        Examples:
+          pm add backend-api --path ~/projects/backend-api
+          pm add web-server --path ~/projects/web-server --env "PORT=3000,DEBUG=true"
+          pm list
+          pm build backend-api
+          pm run web-server
+          pm commands backend-api
+          pm info web-server
+        """);
     }
 
     private static void printVersion() {

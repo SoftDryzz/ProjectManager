@@ -71,19 +71,22 @@ public final class Constants {
      *
      * File structure:
      * {
-     * "minecraft-client": {
-     * "name": "minecraft-client",
-     * "path": "/home/user/projects/minecraft-client",
-     * "type": "GRADLE",
-     * "commands": {
-     * "build": "gradle build",
-     * "run": "gradle runClient"
-     * }
-     * }
+     *   "backend-api": {
+     *     "name": "backend-api",
+     *     "path": "/home/user/projects/backend-api",
+     *     "type": "MAVEN",
+     *     "commands": {
+     *       "build": "mvn package",
+     *       "run": "mvn exec:java"
+     *     },
+     *     "envVars": {
+     *       "PORT": "8080",
+     *       "DEBUG": "true"
+     *     }
+     *   }
      * }
      */
     public static final Path PROJECTS_FILE = CONFIG_DIR.resolve("projects.json");
-
     /**
      * Cache directory to store scanning results.
      * Path: ~/.projectmanager/cache/

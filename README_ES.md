@@ -76,16 +76,16 @@ pm version
 pm add minecraft-client --path ~/projects/minecraft-client
 
 # Registrar con variables de entorno
-pm add api --path ~/api --env "PORT=8080,DEBUG=true,API_KEY=secret"
+pm add web-api --path ~/web-api --env "PORT=8080,DEBUG=true,web-api_KEY=secret"
 
 # Listar proyectos registrados
 pm list
 
 # Compilar proyecto (usa variables de entorno automáticamente)
-pm build api
+pm build web-api
 
 # Ver información completa con Git y variables
-pm info api
+pm info web-api
 ```
 
 **Ejemplo de salida con Git y Variables:**
@@ -93,8 +93,8 @@ pm info api
 Project Information
 ───────────────────
 
-api (Maven)
-  Path: /home/user/projects/api
+web-api (Maven)
+  Path: /home/user/projects/web-api
   Modified: 5 minutes ago
   Commands: 4
   Environment Variables: 3
@@ -104,7 +104,7 @@ api (Maven)
     Status: 2 modified, 1 untracked
     Unpushed: 3 commits
 
-Available Commands for api
+Available Commands for web-api
 ────────────────────────────
 
   build  →  mvn package
