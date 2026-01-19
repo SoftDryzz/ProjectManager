@@ -2,11 +2,13 @@
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://adoptium.net/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-blue.svg)](https://maven.apache.org/)
-[![Status](https://img.shields.io/badge/Status-In%20Development-yellow.svg)]()
+[![Status](https://img.shields.io/badge/Status-En%20Desarrollo-yellow.svg)]()
 
-**ProjectManager** es una herramienta CLI para gestionar múltiples proyectos de desarrollo desde un solo lugar. Detecta automáticamente el tipo de proyecto, unifica los comandos de build/ejecución/testing, muestra información de Git, y soporta variables de entorno por proyecto.
+**ProjectManager** es una herramienta CLI para gestionar múltiples proyectos de desarrollo desde un solo lugar. Detecta automáticamente el tipo de proyecto y unifica los comandos de build, ejecución y testing.
 
 > ⚠️ **En Desarrollo Activo:** Este proyecto está en construcción y muchas funcionalidades están siendo implementadas.
+
+[🇬🇧 Read in English](README.md)
 
 ---
 
@@ -18,7 +20,7 @@
 - ⚡ **Ejecución rápida** de builds, tests y comandos personalizados
 - 💾 **Persistencia** - configuración guardada en JSON
 - 🌿 **Integración Git** - ve branch, status y commits pendientes
-- 🔧 **Variables de entorno** - configura variables por proyecto
+- 🔧 **Variables de entorno** - configura variables específicas por proyecto
 - 🌐 **Multi-plataforma** - Windows, Linux y Mac
 
 ---
@@ -58,15 +60,16 @@ pm version
 
 | Comando | Descripción |
 |---------|-------------|
-| `pm add <name> --path <path> [--env <vars>]` | Registrar un nuevo proyecto con variables de entorno opcionales |
+| `pm add <nombre> --path <ruta>` | Registrar un nuevo proyecto |
+| `pm add <nombre> --path <ruta> --env "CLAVE=valor,..."` | Registrar proyecto con variables de entorno |
 | `pm list` | Listar todos los proyectos |
-| `pm build <name>` | Compilar un proyecto |
-| `pm run <name>` | Ejecutar un proyecto |
-| `pm test <name>` | Ejecutar tests |
-| `pm commands <name>` | Ver comandos disponibles |
-| `pm info <name>` | Ver información detallada (incluye Git y variables) |
-| `pm remove <name>` | Eliminar proyecto |
-| `pm scan <name>` | 🚧 Escanear comandos (en desarrollo) |
+| `pm build <nombre>` | Compilar un proyecto |
+| `pm run <nombre>` | Ejecutar un proyecto |
+| `pm test <nombre>` | Ejecutar tests |
+| `pm commands <nombre>` | Ver comandos disponibles |
+| `pm info <nombre>` | Ver información detallada |
+| `pm remove <nombre>` | Eliminar proyecto |
+| `pm scan <nombre>` | 🚧 Escanear comandos (en desarrollo) |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
 
@@ -75,27 +78,33 @@ pm version
 # Registrar un proyecto (detección automática)
 pm add minecraft-client --path ~/projects/minecraft-client
 
-# Registrar con variables de entorno
-pm add web-api --path ~/web-api --env "PORT=8080,DEBUG=true,web-api_KEY=secret"
+# Registrar proyecto con variables de entorno
+pm add mi-api --path ~/projects/mi-api --env "PORT=8080,DEBUG=true,API_KEY=secreto"
 
 # Listar proyectos registrados
 pm list
 
-# Compilar proyecto (usa variables de entorno automáticamente)
-pm build web-api
+# Compilar proyecto
+pm build minecraft-client
 
-# Ver información completa con Git y variables
-pm info web-api
+# Ejecutar proyecto (usa las variables de entorno configuradas automáticamente)
+pm run mi-api
+
+# Ver comandos disponibles
+pm commands minecraft-client
+
+# Ver información completa con Git
+pm info minecraft-client
 ```
 
-**Ejemplo de salida con Git y Variables:**
+**Ejemplo de salida con Git y Variables de Entorno:**
 ```
 Project Information
 ───────────────────
 
-web-api (Maven)
-  Path: /home/user/projects/web-api
-  Modified: 5 minutes ago
+mi-api (Maven)
+  Path: /home/user/projects/mi-api
+  Modified: hace 5 minutos
   Commands: 4
   Environment Variables: 3
 
@@ -104,20 +113,16 @@ web-api (Maven)
     Status: 2 modified, 1 untracked
     Unpushed: 3 commits
 
-Available Commands for web-api
-────────────────────────────
-
+Available Commands
   build  →  mvn package
   run    →  mvn exec:java
   test   →  mvn test
   clean  →  mvn clean
 
 Environment Variables
-─────────────────────
-
   PORT    = 8080
   DEBUG   = true
-  API_KEY = secret
+  API_KEY = secreto
 ```
 
 ---
@@ -131,6 +136,53 @@ Environment Variables
 | **Node.js** | `package.json` | build, start, test |
 | **.NET** | `*.csproj`, `*.fsproj` | build, run, test |
 | **Python** | `requirements.txt` | (manual) |
+
+---
+
+## 🔧 Variables de Entorno
+
+### ¿Para Qué Sirven?
+
+Las variables de entorno permiten configurar ajustes específicos para cada proyecto que se aplican automáticamente al ejecutar comandos.
+
+### Casos de Uso Comunes
+
+**API con puerto configurable:**
+```bash
+pm add mi-api --path ~/mi-api --env "PORT=8080,HOST=localhost"
+pm run mi-api  # Usa automáticamente PORT=8080
+```
+
+**Proyecto con claves API:**
+```bash
+pm add backend --path ~/backend --env "API_KEY=abc123,DB_HOST=localhost,DEBUG=true"
+pm run backend  # Todas las variables están disponibles para el proceso
+```
+
+**Proyecto Java con opciones JVM:**
+```bash
+pm add proyecto-grande --path ~/proyecto-grande --env "MAVEN_OPTS=-Xmx4G,-XX:+UseG1GC"
+pm build proyecto-grande  # Usa las opciones JVM configuradas
+```
+
+### Cómo Funciona
+
+1. **Registra el proyecto con variables:**
+```bash
+   pm add miproyecto --path /ruta/al/proyecto --env "VAR1=valor1,VAR2=valor2"
+```
+
+2. **Las variables se guardan** en la configuración (`.projectmanager/projects.json`)
+
+3. **Se usan automáticamente** al ejecutar:
+   - `pm build miproyecto`
+   - `pm run miproyecto`
+   - `pm test miproyecto`
+
+4. **Ver variables configuradas:**
+```bash
+   pm info miproyecto
+```
 
 ---
 
@@ -168,29 +220,11 @@ Los proyectos se guardan en:
 
 ProjectManager muestra automáticamente información de Git cuando usas `pm info`:
 
-- **Branch actual** - sabe en qué rama estás trabajando
-- **Working tree status** - archivos modificados, staged, sin seguimiento
+- **Branch actual** - saber en qué rama estás trabajando
+- **Estado del working tree** - archivos modificados, staged, sin seguimiento
 - **Commits pendientes** - cuántos commits no has pusheado
 
 **Solo se muestra si el proyecto es un repositorio Git.**
-
----
-
-## 🔧 Variables de Entorno
-
-Configura variables de entorno específicas por proyecto que se inyectan automáticamente al ejecutar comandos:
-```bash
-# Registrar con variables
-pm add backend --path ~/backend --env "PORT=3000,NODE_ENV=development,DB_HOST=localhost"
-
-# Las variables se usan automáticamente
-pm run backend  # Se ejecuta con PORT, NODE_ENV y DB_HOST configurados
-```
-
-**Beneficios:**
-- No recordar qué variables necesita cada proyecto
-- Diferentes configuraciones para diferentes proyectos
-- Inyección automática en build/run/test
 
 ---
 
@@ -204,15 +238,14 @@ pm run backend  # Se ejecuta con PORT, NODE_ENV y DB_HOST configurados
 - [x] Instaladores multi-plataforma
 - [x] Guía de usuario completa
 - [x] Integración con Git (branch, status, commits pendientes)
-- [x] Variables de entorno por proyecto
 - [x] GitHub Actions (CI/CD)
+- [x] Variables de entorno por proyecto
 
 ### 🔨 En Desarrollo
 - [ ] Comando `scan` para detectar anotaciones @Command
 - [ ] Alias de comandos personalizados
 - [ ] Hooks pre/post comandos
 - [ ] Tests unitarios
-- [ ] Soporte para templates de proyectos
 
 ---
 
@@ -242,11 +275,5 @@ Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detall
 
 ---
 
-## 🙏 Agradecimientos
-
-- Anthropic Claude por asistencia en desarrollo
-- Comunidad de Java y Maven
-
----
 
 **⭐ Si te gusta este proyecto, dale una estrella en GitHub!**
