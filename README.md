@@ -8,7 +8,7 @@
 
 > ⚠️ **Active Development:** This project is under construction and many features are being implemented.
 
-[🇪🇸 Leer en Español](README.es.md)
+[🇪🇸 Leer en Español](README_ES.md)
 
 ---
 
