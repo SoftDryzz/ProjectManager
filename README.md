@@ -76,7 +76,7 @@ pm version
 ### Examples
 ```bash
 # Register a project (automatic detection)
-pm add minecraft-client --path ~/projects/minecraft-client
+pm add my-api --path ~/projects/my-api
 
 # Register project with environment variables
 pm add my-api --path ~/projects/my-api --env "PORT=8080,DEBUG=true,API_KEY=secret"
@@ -85,16 +85,16 @@ pm add my-api --path ~/projects/my-api --env "PORT=8080,DEBUG=true,API_KEY=secre
 pm list
 
 # Build project
-pm build minecraft-client
+pm build my-api
 
 # Run project (uses configured environment variables automatically)
 pm run my-api
 
 # View available commands
-pm commands minecraft-client
+pm commands my-api
 
 # View complete information with Git
-pm info minecraft-client
+pm info my-api
 ```
 
 **Example output with Git and Environment Variables:**
