@@ -4,41 +4,42 @@
 [![Maven](https://img.shields.io/badge/Maven-3.6+-blue.svg)](https://maven.apache.org/)
 [![Status](https://img.shields.io/badge/Status-In%20Development-yellow.svg)]()
 
-**ProjectManager** is a CLI tool to manage multiple development projects from a single place. It automatically detects the project type, unifies build/run/test commands, displays Git information, and supports per-project environment variables.
+**ProjectManager** is a CLI tool to manage multiple development projects from a single place. It automatically detects project types and unifies build, run, and test commands.
 
-> ⚠️ **Actively in Development:** This project is under construction and many features are still being implemented.
+> ⚠️ **Active Development:** This project is under construction and many features are being implemented.
+
+[🇪🇸 Leer en Español](README.es.md)
 
 ---
 
 ## ✨ Features
 
-* 🔍 **Automatic detection** of project type (Gradle, Maven, Node.js, .NET, Python)
-* 🎯 **Unified commands** – use `pm build` whether it’s Maven or Gradle
-* 📦 **Centralized management** – all your projects in one place
-* ⚡ **Fast execution** of builds, tests, and custom commands
-* 💾 **Persistence** – configuration stored in JSON
-* 🌿 **Git integration** – view branch, status, and unpushed commits
-* 🔧 **Environment variables** – configure variables per project
-* 🌐 **Cross-platform** – Windows, Linux, and Mac
+- 🔍 **Automatic detection** of project type (Gradle, Maven, Node.js, .NET, Python)
+- 🎯 **Unified commands** - use `pm build` regardless of Maven or Gradle
+- 📦 **Centralized management** - all your projects in one place
+- ⚡ **Fast execution** of builds, tests, and custom commands
+- 💾 **Persistence** - configuration saved in JSON
+- 🌿 **Git integration** - see branch, status, and pending commits
+- 🔧 **Environment variables** - configure per-project environment variables
+- 🌐 **Multi-platform** - Windows, Linux, and Mac
 
 ---
 
 ## 📋 Requirements
 
-* Java 17 or higher (recommended: Java 21 LTS)
-* Maven 3.6 or higher
-* Git (optional, to display repository information)
+- Java 17 or higher (recommended: Java 21 LTS)
+- Maven 3.6 or higher
+- Git (optional, to show repository information)
 
 ---
 
 ## 🚀 Quick Installation
-
 ```bash
 # 1. Clone repository
 git clone https://github.com/SoftDryzz/ProjectManager.git
 cd ProjectManager
 
-# 2. Build
+# 2. Compile
 mvn clean package
 
 # 3. Install (Windows)
@@ -57,47 +58,52 @@ pm version
 
 ### Available Commands
 
-| Command                                      | Description                                                |
-| -------------------------------------------- | ---------------------------------------------------------- |
-| `pm add <name> --path <path> [--env <vars>]` | Register a new project with optional environment variables |
-| `pm list`                                    | List all projects                                          |
-| `pm build <name>`                            | Build a project                                            |
-| `pm run <name>`                              | Run a project                                              |
-| `pm test <name>`                             | Run tests                                                  |
-| `pm commands <name>`                         | Show available commands                                    |
-| `pm info <name>`                             | Show detailed information (includes Git and variables)     |
-| `pm remove <name>`                           | Remove a project                                           |
-| `pm scan <name>`                             | 🚧 Scan commands (in development)                          |
-| `pm help`                                    | Show help                                                  |
-| `pm version`                                 | Show version                                               |
+| Command | Description |
+|---------|-------------|
+| `pm add <name> --path <path>` | Register a new project |
+| `pm add <name> --path <path> --env "KEY=value,..."` | Register project with environment variables |
+| `pm list` | List all projects |
+| `pm build <name>` | Build a project |
+| `pm run <name>` | Run a project |
+| `pm test <name>` | Run tests |
+| `pm commands <name>` | View available commands |
+| `pm info <name>` | View detailed information |
+| `pm remove <name>` | Remove project |
+| `pm scan <name>` | 🚧 Scan commands (in development) |
+| `pm help` | Show help |
+| `pm version` | Show version |
 
 ### Examples
-
 ```bash
 # Register a project (automatic detection)
-pm add web-api --path ~/projects/web-api
+pm add minecraft-client --path ~/projects/minecraft-client
 
-# Register with environment variables
-pm add web-api --path ~/web-api --env "PORT=8080,DEBUG=true,web-api_KEY=secret"
+# Register project with environment variables
+pm add my-api --path ~/projects/my-api --env "PORT=8080,DEBUG=true,API_KEY=secret"
 
 # List registered projects
 pm list
 
-# Build project (automatically uses environment variables)
-pm build web-api
+# Build project
+pm build minecraft-client
 
-# View full info with Git and variables
-pm info web-api
+# Run project (uses configured environment variables automatically)
+pm run my-api
+
+# View available commands
+pm commands minecraft-client
+
+# View complete information with Git
+pm info minecraft-client
 ```
 
-**Example output with Git and Variables:**
-
+**Example output with Git and Environment Variables:**
 ```
 Project Information
 ───────────────────
 
-web-api (Maven)
-  Path: /home/user/projects/web-api
+my-api (Maven)
+  Path: /home/user/projects/my-api
   Modified: 5 minutes ago
   Commands: 4
   Environment Variables: 3
@@ -107,17 +113,13 @@ web-api (Maven)
     Status: 2 modified, 1 untracked
     Unpushed: 3 commits
 
-Available Commands for web-api
-────────────────────────────
-
+Available Commands
   build  →  mvn package
   run    →  mvn exec:java
   test   →  mvn test
   clean  →  mvn clean
 
 Environment Variables
-─────────────────────
-
   PORT    = 8080
   DEBUG   = true
   API_KEY = secret
@@ -127,18 +129,64 @@ Environment Variables
 
 ## 🗂️ Supported Project Types
 
-| Type        | Detection Files                    | Default Commands                |
-| ----------- | ---------------------------------- | ------------------------------- |
-| **Gradle**  | `build.gradle`, `build.gradle.kts` | build, run, test, clean         |
-| **Maven**   | `pom.xml`                          | package, exec:java, test, clean |
-| **Node.js** | `package.json`                     | build, start, test              |
-| **.NET**    | `*.csproj`, `*.fsproj`             | build, run, test                |
-| **Python**  | `requirements.txt`                 | (manual)                        |
+| Type | Detection Files | Default Commands |
+|------|----------------|------------------|
+| **Gradle** | `build.gradle`, `build.gradle.kts` | build, run, test, clean |
+| **Maven** | `pom.xml` | package, exec:java, test, clean |
+| **Node.js** | `package.json` | build, start, test |
+| **.NET** | `*.csproj`, `*.fsproj` | build, run, test |
+| **Python** | `requirements.txt` | (manual) |
+
+---
+
+## 🔧 Environment Variables
+
+### What Are They For?
+
+Environment variables allow you to configure specific settings for each project that are automatically applied when running commands.
+
+### Common Use Cases
+
+**API with configurable port:**
+```bash
+pm add my-api --path ~/my-api --env "PORT=8080,HOST=localhost"
+pm run my-api  # Automatically uses PORT=8080
+```
+
+**Project with API keys:**
+```bash
+pm add backend --path ~/backend --env "API_KEY=abc123,DB_HOST=localhost,DEBUG=true"
+pm run backend  # All variables are available to the process
+```
+
+**Java project with JVM options:**
+```bash
+pm add big-project --path ~/big-project --env "MAVEN_OPTS=-Xmx4G,-XX:+UseG1GC"
+pm build big-project  # Uses the configured JVM options
+```
+
+### How It Works
+
+1. **Register project with variables:**
+```bash
+   pm add myproject --path /path/to/project --env "VAR1=value1,VAR2=value2"
+```
+
+2. **Variables are saved** in the configuration (`.projectmanager/projects.json`)
+
+3. **Automatically used** when executing:
+   - `pm build myproject`
+   - `pm run myproject`
+   - `pm test myproject`
+
+4. **View configured variables:**
+```bash
+   pm info myproject
+```
 
 ---
 
 ## 📁 Project Structure
-
 ```
 ProjectManager/
 ├── src/main/java/pm/
@@ -154,7 +202,7 @@ ProjectManager/
 │   ├── install.sh                # Linux/Mac installer
 │   └── INSTALL.md                # Documentation
 ├── docs/
-│   └── USER_GUIDE.md             # Full user guide
+│   └── USER_GUIDE.md             # Complete user guide
 └── pom.xml
 ```
 
@@ -162,66 +210,42 @@ ProjectManager/
 
 ## 🛠️ Configuration
 
-Projects are stored in:
-
-* **Windows:** `C:\Users\User\.projectmanager\projects.json`
-* **Linux/Mac:** `~/.projectmanager/projects.json`
+Projects are saved in:
+- **Windows:** `C:\Users\User\.projectmanager\projects.json`
+- **Linux/Mac:** `~/.projectmanager/projects.json`
 
 ---
 
 ## 🌿 Git Integration
 
-ProjectManager automatically displays Git information when you use `pm info`:
+ProjectManager automatically shows Git information when using `pm info`:
 
-* **Current branch** – know which branch you are working on
-* **Working tree status** – modified, staged, and untracked files
-* **Unpushed commits** – how many commits haven’t been pushed
+- **Current branch** - know which branch you're working on
+- **Working tree status** - modified, staged, untracked files
+- **Pending commits** - how many commits you haven't pushed
 
 **Only shown if the project is a Git repository.**
-
----
-
-## 🔧 Environment Variables
-
-Configure environment variables specific to each project, automatically injected when executing commands:
-
-```bash
-# Register with variables
-pm add backend --path ~/backend --env "PORT=3000,NODE_ENV=development,DB_HOST=localhost"
-
-# Variables are used automatically
-pm run backend  # Runs with PORT, NODE_ENV, and DB_HOST configured
-```
-
-**Benefits:**
-
-* No need to remember which variables each project requires
-* Different configurations for different projects
-* Automatic injection for build/run/test
 
 ---
 
 ## 🚧 Roadmap
 
 ### ✅ Completed
-
-* [x] Project registration system
-* [x] Automatic type detection
-* [x] Commands: add, list, build, run, test, info, remove
-* [x] JSON persistence
-* [x] Cross-platform installers
-* [x] Complete user guide
-* [x] Git integration (branch, status, unpushed commits)
-* [x] Per-project environment variables
-* [x] GitHub Actions (CI/CD)
+- [x] Project registration system
+- [x] Automatic type detection
+- [x] Commands: add, list, build, run, test, info, remove
+- [x] JSON persistence
+- [x] Multi-platform installers
+- [x] Complete user guide
+- [x] Git integration (branch, status, pending commits)
+- [x] GitHub Actions (CI/CD)
+- [x] Environment variables per project
 
 ### 🔨 In Development
-
-* [ ] `scan` command to detect @Command annotations
-* [ ] Custom command aliases
-* [ ] Pre/post command hooks
-* [ ] Unit tests
-* [ ] Project templates support
+- [ ] `scan` command to detect @Command annotations
+- [ ] Command aliases
+- [ ] Pre/post command hooks
+- [ ] Unit tests
 
 ---
 
@@ -239,7 +263,7 @@ Contributions are welcome. Please:
 
 ## 📄 License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is under the MIT License. See `LICENSE` file for details.
 
 ---
 
@@ -247,14 +271,14 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 **SoftDryzz**
 
-* GitHub: [@SoftDryzz](https://github.com/SoftDryzz)
+- GitHub: [@SoftDryzz](https://github.com/SoftDryzz)
 
 ---
 
-## 🙏 Acknowledgements
+## 🙏 Acknowledgments
 
-* Anthropic Claude for development assistance
-* The Java and Maven community
+- Anthropic Claude for development assistance
+- Java and Maven community
 
 ---
 
