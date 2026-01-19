@@ -76,7 +76,7 @@ pm version
 ### Ejemplos
 ```bash
 # Registrar un proyecto (detección automática)
-pm add minecraft-client --path ~/projects/minecraft-client
+pm add mi-api --path ~/projects/mi-api
 
 # Registrar proyecto con variables de entorno
 pm add mi-api --path ~/projects/mi-api --env "PORT=8080,DEBUG=true,API_KEY=secreto"
@@ -85,16 +85,16 @@ pm add mi-api --path ~/projects/mi-api --env "PORT=8080,DEBUG=true,API_KEY=secre
 pm list
 
 # Compilar proyecto
-pm build minecraft-client
+pm build mi-api
 
 # Ejecutar proyecto (usa las variables de entorno configuradas automáticamente)
 pm run mi-api
 
 # Ver comandos disponibles
-pm commands minecraft-client
+pm commands mi-api
 
 # Ver información completa con Git
-pm info minecraft-client
+pm info mi-api
 ```
 
 **Ejemplo de salida con Git y Variables de Entorno:**
