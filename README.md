@@ -275,11 +275,5 @@ This project is under the MIT License. See `LICENSE` file for details.
 
 ---
 
-## 🙏 Acknowledgments
-
-- Anthropic Claude for development assistance
-- Java and Maven community
-
----
 
 **⭐ If you like this project, give it a star on GitHub!**
