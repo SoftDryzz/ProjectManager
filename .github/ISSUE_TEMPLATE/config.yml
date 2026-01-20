@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/SoftDryzz/ProjectManager/blob/master/docs/USER_GUIDE.md
+    about: Check the user guide for help and examples
+  - name: 💬 Discussions
+    url: https://github.com/SoftDryzz/ProjectManager/discussions
+    about: Ask questions and discuss ideas with the community

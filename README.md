@@ -388,7 +388,7 @@ Projects are saved in:
 ### 🔨 Planned
 - [ ] Command aliases for long project names
 - [ ] `pm env` command to manage variables from CLI
-- [ ] Pre/post command hooks
+- [ ] Pre- / post-command hooks
 - [ ] Unit tests
 - [ ] `scan` command to detect @Command annotations
 
@@ -412,6 +412,44 @@ This project is licensed under the MIT License. See `LICENSE` file for details.
 
 ---
 
+
+## 🐛 Found a Bug?
+
+We take bugs seriously! If you encounter a problem:
+
+1. **Check existing issues:** [Open Issues](https://github.com/SoftDryzz/ProjectManager/issues)
+2. **Report a new bug:** [Create Bug Report](https://github.com/SoftDryzz/ProjectManager/issues/new/choose)
+
+**What to include in your bug report:**
+- Clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- `pm version` output
+- Operating system
+- Error messages (if any)
+
+**Example:**
+```
+Bug: pm build fails on Windows with spaces in path
+
+Steps:
+1. pm add myproject --path "C:\My Projects\test"
+2. pm build myproject
+3. Error: Path not found
+
+Expected: Build succeeds
+Actual: Error with path containing spaces
+```
+
+---
+
+## 💡 Feature Requests
+
+Have an idea to improve ProjectManager? We'd love to hear it!
+
+[Submit Feature Request](https://github.com/SoftDryzz/ProjectManager/issues/new/choose)
+
+---
 ## 👤 Author
 
 **SoftDryzz**
