@@ -420,13 +420,6 @@ This project is licensed under the MIT License. See `LICENSE` file for details.
 
 ---
 
-## 🙏 Acknowledgments
-
-- Anthropic Claude for development assistance
-- Java and Maven community
-
----
-
 **⭐ If ProjectManager saves you time, give it a star on GitHub!**
 
 **💬 Questions? Open an issue or check the [User Guide](docs/USER_GUIDE.md)**
