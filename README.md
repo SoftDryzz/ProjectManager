@@ -385,12 +385,19 @@ Projects are saved in:
 - [x] GitHub Actions (CI/CD)
 - [x] Environment variables per project
 
-### 🔨 Planned
-- [ ] Command aliases for long project names
+### 🔨 Planned (Priority Order)
+- [ ] Unit tests (foundation for all future features)
 - [ ] `pm env` command to manage variables from CLI
+- [ ] Command aliases for long project names
+- [ ] `pm update <name>` command to modify existing projects (path, env vars, type)
 - [ ] Pre- / post-command hooks
-- [ ] Unit tests
 - [ ] `scan` command to detect @Command annotations
+
+### 💡 Future Ideas
+- [ ] `pm run-all` / `pm build-all` - Execute commands across all projects
+- [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)
+- [ ] `pm doctor` - Diagnose environment (verify tools installed, validate paths)
+- [ ] Shell autocompletion (bash/zsh/PowerShell tab completion)
 
 ---
 

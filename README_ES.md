@@ -385,12 +385,19 @@ Los proyectos se guardan en:
 - [x] GitHub Actions (CI/CD)
 - [x] Variables de entorno por proyecto
 
-### 🔨 Planeado
-- [ ] Alias de comandos para nombres de proyecto largos
+### 🔨 Planeado (Orden de Prioridad)
+- [ ] Tests unitarios (base para todas las futuras features)
 - [ ] Comando `pm env` para gestionar variables desde CLI
+- [ ] Alias de comandos para nombres de proyecto largos
+- [ ] Comando `pm update <name>` para modificar proyectos existentes (path, env vars, tipo)
 - [ ] Hooks pre/post comandos
-- [ ] Tests unitarios
 - [ ] Comando `scan` para detectar anotaciones @Command
+
+### 💡 Ideas Futuras
+- [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos
+- [ ] Grupos de proyectos (`pm group create backend api-users product-service`, `pm run-group backend`)
+- [ ] `pm doctor` - Diagnóstico del entorno (verificar herramientas instaladas, validar paths)
+- [ ] Autocompletado de shell (tab completion para bash/zsh/PowerShell)
 
 ---
 
