@@ -15,7 +15,7 @@ import java.nio.file.Paths;
  * (utility class pattern).
  *
  * @author SoftDryzz
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.0
  */
 public final class Constants {

@@ -151,6 +151,8 @@ pm run servicio-pedidos
 - 💾 **Persistencia** - Configuración guardada en JSON, sobrevive reinicios
 - 🌿 **Integración Git** - Ve branch, status y commits sin pushear en `pm info`
 - 🔧 **Variables de entorno** - Configura variables por proyecto (PORT, DEBUG, API_KEY, etc)
+- 🩺 **Runtime checker** - Detecta runtimes faltantes antes de ejecutar, muestra instrucciones de instalación
+- 🏥 **pm doctor** - Diagnostica tu entorno: verifica herramientas instaladas y valida rutas de proyectos
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -202,6 +204,7 @@ pm version
 | `pm commands <nombre>` | Ver comandos disponibles |
 | `pm info <nombre>` | Ver información detallada (incluyendo estado Git) |
 | `pm remove <nombre>` | Eliminar proyecto |
+| `pm doctor` | Diagnosticar entorno (runtimes, rutas) |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
 
@@ -384,9 +387,11 @@ Los proyectos se guardan en:
 - [x] Integración Git (branch, status, commits pendientes)
 - [x] GitHub Actions (CI/CD)
 - [x] Variables de entorno por proyecto
+- [x] Tests unitarios (156 tests en 14 clases de test)
+- [x] Runtime checker (detecta runtimes faltantes con instrucciones de instalación)
+- [x] Comando `pm doctor` (diagnóstico del entorno)
 
 ### 🔨 Planeado (Orden de Prioridad)
-- [ ] Tests unitarios (base para todas las futuras features)
 - [ ] Comando `pm env` para gestionar variables desde CLI
 - [ ] Alias de comandos para nombres de proyecto largos
 - [ ] Comando `pm update <name>` para modificar proyectos existentes (path, env vars, tipo)
@@ -396,7 +401,6 @@ Los proyectos se guardan en:
 ### 💡 Ideas Futuras
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos
 - [ ] Grupos de proyectos (`pm group create backend api-users product-service`, `pm run-group backend`)
-- [ ] `pm doctor` - Diagnóstico del entorno (verificar herramientas instaladas, validar paths)
 - [ ] Autocompletado de shell (tab completion para bash/zsh/PowerShell)
 
 ---

@@ -151,6 +151,8 @@ pm run order-service
 - 💾 **Persistence** - Configuration saved in JSON, survives restarts
 - 🌿 **Git integration** - See branch, status, and unpushed commits in `pm info`
 - 🔧 **Environment variables** - Configure per-project variables (PORT, DEBUG, API_KEY, etc)
+- 🩺 **Runtime checker** - Detects missing runtimes before execution, shows install instructions
+- 🏥 **pm doctor** - Diagnose your environment: verify installed tools and validate project paths
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -202,6 +204,7 @@ pm version
 | `pm commands <name>` | View available commands |
 | `pm info <name>` | View detailed information (including Git status) |
 | `pm remove <name>` | Remove project |
+| `pm doctor` | Diagnose environment (runtimes, paths) |
 | `pm help` | Show help |
 | `pm version` | Show version |
 
@@ -384,9 +387,11 @@ Projects are saved in:
 - [x] Git integration (branch, status, pending commits)
 - [x] GitHub Actions (CI/CD)
 - [x] Environment variables per project
+- [x] Unit tests (156 tests across 14 test classes)
+- [x] Runtime checker (detects missing runtimes with install instructions)
+- [x] `pm doctor` command (environment diagnostics)
 
 ### 🔨 Planned (Priority Order)
-- [ ] Unit tests (foundation for all future features)
 - [ ] `pm env` command to manage variables from CLI
 - [ ] Command aliases for long project names
 - [ ] `pm update <name>` command to modify existing projects (path, env vars, type)
@@ -396,7 +401,6 @@ Projects are saved in:
 ### 💡 Future Ideas
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)
-- [ ] `pm doctor` - Diagnose environment (verify tools installed, validate paths)
 - [ ] Shell autocompletion (bash/zsh/PowerShell tab completion)
 
 ---
