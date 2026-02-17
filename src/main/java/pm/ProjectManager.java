@@ -9,6 +9,7 @@ import pm.storage.ProjectStore;
 import pm.util.ArgsParser;
 import pm.util.CommandConfigurator;
 import pm.util.Constants;
+import pm.util.RuntimeChecker;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -79,6 +80,7 @@ public class ProjectManager {
                 case "commands", "cmd" -> handleCommands(args);
                 case "remove", "rm" -> handleRemove(args);
                 case "info" -> handleInfo(args);
+                case "doctor" -> handleDoctor();
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> {
@@ -294,6 +296,9 @@ public class ProjectManager {
                 System.exit(1);
             }
 
+            // Check runtime is available before executing
+            RuntimeChecker.checkRuntime(project.type());
+
             // Display info
             System.out.println();
             OutputFormatter.info("Building " + projectName + "...");
@@ -370,6 +375,9 @@ public class ProjectManager {
                 System.exit(1);
             }
 
+            // Check runtime is available before executing
+            RuntimeChecker.checkRuntime(project.type());
+
             System.out.println();
             OutputFormatter.info("Running " + projectName + "...");
             System.out.println("Command: " + runCommand);
@@ -442,6 +450,9 @@ public class ProjectManager {
                 OutputFormatter.error("No 'test' command configured for this project");
                 System.exit(1);
             }
+
+            // Check runtime is available before executing
+            RuntimeChecker.checkRuntime(project.type());
 
             System.out.println();
             OutputFormatter.info("Running tests for " + projectName + "...");
@@ -643,6 +654,97 @@ public class ProjectManager {
     }
 
     // ============================================================
+    // COMMAND: DOCTOR (Environment check)
+    // ============================================================
+
+    /**
+     * Handler for the "doctor" command.
+     * Checks if required runtimes are installed and validates registered projects.
+     *
+     * <p>Usage: {@code pm doctor}
+     */
+    private static void handleDoctor() {
+        OutputFormatter.section("Environment Check");
+
+        // Check each runtime
+        String[][] runtimes = {
+                {"Java",    "java",    "-version"},
+                {"Maven",   "mvn",     "-version"},
+                {"Gradle",  "gradle",  "-version"},
+                {"Node.js", "node",    "--version"},
+                {"npm",     "npm",     "--version"},
+                {".NET",    "dotnet",  "--version"},
+                {"Python",  "python",  "--version"},
+        };
+
+        for (String[] rt : runtimes) {
+            String name = rt[0];
+            String command = rt[1];
+            String flag = rt[2];
+
+            String version = RuntimeChecker.getVersion(command, flag);
+            if (version != null) {
+                // Trim version output to something short
+                String shortVersion = version.length() > 40
+                        ? version.substring(0, 40) + "..."
+                        : version;
+                System.out.println("  " + OutputFormatter.GREEN + "OK" + OutputFormatter.RESET +
+                        "  " + padRight(name, 10) + OutputFormatter.GRAY + shortVersion + OutputFormatter.RESET);
+            } else {
+                System.out.println("  " + OutputFormatter.RED + "X " + OutputFormatter.RESET +
+                        "  " + padRight(name, 10) + OutputFormatter.GRAY + "(not found)" + OutputFormatter.RESET);
+            }
+        }
+
+        // Check registered projects
+        System.out.println();
+        OutputFormatter.section("Registered Projects");
+
+        try {
+            Map<String, Project> projects = store.load();
+
+            if (projects.isEmpty()) {
+                System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                return;
+            }
+
+            for (Project project : projects.values()) {
+                boolean pathExists = Files.exists(project.path()) && Files.isDirectory(project.path());
+                boolean runtimeOk = RuntimeChecker.isRuntimeAvailable(project.type());
+
+                String status;
+                if (pathExists && runtimeOk) {
+                    status = OutputFormatter.GREEN + "OK" + OutputFormatter.RESET;
+                } else if (!pathExists) {
+                    status = OutputFormatter.RED + "PATH NOT FOUND" + OutputFormatter.RESET;
+                } else {
+                    status = OutputFormatter.YELLOW + "RUNTIME MISSING" + OutputFormatter.RESET;
+                }
+
+                System.out.println("  " + status + "  " +
+                        padRight(project.name(), 20) +
+                        OutputFormatter.GRAY + project.type().displayName() +
+                        " -> " + project.path() + OutputFormatter.RESET);
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    /**
+     * Right-pads a string to the specified length.
+     */
+    private static String padRight(String text, int length) {
+        if (text.length() >= length) {
+            return text + " ";
+        }
+        return text + " ".repeat(length - text.length());
+    }
+
+    // ============================================================
     // OUTPUT AND HELP
     // ============================================================
 
@@ -669,6 +771,7 @@ public class ProjectManager {
           commands, cmd <name>                      List available commands
           remove, rm <name>                         Remove project
           info <name>                               Show project details
+          doctor                                    Check environment and runtimes
           help                                      Show this help
           version                                   Show version
         
