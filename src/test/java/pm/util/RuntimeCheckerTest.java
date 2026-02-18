@@ -17,11 +17,23 @@ class RuntimeCheckerTest {
     // ============================================================
 
     @Test
-    @DisplayName("Java runtime is available (this machine has Java)")
-    void javaIsAvailable() {
-        // We know Java is installed because we're running this test with it
+    @DisplayName("Java and Maven are available (this machine runs Maven tests)")
+    void javaAndMavenAreAvailable() {
+        // We know Java and Maven are installed because we're running this test with mvn
         assertTrue(RuntimeChecker.isRuntimeAvailable(ProjectType.MAVEN));
-        assertTrue(RuntimeChecker.isRuntimeAvailable(ProjectType.GRADLE));
+    }
+
+    @Test
+    @DisplayName("Gradle availability depends on installation")
+    void gradleAvailabilityDependsOnInstallation() {
+        // Gradle may or may not be installed - just verify it returns a boolean
+        boolean result = RuntimeChecker.isRuntimeAvailable(ProjectType.GRADLE);
+        // If gradle is not installed, should return false even though java is available
+        if (!RuntimeChecker.isCommandAvailable("gradle", "--version")) {
+            assertFalse(result);
+        } else {
+            assertTrue(result);
+        }
     }
 
     @Test

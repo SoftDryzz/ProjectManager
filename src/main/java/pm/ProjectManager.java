@@ -44,7 +44,7 @@ import java.util.Map;
  * </pre>
  *
  * @author SoftDryzz
- * @version 1.1.0
+ * @version 1.1.1
  * @since 1.0.0
  */
 public class ProjectManager {

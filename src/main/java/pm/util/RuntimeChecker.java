@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
  *
  * <p>Checks for each project type:
  * <ul>
- * <li>Gradle: java</li>
+ * <li>Gradle: java, gradle</li>
  * <li>Maven: java, mvn</li>
  * <li>Node.js: node, npm</li>
  * <li>.NET: dotnet</li>
@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
  * <p>If the runtime is not found, displays a friendly error with install instructions.
  *
  * @author SoftDryzz
- * @version 1.1.0
+ * @version 1.1.1
  * @since 1.1.0
  */
 public final class RuntimeChecker {
@@ -50,6 +50,13 @@ public final class RuntimeChecker {
                             "https://adoptium.net/temurin/releases/");
                     System.exit(1);
                 }
+                if (!isCommandAvailable("gradle", "--version")) {
+                    printMissing("Gradle",
+                            "This project requires Gradle to build/run.",
+                            "winget install Gradle.Gradle",
+                            "https://gradle.org/install/");
+                    System.exit(1);
+                }
             }
             case MAVEN -> {
                 if (!isCommandAvailable("java", "-version")) {
@@ -57,6 +64,13 @@ public final class RuntimeChecker {
                             "This Maven project requires Java to build/run.",
                             "winget install Microsoft.OpenJDK.17",
                             "https://adoptium.net/temurin/releases/");
+                    System.exit(1);
+                }
+                if (!isCommandAvailable("mvn", "--version")) {
+                    printMissing("Maven",
+                            "This project requires Maven to build/run.",
+                            "winget install Apache.Maven",
+                            "https://maven.apache.org/download.cgi");
                     System.exit(1);
                 }
             }
@@ -111,7 +125,10 @@ public final class RuntimeChecker {
         }
 
         return switch (type) {
-            case GRADLE, MAVEN -> isCommandAvailable("java", "-version");
+            case GRADLE -> isCommandAvailable("java", "-version") &&
+                    isCommandAvailable("gradle", "--version");
+            case MAVEN -> isCommandAvailable("java", "-version") &&
+                    isCommandAvailable("mvn", "--version");
             case NODEJS -> isCommandAvailable("node", "--version") &&
                     isCommandAvailable("npm", "--version");
             case DOTNET -> isCommandAvailable("dotnet", "--version");
