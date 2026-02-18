@@ -327,6 +327,14 @@ public final class Project {
     }
 
     /**
+     * Removes all environment variables.
+     */
+    public void clearEnvVars() {
+        this.envVars.clear();
+        this.lastModified = Instant.now();
+    }
+
+    /**
      * Gets the number of configured environment variables.
      *
      * @return count of variables

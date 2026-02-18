@@ -107,7 +107,7 @@ We maintain documentation in English and Spanish. If you update documentation:
 
 ## ❓ Questions?
 
-- Check the [User Guide](docs/USER_GUIDE.md)
+- Check the [User Guide](User-Guide.md)
 - Search [existing issues](https://github.com/SoftDryzz/ProjectManager/issues)
 - Open a new issue with the "question" label
 

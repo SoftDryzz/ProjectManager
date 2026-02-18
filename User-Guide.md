@@ -11,13 +11,15 @@
 - [Command Reference](#-command-reference)
   - [Project Management](#-project-management)
   - [Command Execution](#-command-execution)
+  - [Environment Variable Management](#-environment-variable-management)
+  - [Diagnostics](#-diagnostics)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
   - [How Do They Work in ProjectManager?](#how-do-they-work-in-projectmanager)
   - [Usage Examples](#usage-examples)
   - [View Configured Variables](#view-configured-variables)
-  - [Modify Variables](#modify-variables)
+  - [Manage Variables with pm env](#manage-variables-with-pm-env)
   - [Format Rules](#format-rules)
   - [Complete Practical Examples](#complete-practical-examples)
   - [Where They Are Saved](#where-they-are-saved)
@@ -61,7 +63,7 @@ pm version
 
 You should see something like:
 ```
-ProjectManager 1.1.0
+ProjectManager 1.2.0
 Java 25.0.1
 ```
 
@@ -82,7 +84,7 @@ pm add web-api --path C:\Users\User\projects\web-api
 **Expected Output:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.1.0         ║
+║  ProjectManager v1.2.0         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -296,6 +298,66 @@ Executes the project tests (e.g., `gradle test`, `mvn test`, `npm test`) **autom
 
 ---
 
+### 🔹 Environment Variable Management
+
+#### Set variables
+```bash
+pm env set <name> KEY=VALUE[,KEY2=VALUE2]
+```
+
+**Example:**
+```bash
+pm env set my-api PORT=8080,DEBUG=true,API_KEY=secret123
+```
+
+---
+
+#### Get a variable
+```bash
+pm env get <name> KEY
+```
+
+**Example:**
+```bash
+pm env get my-api PORT
+# Output: PORT=8080
+```
+
+---
+
+#### List variables
+```bash
+pm env list <name>           # Sensitive values masked
+pm env list <name> --show    # All values revealed
+```
+
+---
+
+#### Remove a variable
+```bash
+pm env remove <name> KEY
+```
+
+---
+
+#### Clear all variables
+```bash
+pm env clear <name>
+```
+
+---
+
+### 🔹 Diagnostics
+
+#### Check environment health
+```bash
+pm doctor
+```
+
+Verifies installed runtimes (Java, Node.js, .NET, Python, Gradle, Maven) and validates all registered project paths.
+
+---
+
 ### 🔹 Help and Version
 
 #### View help
@@ -425,15 +487,43 @@ Environment Variables
 
 ---
 
-### Modify Variables
+### Manage Variables with `pm env`
 
-**Currently:** Manually edit the `projects.json` file.
+You can manage environment variables at any time using the `pm env` command:
 
-**Location:**
-- Windows: `C:\Users\User\.projectmanager\projects.json`
-- Linux/Mac: `~/.projectmanager/projects.json`
+#### Set variables
+```bash
+# Set one or more variables
+pm env set my-api PORT=8080
+pm env set my-api PORT=8080,DEBUG=true,API_KEY=secret123
+```
 
-🚧 **Planned Feature:** `pm env add/remove/update` to manage variables from the CLI.
+#### Get a specific variable
+```bash
+pm env get my-api PORT
+# Output: PORT=8080
+```
+
+#### List all variables
+```bash
+# List with sensitive values masked
+pm env list my-api
+
+# List showing all values
+pm env list my-api --show
+```
+
+**Masking:** Values for keys containing `KEY`, `SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE`, or `CREDENTIAL` are masked by default (e.g., `API_KEY = sk-***56`). Use `--show` to reveal all values.
+
+#### Remove a specific variable
+```bash
+pm env remove my-api DEBUG
+```
+
+#### Clear all variables
+```bash
+pm env clear my-api
+```
 
 ---
 
@@ -536,9 +626,12 @@ Variables are stored in the configuration file:
 
 #### Can I change variables after registering?
 
-Currently, you need to manually edit the `projects.json` file.
-
-🚧 **Coming soon:** `pm config` command to modify variables from CLI.
+**Yes!** Use the `pm env` command:
+```bash
+pm env set my-api PORT=9090          # Add or update a variable
+pm env remove my-api OLD_VAR         # Remove a specific variable
+pm env clear my-api                  # Remove all variables
+```
 
 ---
 
@@ -638,7 +731,7 @@ pm info web-api
 **Output:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.1.0         ║
+║  ProjectManager v1.2.0         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -669,8 +762,8 @@ Available Commands for web-api
 Environment Variables
 ─────────────────────
 
-  DEBUG      = true
-  GAME_MODE  = creative
+  PORT   = 8080
+  DEBUG  = true
 ```
 
 ---
@@ -863,8 +956,8 @@ ProjectManager saves your project information in:
       "clean": "gradle clean"
     },
     "envVars": {
-      "DEBUG": "true",
-      "GAME_MODE": "creative"
+      "PORT": "8080",
+      "DEBUG": "true"
     },
     "lastModified": "2025-01-18T15:30:00Z"
   }
@@ -921,7 +1014,7 @@ pm add old-project --path C:\new\path --env "VAR1=value1"
 
 Currently, only by manually editing the `projects.json` file.
 
-🚧 **Planned Feature:** `pm config` command to modify commands from the CLI.
+🚧 **Planned Feature:** `pm update` command to modify projects from the CLI.
 
 ### Does it work with any type of project?
 
@@ -1028,9 +1121,9 @@ pm add project-name --path C:\path --type GRADLE
 
 **Verification:**
 
-1. Confirm variables are configured: `pm info project-name`.
+1. Confirm variables are configured: `pm info project-name` or `pm env list project-name`.
 2. Variables should appear in the "Environment Variables" section.
-3. If they don't appear, register the project again with `--env`.
+3. If they don't appear, add them with `pm env set project-name KEY=VALUE`.
 
 ---
 
@@ -1049,6 +1142,17 @@ pm remove <name> --force                       # Remove (without confirmation)
 pm build <name>                                # Build (with env vars)
 pm run <name>                                  # Run (with env vars)
 pm test <name>                                 # Test (with env vars)
+
+# === ENVIRONMENT VARIABLES ===
+pm env set <name> KEY=VALUE[,K2=V2]            # Set variables
+pm env get <name> KEY                          # Get a variable
+pm env list <name>                             # List (masked)
+pm env list <name> --show                      # List (revealed)
+pm env remove <name> KEY                       # Remove a variable
+pm env clear <name>                            # Remove all variables
+
+# === DIAGNOSTICS ===
+pm doctor                                      # Check environment health
 
 # === HELP ===
 pm help                                        # General help

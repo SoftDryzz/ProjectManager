@@ -223,6 +223,21 @@ class ProjectTest {
                 () -> vars.put("DEBUG", "true"));
     }
 
+    @Test
+    @DisplayName("clearEnvVars removes all variables")
+    void clearEnvVarsRemovesAll() {
+        Project project = createProject();
+        project.addEnvVar("PORT", "8080");
+        project.addEnvVar("DEBUG", "true");
+        assertEquals(2, project.envVarCount());
+
+        project.clearEnvVars();
+
+        assertEquals(0, project.envVarCount());
+        assertFalse(project.hasEnvVar("PORT"));
+        assertFalse(project.hasEnvVar("DEBUG"));
+    }
+
     // ============================================================
     // EQUALS / HASHCODE / TOSTRING
     // ============================================================

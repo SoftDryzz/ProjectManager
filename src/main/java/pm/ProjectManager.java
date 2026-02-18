@@ -40,11 +40,12 @@ import java.util.Map;
  * pm commands NAME                      List available commands
  * pm remove NAME                        Remove project
  * pm info NAME                          Show project information
+ * pm env SUBCOMMAND NAME [options]      Manage environment variables
  * pm help                               Show help
  * </pre>
  *
  * @author SoftDryzz
- * @version 1.1.1
+ * @version 1.2.0
  * @since 1.0.0
  */
 public class ProjectManager {
@@ -80,6 +81,7 @@ public class ProjectManager {
                 case "commands", "cmd" -> handleCommands(args);
                 case "remove", "rm" -> handleRemove(args);
                 case "info" -> handleInfo(args);
+                case "env" -> handleEnv(args);
                 case "doctor" -> handleDoctor();
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
@@ -654,6 +656,280 @@ public class ProjectManager {
     }
 
     // ============================================================
+    // COMMAND: ENV (Manage environment variables)
+    // ============================================================
+
+    /**
+     * Handler for the "env" command.
+     * Manages environment variables for a project.
+     *
+     * <p>Subcommands:
+     * <ul>
+     * <li>{@code pm env set <name> KEY=VALUE[,KEY2=VALUE2]} - Set variables</li>
+     * <li>{@code pm env get <name> KEY} - Get a variable value</li>
+     * <li>{@code pm env list <name> [--show]} - List variables (masked by default)</li>
+     * <li>{@code pm env remove <name> KEY} - Remove a variable</li>
+     * <li>{@code pm env clear <name>} - Remove all variables</li>
+     * </ul>
+     *
+     * @param args command arguments
+     */
+    private static void handleEnv(String[] args) {
+        if (args.length < 2) {
+            printEnvHelp();
+            return;
+        }
+
+        String subcommand = args[1].toLowerCase();
+
+        switch (subcommand) {
+            case "set" -> handleEnvSet(args);
+            case "get" -> handleEnvGet(args);
+            case "list", "ls" -> handleEnvList(args);
+            case "remove", "rm" -> handleEnvRemove(args);
+            case "clear" -> handleEnvClear(args);
+            default -> {
+                OutputFormatter.error("Unknown env subcommand: " + subcommand);
+                printEnvHelp();
+                System.exit(1);
+            }
+        }
+    }
+
+    private static void handleEnvSet(String[] args) {
+        if (args.length < 4) {
+            OutputFormatter.error("Project name and KEY=VALUE are required");
+            System.out.println("Usage: pm env set <name> KEY=VALUE[,KEY2=VALUE2]");
+            System.exit(1);
+        }
+
+        String projectName = args[2];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            // Join remaining args as the env string (supports spaces in values)
+            String envString = String.join(" ", java.util.Arrays.copyOfRange(args, 3, args.length));
+            parseAndSetEnvVars(project, envString);
+            store.saveProject(project);
+
+            System.out.println();
+            OutputFormatter.success("Environment variables updated for '" + projectName + "'");
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to update project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleEnvGet(String[] args) {
+        if (args.length < 4) {
+            OutputFormatter.error("Project name and variable key are required");
+            System.out.println("Usage: pm env get <name> KEY");
+            System.exit(1);
+        }
+
+        String projectName = args[2];
+        String key = args[3];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            String value = project.getEnvVar(key);
+            if (value == null) {
+                OutputFormatter.error("Variable '" + key + "' not found in project '" + projectName + "'");
+                System.exit(1);
+            }
+
+            System.out.println(key + "=" + value);
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleEnvList(String[] args) {
+        if (args.length < 3) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm env list <name> [--show]");
+            System.exit(1);
+        }
+
+        String projectName = args[2];
+        ArgsParser parser = new ArgsParser(args);
+        boolean showValues = parser.hasFlag("show");
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            Map<String, String> vars = project.envVars();
+
+            if (vars.isEmpty()) {
+                System.out.println();
+                OutputFormatter.info("No environment variables configured for '" + projectName + "'");
+                return;
+            }
+
+            System.out.println();
+            OutputFormatter.section("Environment Variables - " + projectName);
+
+            int maxKeyLength = vars.keySet().stream()
+                    .mapToInt(String::length)
+                    .max()
+                    .orElse(0);
+
+            vars.forEach((key, value) -> {
+                String displayValue = showValues ? value : maskValue(key, value);
+                String padding = " ".repeat(maxKeyLength - key.length());
+                System.out.println("  " + OutputFormatter.GREEN + key + OutputFormatter.RESET +
+                        padding + " = " + OutputFormatter.CYAN + displayValue + OutputFormatter.RESET);
+            });
+
+            if (!showValues) {
+                System.out.println();
+                System.out.println(OutputFormatter.GRAY +
+                        "  Sensitive values are masked. Use --show to reveal all." +
+                        OutputFormatter.RESET);
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleEnvRemove(String[] args) {
+        if (args.length < 4) {
+            OutputFormatter.error("Project name and variable key are required");
+            System.out.println("Usage: pm env remove <name> KEY");
+            System.exit(1);
+        }
+
+        String projectName = args[2];
+        String key = args[3];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            boolean removed = project.removeEnvVar(key);
+            if (!removed) {
+                OutputFormatter.error("Variable '" + key + "' not found in project '" + projectName + "'");
+                System.exit(1);
+            }
+
+            store.saveProject(project);
+
+            System.out.println();
+            OutputFormatter.success("Variable '" + key + "' removed from '" + projectName + "'");
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to update project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleEnvClear(String[] args) {
+        if (args.length < 3) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm env clear <name>");
+            System.exit(1);
+        }
+
+        String projectName = args[2];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            int count = project.envVarCount();
+            if (count == 0) {
+                OutputFormatter.info("No environment variables to clear for '" + projectName + "'");
+                return;
+            }
+
+            project.clearEnvVars();
+            store.saveProject(project);
+
+            System.out.println();
+            OutputFormatter.success("Cleared " + count + " variable" + (count > 1 ? "s" : "") +
+                    " from '" + projectName + "'");
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to update project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Masks a value if the key suggests it is sensitive.
+     * Sensitive keys contain: KEY, SECRET, PASSWORD, TOKEN, PRIVATE, CREDENTIAL.
+     *
+     * @param key   variable name
+     * @param value variable value
+     * @return masked or original value
+     */
+    static String maskValue(String key, String value) {
+        String upperKey = key.toUpperCase();
+        boolean sensitive = upperKey.contains("KEY") ||
+                upperKey.contains("SECRET") ||
+                upperKey.contains("PASSWORD") ||
+                upperKey.contains("TOKEN") ||
+                upperKey.contains("PRIVATE") ||
+                upperKey.contains("CREDENTIAL");
+
+        if (!sensitive) {
+            return value;
+        }
+
+        if (value.length() < 6) {
+            return "***";
+        }
+
+        return value.substring(0, 3) + "***" + value.substring(value.length() - 2);
+    }
+
+    private static void printEnvHelp() {
+        System.out.println("""
+        Usage: pm env <subcommand> <project> [options]
+
+        Subcommands:
+          set <name> KEY=VALUE[,KEY2=VALUE2]  Set environment variables
+          get <name> KEY                       Get a variable value
+          list <name> [--show]                 List variables (masked by default)
+          remove <name> KEY                    Remove a variable
+          clear <name>                         Remove all variables
+
+        Examples:
+          pm env set my-api PORT=8080,DEBUG=true
+          pm env get my-api PORT
+          pm env list my-api
+          pm env list my-api --show
+          pm env remove my-api DEBUG
+          pm env clear my-api
+        """);
+    }
+
+    // ============================================================
     // COMMAND: DOCTOR (Environment check)
     // ============================================================
 
@@ -760,7 +1036,7 @@ public class ProjectManager {
     private static void printHelp() {
         System.out.println("""
         Usage: pm <command> [options]
-        
+
         Commands:
           add <name> --path <path> [--env <vars>]  Register a new project
           list, ls                                  List all projects
@@ -771,16 +1047,26 @@ public class ProjectManager {
           commands, cmd <name>                      List available commands
           remove, rm <name>                         Remove project
           info <name>                               Show project details
+          env <subcommand> <name> [options]         Manage environment variables
           doctor                                    Check environment and runtimes
           help                                      Show this help
           version                                   Show version
-        
+
+        Environment Variables (pm env):
+          env set <name> KEY=VALUE[,KEY2=VALUE2]    Set variables
+          env get <name> KEY                        Get a variable value
+          env list <name> [--show]                  List variables (masked by default)
+          env remove <name> KEY                     Remove a variable
+          env clear <name>                          Remove all variables
+
         Examples:
           pm add backend-api --path ~/projects/backend-api
           pm add web-server --path ~/projects/web-server --env "PORT=3000,DEBUG=true"
           pm list
           pm build backend-api
           pm run web-server
+          pm env set web-server PORT=3000,DEBUG=true
+          pm env list web-server
           pm commands backend-api
           pm info web-server
         """);

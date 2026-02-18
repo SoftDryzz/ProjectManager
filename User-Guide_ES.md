@@ -11,13 +11,15 @@
 - [Referencia de Comandos](#-referencia-de-comandos)
   - [Gestión de Proyectos](#-gestión-de-proyectos)
   - [Ejecución de Comandos](#-ejecución-de-comandos)
+  - [Gestión de Variables de Entorno](#-gestión-de-variables-de-entorno)
+  - [Diagnósticos](#-diagnósticos)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
   - [¿Cómo Funcionan en ProjectManager?](#cómo-funcionan-en-projectmanager)
   - [Ejemplos de Uso](#ejemplos-de-uso)
   - [Ver Variables Configuradas](#ver-variables-configuradas)
-  - [Modificar Variables](#modificar-variables)
+  - [Gestionar Variables con pm env](#gestionar-variables-con-pm-env)
   - [Reglas de Formato](#reglas-de-formato)
   - [Ejemplos Prácticos Completos](#ejemplos-prácticos-completos)
   - [Dónde se Guardan](#dónde-se-guardan)
@@ -61,7 +63,7 @@ pm version
 
 Deberías ver algo como:
 ```
-ProjectManager 1.1.0
+ProjectManager 1.2.0
 Java 25.0.1
 ```
 
@@ -82,7 +84,7 @@ pm add web-api --path C:\Users\Usuario\projects\web-api
 **Salida Esperada:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.1.0         ║
+║  ProjectManager v1.2.0         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -296,6 +298,66 @@ Ejecuta los tests del proyecto (ej: `gradle test`, `mvn test`, `npm test`) **aut
 
 ---
 
+### 🔹 Gestión de Variables de Entorno
+
+#### Establecer variables
+```bash
+pm env set <nombre> KEY=VALUE[,KEY2=VALUE2]
+```
+
+**Ejemplo:**
+```bash
+pm env set mi-api PORT=8080,DEBUG=true,API_KEY=secret123
+```
+
+---
+
+#### Obtener una variable
+```bash
+pm env get <nombre> KEY
+```
+
+**Ejemplo:**
+```bash
+pm env get mi-api PORT
+# Salida: PORT=8080
+```
+
+---
+
+#### Listar variables
+```bash
+pm env list <nombre>           # Valores sensibles enmascarados
+pm env list <nombre> --show    # Todos los valores revelados
+```
+
+---
+
+#### Eliminar una variable
+```bash
+pm env remove <nombre> KEY
+```
+
+---
+
+#### Limpiar todas las variables
+```bash
+pm env clear <nombre>
+```
+
+---
+
+### 🔹 Diagnósticos
+
+#### Verificar salud del entorno
+```bash
+pm doctor
+```
+
+Verifica runtimes instalados (Java, Node.js, .NET, Python, Gradle, Maven) y valida las rutas de todos los proyectos registrados.
+
+---
+
 ### 🔹 Ayuda y Versión
 
 #### Ver ayuda
@@ -425,15 +487,43 @@ Environment Variables
 
 ---
 
-### Modificar Variables
+### Gestionar Variables con `pm env`
 
-**Actualmente:** Editar manualmente el archivo `projects.json`.
+Puedes gestionar variables de entorno en cualquier momento usando el comando `pm env`:
 
-**Ubicación:**
-- Windows: `C:\Users\Usuario\.projectmanager\projects.json`
-- Linux/Mac: `~/.projectmanager/projects.json`
+#### Establecer variables
+```bash
+# Establecer una o más variables
+pm env set mi-api PORT=8080
+pm env set mi-api PORT=8080,DEBUG=true,API_KEY=secret123
+```
 
-🚧 **Próximamente:** `pm env add/remove/update` para gestionar variables desde CLI.
+#### Obtener una variable específica
+```bash
+pm env get mi-api PORT
+# Salida: PORT=8080
+```
+
+#### Listar todas las variables
+```bash
+# Listar con valores sensibles enmascarados
+pm env list mi-api
+
+# Listar mostrando todos los valores
+pm env list mi-api --show
+```
+
+**Enmascaramiento:** Los valores cuya clave contiene `KEY`, `SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE` o `CREDENTIAL` se enmascaran por defecto (ej: `API_KEY = sk-***56`). Usa `--show` para revelar todos los valores.
+
+#### Eliminar una variable específica
+```bash
+pm env remove mi-api DEBUG
+```
+
+#### Limpiar todas las variables
+```bash
+pm env clear mi-api
+```
 
 ---
 
@@ -536,9 +626,12 @@ Las variables se almacenan en el archivo de configuración:
 
 #### ¿Puedo cambiar las variables después de registrar?
 
-Actualmente, necesitas editar manualmente el archivo `projects.json`.
-
-🚧 **Próximamente:** Comando `pm config` para modificar variables desde CLI.
+**¡Sí!** Usa el comando `pm env`:
+```bash
+pm env set mi-api PORT=9090          # Agregar o actualizar una variable
+pm env remove mi-api OLD_VAR         # Eliminar una variable específica
+pm env clear mi-api                  # Eliminar todas las variables
+```
 
 ---
 
@@ -638,7 +731,7 @@ pm info web-api
 **Salida:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.1.0         ║
+║  ProjectManager v1.2.0         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -669,8 +762,8 @@ Available Commands for web-api
 Environment Variables
 ─────────────────────
 
-  DEBUG      = true
-  GAME_MODE  = creative
+  PORT   = 8080
+  DEBUG  = true
 ```
 
 ---
@@ -863,8 +956,8 @@ ProjectManager guarda la información de tus proyectos en:
       "clean": "gradle clean"
     },
     "envVars": {
-      "DEBUG": "true",
-      "GAME_MODE": "creative"
+      "PORT": "8080",
+      "DEBUG": "true"
     },
     "lastModified": "2025-01-18T15:30:00Z"
   }
@@ -921,7 +1014,7 @@ pm add proyecto-viejo --path C:\nueva\ruta --env "VAR1=valor1"
 
 Actualmente, solo editando manualmente el archivo `projects.json`.
 
-🚧 **Próximamente:** Comando `pm config` para modificar comandos desde CLI.
+🚧 **Próximamente:** Comando `pm update` para modificar proyectos desde CLI.
 
 ### ¿Funciona con cualquier tipo de proyecto?
 
@@ -1028,31 +1121,42 @@ pm add nombre-proyecto --path C:\ruta --type GRADLE
 
 **Verificación:**
 
-1. Confirma que las variables están configuradas: `pm info nombre-proyecto`.
+1. Confirma que las variables están configuradas: `pm info nombre-proyecto` o `pm env list nombre-proyecto`.
 2. Las variables deberían aparecer en la sección "Environment Variables".
-3. Si no aparecen, vuelve a registrar el proyecto con `--env`.
+3. Si no aparecen, agrégalas con `pm env set nombre-proyecto KEY=VALUE`.
 
 ---
 
 ## 📝 Cheatsheet Rápido
 ```bash
 # === GESTIÓN ===
-pm add <nombre> --path <ruta>                    # Registrar proyecto
-pm add <nombre> --path <ruta> --env "C=v,C2=v2"  # Registrar con variables
-pm list                                          # Listar todos
-pm info <nombre>                                 # Ver detalles completos
-pm commands <nombre>                             # Ver comandos disponibles
-pm remove <nombre>                               # Eliminar (con confirmación)
-pm remove <nombre> --force                       # Eliminar (sin confirmación)
+pm add <nombre> --path <ruta>                      # Registrar proyecto
+pm add <nombre> --path <ruta> --env "C=v,C2=v2"    # Registrar con variables
+pm list                                            # Listar todos
+pm info <nombre>                                   # Ver detalles completos
+pm commands <nombre>                               # Ver comandos disponibles
+pm remove <nombre>                                 # Eliminar (con confirmación)
+pm remove <nombre> --force                         # Eliminar (sin confirmación)
 
 # === EJECUCIÓN ===
-pm build <nombre>                                # Compilar (con vars)
-pm run <nombre>                                  # Ejecutar (con vars)
-pm test <nombre>                                 # Tests (con vars)
+pm build <nombre>                                  # Compilar (con vars)
+pm run <nombre>                                    # Ejecutar (con vars)
+pm test <nombre>                                   # Tests (con vars)
+
+# === VARIABLES DE ENTORNO ===
+pm env set <nombre> KEY=VALUE[,K2=V2]              # Establecer variables
+pm env get <nombre> KEY                            # Obtener una variable
+pm env list <nombre>                               # Listar (enmascaradas)
+pm env list <nombre> --show                        # Listar (reveladas)
+pm env remove <nombre> KEY                         # Eliminar una variable
+pm env clear <nombre>                              # Eliminar todas
+
+# === DIAGNÓSTICOS ===
+pm doctor                                          # Verificar salud del entorno
 
 # === AYUDA ===
-pm help                                          # Ayuda general
-pm version                                       # Ver versión
+pm help                                            # Ayuda general
+pm version                                         # Ver versión
 ```
 
 ---

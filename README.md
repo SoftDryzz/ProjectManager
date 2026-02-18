@@ -204,6 +204,11 @@ pm version
 | `pm commands <name>` | View available commands |
 | `pm info <name>` | View detailed information (including Git status) |
 | `pm remove <name>` | Remove project |
+| `pm env set <name> KEY=VALUE` | Set environment variables |
+| `pm env get <name> KEY` | Get a variable value |
+| `pm env list <name> [--show]` | List variables (sensitive values masked) |
+| `pm env remove <name> KEY` | Remove a variable |
+| `pm env clear <name>` | Remove all variables |
 | `pm doctor` | Diagnose environment (runtimes, paths) |
 | `pm help` | Show help |
 | `pm version` | Show version |
@@ -299,12 +304,23 @@ pm add big-project --path ~/big-project --env "MAVEN_OPTS=-Xmx4G -XX:+UseG1GC"
 pm build big-project  # Uses 4GB RAM automatically
 ```
 
+### Manage Variables Anytime
+
+```bash
+pm env set my-api PORT=8080,DEBUG=true     # Set variables
+pm env get my-api PORT                     # Get a value
+pm env list my-api                         # List (sensitive values masked)
+pm env list my-api --show                  # List (all values revealed)
+pm env remove my-api DEBUG                 # Remove a variable
+pm env clear my-api                        # Remove all variables
+```
+
 ### How It Works
 
-1. **Register once** with variables
+1. **Register once** with variables (or add them later with `pm env set`)
 2. **Variables saved** in configuration
 3. **Automatically injected** when you run `pm build`, `pm run`, or `pm test`
-4. **View anytime** with `pm info`
+4. **View anytime** with `pm info` or `pm env list`
 
 ---
 
@@ -357,9 +373,9 @@ ProjectManager/
 │   ├── install.ps1               # Windows installer
 │   ├── install.sh                # Linux/Mac installer
 │   └── INSTALL.md                # Installation guide
-├── docs/
-│   ├── USER_GUIDE.md             # Complete user guide (English)
-│   └── User-Guide_ES.md          # Complete user guide (Spanish)
+├── User-Guide.md                 # Complete user guide (English)
+├── User-Guide_ES.md              # Complete user guide (Spanish)
+├── CONTRIBUTING.md               # Contribution guidelines
 └── pom.xml
 ```
 
@@ -387,12 +403,12 @@ Projects are saved in:
 - [x] Git integration (branch, status, pending commits)
 - [x] GitHub Actions (CI/CD)
 - [x] Environment variables per project
-- [x] Unit tests (156 tests across 14 test classes)
+- [x] Unit tests (172 tests across 15 test classes)
 - [x] Runtime checker (detects missing runtimes with install instructions)
 - [x] `pm doctor` command (environment diagnostics)
+- [x] `pm env` command to manage variables from CLI (set, get, list, remove, clear)
 
 ### 🔨 Planned (Priority Order)
-- [ ] `pm env` command to manage variables from CLI
 - [ ] Command aliases for long project names
 - [ ] `pm update <name>` command to modify existing projects (path, env vars, type)
 - [ ] Pre- / post-command hooks
@@ -404,25 +420,6 @@ Projects are saved in:
 - [ ] Shell autocompletion (bash/zsh/PowerShell tab completion)
 
 ---
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the project
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License. See `LICENSE` file for details.
-
----
-
 
 ## 🐛 Found a Bug?
 
@@ -461,6 +458,27 @@ Have an idea to improve ProjectManager? We'd love to hear it!
 [Submit Feature Request](https://github.com/SoftDryzz/ProjectManager/issues/new/choose)
 
 ---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See `LICENSE` file for details.
+
+---
+
 ## 👤 Author
 
 **SoftDryzz**
@@ -471,4 +489,4 @@ Have an idea to improve ProjectManager? We'd love to hear it!
 
 **⭐ If ProjectManager saves you time, give it a star on GitHub!**
 
-**💬 Questions? Open an issue or check the [User Guide](docs/USER_GUIDE.md)**
+**💬 Questions? Open an issue or check the [User Guide](User-Guide.md)**

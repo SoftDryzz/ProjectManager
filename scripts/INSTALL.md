@@ -1,4 +1,3 @@
-@'
 # ProjectManager - Installation Guide
 
 ## Prerequisites
@@ -64,21 +63,3 @@ rm ~/bin/pm
 ```
 
 Then remove `~/bin` from your PATH in `.bashrc` or `.zshrc`.
-'@ | Out-File -FilePath scripts\INSTALL.md -Encoding UTF8
-
-Write-Host "✅ Creado: scripts\INSTALL.md" -ForegroundColor Green
-```
-
----
-
-## 📁 Estructura Final
-```
-ProjectManager/
-├── src/
-├── target/
-├── scripts/              ← NUEVO
-│   ├── install.ps1       ← Windows
-│   ├── install.sh        ← Linux/Mac
-│   └── INSTALL.md        ← Guía
-├── pom.xml
-└── README.md

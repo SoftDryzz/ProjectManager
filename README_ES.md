@@ -204,6 +204,11 @@ pm version
 | `pm commands <nombre>` | Ver comandos disponibles |
 | `pm info <nombre>` | Ver información detallada (incluyendo estado Git) |
 | `pm remove <nombre>` | Eliminar proyecto |
+| `pm env set <nombre> KEY=VALUE` | Configurar variables de entorno |
+| `pm env get <nombre> KEY` | Obtener valor de una variable |
+| `pm env list <nombre> [--show]` | Listar variables (valores sensibles enmascarados) |
+| `pm env remove <nombre> KEY` | Eliminar una variable |
+| `pm env clear <nombre>` | Eliminar todas las variables |
 | `pm doctor` | Diagnosticar entorno (runtimes, rutas) |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
@@ -299,12 +304,23 @@ pm add proyecto-grande --path ~/proyecto-grande --env "MAVEN_OPTS=-Xmx4G -XX:+Us
 pm build proyecto-grande  # Usa 4GB RAM automáticamente
 ```
 
+### Gestiona Variables en Cualquier Momento
+
+```bash
+pm env set mi-api PORT=8080,DEBUG=true     # Establecer variables
+pm env get mi-api PORT                     # Obtener un valor
+pm env list mi-api                         # Listar (valores sensibles enmascarados)
+pm env list mi-api --show                  # Listar (todos los valores revelados)
+pm env remove mi-api DEBUG                 # Eliminar una variable
+pm env clear mi-api                        # Eliminar todas las variables
+```
+
 ### Cómo Funciona
 
-1. **Registra una vez** con variables
+1. **Registra una vez** con variables (o agrégalas después con `pm env set`)
 2. **Variables guardadas** en configuración
 3. **Inyectadas automáticamente** cuando ejecutas `pm build`, `pm run` o `pm test`
-4. **Ver en cualquier momento** con `pm info`
+4. **Ver en cualquier momento** con `pm info` o `pm env list`
 
 ---
 
@@ -357,9 +373,9 @@ ProjectManager/
 │   ├── install.ps1               # Instalador Windows
 │   ├── install.sh                # Instalador Linux/Mac
 │   └── INSTALL.md                # Guía de instalación
-├── docs/
-│   ├── USER_GUIDE.md             # Guía completa (Inglés)
-│   └── User-Guide_ES.md          # Guía completa (Español)
+├── User-Guide.md                 # Guía completa (Inglés)
+├── User-Guide_ES.md              # Guía completa (Español)
+├── CONTRIBUTING.md               # Guía de contribución
 └── pom.xml
 ```
 
@@ -387,12 +403,12 @@ Los proyectos se guardan en:
 - [x] Integración Git (branch, status, commits pendientes)
 - [x] GitHub Actions (CI/CD)
 - [x] Variables de entorno por proyecto
-- [x] Tests unitarios (156 tests en 14 clases de test)
+- [x] Tests unitarios (172 tests en 15 clases de test)
 - [x] Runtime checker (detecta runtimes faltantes con instrucciones de instalación)
 - [x] Comando `pm doctor` (diagnóstico del entorno)
+- [x] Comando `pm env` para gestionar variables desde CLI (set, get, list, remove, clear)
 
 ### 🔨 Planeado (Orden de Prioridad)
-- [ ] Comando `pm env` para gestionar variables desde CLI
 - [ ] Alias de comandos para nombres de proyecto largos
 - [ ] Comando `pm update <name>` para modificar proyectos existentes (path, env vars, tipo)
 - [ ] Hooks pre/post comandos
@@ -473,4 +489,4 @@ Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para detalles.
 
 **⭐ Si ProjectManager te ahorra tiempo, ¡dale una estrella en GitHub!**
 
-**💬 ¿Preguntas? Abre un issue o consulta la [Guía de Usuario](docs/User-Guide_ES.md)**
+**💬 ¿Preguntas? Abre un issue o consulta la [Guía de Usuario](User-Guide_ES.md)**
