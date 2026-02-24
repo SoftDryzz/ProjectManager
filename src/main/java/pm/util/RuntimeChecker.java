@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
  * <p>If the runtime is not found, displays a friendly error with install instructions.
  *
  * @author SoftDryzz
- * @version 1.2.0
+ * @version 1.3.0
  * @since 1.1.0
  */
 public final class RuntimeChecker {
@@ -109,6 +109,51 @@ public final class RuntimeChecker {
                     System.exit(1);
                 }
             }
+            case RUST -> {
+                if (!isCommandAvailable("cargo", "--version")) {
+                    printMissing("Rust (Cargo)",
+                            "This Rust project requires Cargo (included with Rust).",
+                            "winget install Rustlang.Rustup",
+                            "https://rustup.rs/");
+                    System.exit(1);
+                }
+            }
+            case GO -> {
+                if (!isCommandAvailable("go", "version")) {
+                    printMissing("Go",
+                            "This Go project requires the Go toolchain.",
+                            "winget install GoLang.Go",
+                            "https://go.dev/dl/");
+                    System.exit(1);
+                }
+            }
+            case PNPM -> {
+                if (!isCommandAvailable("pnpm", "--version")) {
+                    printMissing("pnpm",
+                            "This project uses pnpm as package manager.",
+                            "winget install pnpm.pnpm",
+                            "https://pnpm.io/installation");
+                    System.exit(1);
+                }
+            }
+            case BUN -> {
+                if (!isCommandAvailable("bun", "--version")) {
+                    printMissing("Bun",
+                            "This project uses Bun as runtime and package manager.",
+                            "powershell -c \"irm bun.sh/install.ps1 | iex\"",
+                            "https://bun.sh/");
+                    System.exit(1);
+                }
+            }
+            case YARN -> {
+                if (!isCommandAvailable("yarn", "--version")) {
+                    printMissing("Yarn",
+                            "This project uses Yarn as package manager.",
+                            "npm install -g yarn",
+                            "https://yarnpkg.com/getting-started/install");
+                    System.exit(1);
+                }
+            }
         }
     }
 
@@ -134,6 +179,11 @@ public final class RuntimeChecker {
             case DOTNET -> isCommandAvailable("dotnet", "--version");
             case PYTHON -> isCommandAvailable("python", "--version") ||
                     isCommandAvailable("python3", "--version");
+            case RUST -> isCommandAvailable("cargo", "--version");
+            case GO -> isCommandAvailable("go", "version");
+            case PNPM -> isCommandAvailable("pnpm", "--version");
+            case BUN -> isCommandAvailable("bun", "--version");
+            case YARN -> isCommandAvailable("yarn", "--version");
             default -> true;
         };
     }

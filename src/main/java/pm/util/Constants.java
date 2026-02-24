@@ -15,7 +15,7 @@ import java.nio.file.Paths;
  * (utility class pattern).
  *
  * @author SoftDryzz
- * @version 1.2.0
+ * @version 1.3.0
  * @since 1.0.0
  */
 public final class Constants {
@@ -38,7 +38,7 @@ public final class Constants {
      * Current version of ProjectManager.
      * Follows Semantic Versioning (MAJOR.MINOR.PATCH).
      */
-    public static final String VERSION = "1.2.0";
+    public static final String VERSION = "1.3.0";
 
     // ============================================================
     // SYSTEM DIRECTORIES AND FILES
@@ -197,6 +197,77 @@ public final class Constants {
     public static final String TEST_DOTNET = "dotnet test";
 
     // ============================================================
+    // DEFAULT COMMANDS - RUST (CARGO)
+    // ============================================================
+
+    /** Default command to compile Rust projects. */
+    public static final String BUILD_CARGO = "cargo build";
+
+    /** Default command to run Rust projects. */
+    public static final String RUN_CARGO = "cargo run";
+
+    /** Default command to run tests in Rust projects. */
+    public static final String TEST_CARGO = "cargo test";
+
+    /** Command to clean generated files in Rust projects. */
+    public static final String CLEAN_CARGO = "cargo clean";
+
+    // ============================================================
+    // DEFAULT COMMANDS - GO
+    // ============================================================
+
+    /** Default command to compile Go projects. */
+    public static final String BUILD_GO = "go build ./...";
+
+    /** Default command to run Go projects. */
+    public static final String RUN_GO = "go run .";
+
+    /** Default command to run tests in Go projects. */
+    public static final String TEST_GO = "go test ./...";
+
+    /** Command to clean Go build cache. */
+    public static final String CLEAN_GO = "go clean";
+
+    // ============================================================
+    // DEFAULT COMMANDS - PNPM
+    // ============================================================
+
+    /** Default command to build pnpm projects. */
+    public static final String BUILD_PNPM = "pnpm build";
+
+    /** Default command to run pnpm projects. */
+    public static final String RUN_PNPM = "pnpm dev";
+
+    /** Default command to run tests in pnpm projects. */
+    public static final String TEST_PNPM = "pnpm test";
+
+    // ============================================================
+    // DEFAULT COMMANDS - BUN
+    // ============================================================
+
+    /** Default command to build Bun projects. */
+    public static final String BUILD_BUN = "bun run build";
+
+    /** Default command to run Bun projects. */
+    public static final String RUN_BUN = "bun run dev";
+
+    /** Default command to run tests in Bun projects. */
+    public static final String TEST_BUN = "bun test";
+
+    // ============================================================
+    // DEFAULT COMMANDS - YARN
+    // ============================================================
+
+    /** Default command to build Yarn projects. */
+    public static final String BUILD_YARN = "yarn build";
+
+    /** Default command to run Yarn projects. */
+    public static final String RUN_YARN = "yarn start";
+
+    /** Default command to run tests in Yarn projects. */
+    public static final String TEST_YARN = "yarn test";
+
+    // ============================================================
     // PROJECT TYPE DETECTION FILES
     // ============================================================
 
@@ -235,4 +306,22 @@ public final class Constants {
      * Contains the list of required pip packages.
      */
     public static final String FILE_REQUIREMENTS_TXT = "requirements.txt";
+
+    /** Rust project manifest file. */
+    public static final String FILE_CARGO_TOML = "Cargo.toml";
+
+    /** Go module definition file. */
+    public static final String FILE_GO_MOD = "go.mod";
+
+    /** pnpm lock file. */
+    public static final String FILE_PNPM_LOCK = "pnpm-lock.yaml";
+
+    /** Bun lock file (binary format). */
+    public static final String FILE_BUN_LOCKB = "bun.lockb";
+
+    /** Bun lock file (text format). */
+    public static final String FILE_BUN_LOCK = "bun.lock";
+
+    /** Yarn lock file. */
+    public static final String FILE_YARN_LOCK = "yarn.lock";
 }

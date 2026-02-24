@@ -163,7 +163,7 @@ pm run order-service
 
 ## ✨ Features
 
-- 🔍 **Automatic detection** - Detects Gradle, Maven, Node.js, .NET, Python automatically
+- 🔍 **Automatic detection** - Detects Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn automatically
 - 🎯 **Unified commands** - Same commands for all projects: `pm build`, `pm run`, `pm test`
 - 📦 **Centralized management** - All projects in one place, accessible from anywhere
 - ⚡ **Fast execution** - No folder navigation, instant command execution
@@ -172,6 +172,7 @@ pm run order-service
 - 🔧 **Environment variables** - Configure per-project variables (PORT, DEBUG, API_KEY, etc)
 - 🩺 **Runtime checker** - Detects missing runtimes before execution, shows install instructions
 - 🏥 **pm doctor** - Diagnose your environment: verify installed tools and validate project paths
+- 🔄 **Auto-update** - Check for updates on startup, update with `pm update`
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -194,13 +195,13 @@ No need to compile. Just download and run.
 
 **Step 2.** Download **two things**:
    - `Source code (zip)` — contains the install scripts
-   - `projectmanager-1.2.0.jar` — the pre-built application
+   - `projectmanager-1.3.0.jar` — the pre-built application
 
-**Step 3.** Extract the ZIP. You will get a folder like `ProjectManager-1.2.0/`. Copy the downloaded JAR inside it:
+**Step 3.** Extract the ZIP. You will get a folder like `ProjectManager-1.3.0/`. Copy the downloaded JAR inside it:
 
 ```
-ProjectManager-1.2.0/          ← extracted folder
-├── projectmanager-1.2.0.jar   ← place the JAR here
+ProjectManager-1.3.0/          ← extracted folder
+├── projectmanager-1.3.0.jar   ← place the JAR here
 ├── scripts/
 │   ├── install.ps1
 │   └── install.sh
@@ -208,7 +209,7 @@ ProjectManager-1.2.0/          ← extracted folder
 └── ...
 ```
 
-**Step 4.** Open a terminal **inside the `ProjectManager-1.2.0/` folder** and run the installer:
+**Step 4.** Open a terminal **inside the `ProjectManager-1.3.0/` folder** and run the installer:
 
 **Windows (PowerShell):** Right-click the folder → "Open in Terminal", then:
 ```powershell
@@ -278,6 +279,7 @@ pm version
 | `pm env list <name> [--show]` | List variables (sensitive values masked) |
 | `pm env remove <name> KEY` | Remove a variable |
 | `pm env clear <name>` | Remove all variables |
+| `pm update` | Update to the latest version |
 | `pm doctor` | Diagnose environment (runtimes, paths) |
 | `pm help` | Show help |
 | `pm version` | Show version |
@@ -339,9 +341,16 @@ Environment Variables
 |------|----------------|------------------|
 | **Gradle** | `build.gradle`, `build.gradle.kts` | build, run, test, clean |
 | **Maven** | `pom.xml` | package, exec:java, test, clean |
-| **Node.js** | `package.json` | build, start, test |
+| **Rust** | `Cargo.toml` | build, run, test, clean |
+| **Go** | `go.mod` | build, run, test, clean |
+| **pnpm** | `pnpm-lock.yaml` | build, dev, test |
+| **Bun** | `bun.lockb`, `bun.lock` | build, dev, test |
+| **Yarn** | `yarn.lock` | build, start, test |
+| **Node.js** | `package.json` (fallback) | build, start, test |
 | **.NET** | `*.csproj`, `*.fsproj` | build, run, test |
-| **Python** | `requirements.txt` | (manual configuration) |
+| **Python** | `requirements.txt`, `setup.py` | (manual configuration) |
+
+> **Detection priority:** When a project has both `package.json` and a lock file (pnpm-lock.yaml, bun.lockb, yarn.lock), the specific package manager is detected instead of generic Node.js.
 
 **Can't find your stack?** ProjectManager works with any project - just configure commands manually.
 
@@ -472,14 +481,15 @@ Projects are saved in:
 - [x] Git integration (branch, status, pending commits)
 - [x] GitHub Actions (CI/CD)
 - [x] Environment variables per project
-- [x] Unit tests (172 tests across 15 test classes)
+- [x] Unit tests (219 tests across 16 test classes)
 - [x] Runtime checker (detects missing runtimes with install instructions)
 - [x] `pm doctor` command (environment diagnostics)
 - [x] `pm env` command to manage variables from CLI (set, get, list, remove, clear)
+- [x] Support for Rust, Go, pnpm, Bun, Yarn (auto-detection, commands, runtime checks)
+- [x] `pm update` command (auto-update from GitHub Releases)
 
 ### 🔨 Planned (Priority Order)
 - [ ] Command aliases for long project names
-- [ ] `pm update <name>` command to modify existing projects (path, env vars, type)
 - [ ] Pre- / post-command hooks
 - [ ] `scan` command to detect @Command annotations
 

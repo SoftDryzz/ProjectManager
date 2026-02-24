@@ -98,6 +98,88 @@ class CommandConfiguratorTest {
     }
 
     // ============================================================
+    // RUST
+    // ============================================================
+
+    @Test
+    @DisplayName("Configures Rust default commands")
+    void configuresRust() {
+        Project project = createProject(ProjectType.RUST);
+        CommandConfigurator.configureDefaultCommands(project);
+
+        assertEquals(Constants.BUILD_CARGO, project.getCommand("build"));
+        assertEquals(Constants.RUN_CARGO, project.getCommand("run"));
+        assertEquals(Constants.TEST_CARGO, project.getCommand("test"));
+        assertEquals(Constants.CLEAN_CARGO, project.getCommand("clean"));
+        assertEquals(4, project.commandCount());
+    }
+
+    // ============================================================
+    // GO
+    // ============================================================
+
+    @Test
+    @DisplayName("Configures Go default commands")
+    void configuresGo() {
+        Project project = createProject(ProjectType.GO);
+        CommandConfigurator.configureDefaultCommands(project);
+
+        assertEquals(Constants.BUILD_GO, project.getCommand("build"));
+        assertEquals(Constants.RUN_GO, project.getCommand("run"));
+        assertEquals(Constants.TEST_GO, project.getCommand("test"));
+        assertEquals(Constants.CLEAN_GO, project.getCommand("clean"));
+        assertEquals(4, project.commandCount());
+    }
+
+    // ============================================================
+    // PNPM
+    // ============================================================
+
+    @Test
+    @DisplayName("Configures pnpm default commands")
+    void configuresPnpm() {
+        Project project = createProject(ProjectType.PNPM);
+        CommandConfigurator.configureDefaultCommands(project);
+
+        assertEquals(Constants.BUILD_PNPM, project.getCommand("build"));
+        assertEquals(Constants.RUN_PNPM, project.getCommand("run"));
+        assertEquals(Constants.TEST_PNPM, project.getCommand("test"));
+        assertEquals(3, project.commandCount());
+    }
+
+    // ============================================================
+    // BUN
+    // ============================================================
+
+    @Test
+    @DisplayName("Configures Bun default commands")
+    void configuresBun() {
+        Project project = createProject(ProjectType.BUN);
+        CommandConfigurator.configureDefaultCommands(project);
+
+        assertEquals(Constants.BUILD_BUN, project.getCommand("build"));
+        assertEquals(Constants.RUN_BUN, project.getCommand("run"));
+        assertEquals(Constants.TEST_BUN, project.getCommand("test"));
+        assertEquals(3, project.commandCount());
+    }
+
+    // ============================================================
+    // YARN
+    // ============================================================
+
+    @Test
+    @DisplayName("Configures Yarn default commands")
+    void configuresYarn() {
+        Project project = createProject(ProjectType.YARN);
+        CommandConfigurator.configureDefaultCommands(project);
+
+        assertEquals(Constants.BUILD_YARN, project.getCommand("build"));
+        assertEquals(Constants.RUN_YARN, project.getCommand("run"));
+        assertEquals(Constants.TEST_YARN, project.getCommand("test"));
+        assertEquals(3, project.commandCount());
+    }
+
+    // ============================================================
     // UNKNOWN
     // ============================================================
 

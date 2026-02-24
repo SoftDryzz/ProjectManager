@@ -10,6 +10,7 @@ import pm.util.ArgsParser;
 import pm.util.CommandConfigurator;
 import pm.util.Constants;
 import pm.util.RuntimeChecker;
+import pm.util.UpdateChecker;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,11 +42,12 @@ import java.util.Map;
  * pm remove NAME                        Remove project
  * pm info NAME                          Show project information
  * pm env SUBCOMMAND NAME [options]      Manage environment variables
+ * pm update                             Update to the latest version
  * pm help                               Show help
  * </pre>
  *
  * @author SoftDryzz
- * @version 1.2.0
+ * @version 1.3.0
  * @since 1.0.0
  */
 public class ProjectManager {
@@ -62,6 +64,9 @@ public class ProjectManager {
      */
     public static void main(String[] args) {
         printBanner();
+
+        // Check for updates in the background (non-blocking, 2s timeout)
+        UpdateChecker.checkForUpdates();
 
         if (args.length == 0) {
             printHelp();
@@ -82,6 +87,7 @@ public class ProjectManager {
                 case "remove", "rm" -> handleRemove(args);
                 case "info" -> handleInfo(args);
                 case "env" -> handleEnv(args);
+                case "update" -> UpdateChecker.performUpdate();
                 case "doctor" -> handleDoctor();
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
@@ -180,7 +186,7 @@ public class ProjectManager {
                 detectedType = ProjectType.valueOf(typeFlag.toUpperCase());
             } catch (IllegalArgumentException e) {
                 OutputFormatter.error("Invalid project type: " + typeFlag);
-                System.out.println("Valid types: GRADLE, MAVEN, NODEJS, DOTNET, PYTHON");
+                System.out.println("Valid types: GRADLE, MAVEN, NODEJS, DOTNET, PYTHON, RUST, GO, PNPM, BUN, YARN");
                 System.exit(1);
                 return;
             }
@@ -951,6 +957,11 @@ public class ProjectManager {
                 {"npm",     "npm",     "--version"},
                 {".NET",    "dotnet",  "--version"},
                 {"Python",  "python",  "--version"},
+                {"Rust",    "cargo",   "--version"},
+                {"Go",      "go",      "version"},
+                {"pnpm",    "pnpm",    "--version"},
+                {"Bun",     "bun",     "--version"},
+                {"Yarn",    "yarn",    "--version"},
         };
 
         for (String[] rt : runtimes) {
@@ -1048,6 +1059,7 @@ public class ProjectManager {
           remove, rm <name>                         Remove project
           info <name>                               Show project details
           env <subcommand> <name> [options]         Manage environment variables
+          update                                    Update to the latest version
           doctor                                    Check environment and runtimes
           help                                      Show this help
           version                                   Show version

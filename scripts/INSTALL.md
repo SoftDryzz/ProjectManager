@@ -14,11 +14,11 @@
 
 Go to [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest) and download:
 - The **Source code** (ZIP) — contains the install scripts
-- The **`projectmanager-1.2.0.jar`** file — the pre-built application
+- The **`projectmanager-1.3.0.jar`** file — the pre-built application
 
 ### 2. Extract the ZIP and place the JAR
 
-Extract the ZIP file, then copy the downloaded `projectmanager-1.2.0.jar` into the extracted folder (next to the `scripts/` directory).
+Extract the ZIP file, then copy the downloaded `projectmanager-1.3.0.jar` into the extracted folder (next to the `scripts/` directory).
 
 ### 3. Run the installer
 

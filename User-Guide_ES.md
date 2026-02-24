@@ -63,7 +63,7 @@ pm version
 
 Deberías ver algo como:
 ```
-ProjectManager 1.2.0
+ProjectManager 1.3.0
 Java 25.0.1
 ```
 
@@ -84,7 +84,7 @@ pm add web-api --path C:\Users\Usuario\projects\web-api
 **Salida Esperada:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.2.0         ║
+║  ProjectManager v1.3.0         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -731,7 +731,7 @@ pm info web-api
 **Salida:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.2.0         ║
+║  ProjectManager v1.3.0         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 

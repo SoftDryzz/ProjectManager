@@ -84,6 +84,45 @@ class RuntimeCheckerTest {
     }
 
     // ============================================================
+    // isRuntimeAvailable for new types (returns boolean, no exit)
+    // ============================================================
+
+    @Test
+    @DisplayName("Rust runtime availability returns a boolean")
+    void rustRuntimeAvailability() {
+        boolean result = RuntimeChecker.isRuntimeAvailable(ProjectType.RUST);
+        assertEquals(RuntimeChecker.isCommandAvailable("cargo", "--version"), result);
+    }
+
+    @Test
+    @DisplayName("Go runtime availability returns a boolean")
+    void goRuntimeAvailability() {
+        boolean result = RuntimeChecker.isRuntimeAvailable(ProjectType.GO);
+        assertEquals(RuntimeChecker.isCommandAvailable("go", "version"), result);
+    }
+
+    @Test
+    @DisplayName("pnpm runtime availability returns a boolean")
+    void pnpmRuntimeAvailability() {
+        boolean result = RuntimeChecker.isRuntimeAvailable(ProjectType.PNPM);
+        assertEquals(RuntimeChecker.isCommandAvailable("pnpm", "--version"), result);
+    }
+
+    @Test
+    @DisplayName("Bun runtime availability returns a boolean")
+    void bunRuntimeAvailability() {
+        boolean result = RuntimeChecker.isRuntimeAvailable(ProjectType.BUN);
+        assertEquals(RuntimeChecker.isCommandAvailable("bun", "--version"), result);
+    }
+
+    @Test
+    @DisplayName("Yarn runtime availability returns a boolean")
+    void yarnRuntimeAvailability() {
+        boolean result = RuntimeChecker.isRuntimeAvailable(ProjectType.YARN);
+        assertEquals(RuntimeChecker.isCommandAvailable("yarn", "--version"), result);
+    }
+
+    // ============================================================
     // checkRuntime (should not exit for available runtimes)
     // ============================================================
 

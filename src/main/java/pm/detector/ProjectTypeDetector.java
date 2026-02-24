@@ -10,18 +10,23 @@ import java.util.stream.Stream;
 /**
  * Automatically detects the project type by analyzing files.
  *
- * <p>Detection strategy:
+ * <p>Detection strategy (in priority order):
  * <ul>
  * <li>Gradle: presence of build.gradle or build.gradle.kts</li>
  * <li>Maven: presence of pom.xml</li>
- * <li>Node.js: presence of package.json</li>
+ * <li>Rust: presence of Cargo.toml</li>
+ * <li>Go: presence of go.mod</li>
+ * <li>pnpm: presence of pnpm-lock.yaml (+ package.json)</li>
+ * <li>Bun: presence of bun.lockb or bun.lock (+ package.json)</li>
+ * <li>Yarn: presence of yarn.lock (+ package.json)</li>
+ * <li>Node.js: presence of package.json (fallback for JS/TS projects)</li>
  * <li>.NET: presence of *.csproj or *.fsproj files</li>
  * <li>Python: presence of requirements.txt or setup.py</li>
  * <li>Unknown: none of the above</li>
  * </ul>
  *
  * @author SoftDryzz
- * @version 1.2.0
+ * @version 1.3.0
  * @since 1.0.0
  */
 public class ProjectTypeDetector {
@@ -60,17 +65,43 @@ public class ProjectTypeDetector {
             return ProjectType.MAVEN;
         }
 
-        // 3. Node.js (package.json)
+        // 3. Rust (Cargo.toml)
+        if (fileExists(projectPath, Constants.FILE_CARGO_TOML)) {
+            return ProjectType.RUST;
+        }
+
+        // 4. Go (go.mod)
+        if (fileExists(projectPath, Constants.FILE_GO_MOD)) {
+            return ProjectType.GO;
+        }
+
+        // 5. pnpm (pnpm-lock.yaml + package.json)
+        if (fileExists(projectPath, Constants.FILE_PNPM_LOCK)) {
+            return ProjectType.PNPM;
+        }
+
+        // 6. Bun (bun.lockb or bun.lock)
+        if (fileExists(projectPath, Constants.FILE_BUN_LOCKB) ||
+                fileExists(projectPath, Constants.FILE_BUN_LOCK)) {
+            return ProjectType.BUN;
+        }
+
+        // 7. Yarn (yarn.lock)
+        if (fileExists(projectPath, Constants.FILE_YARN_LOCK)) {
+            return ProjectType.YARN;
+        }
+
+        // 8. Node.js (package.json - fallback for JS/TS without specific lock file)
         if (fileExists(projectPath, Constants.FILE_PACKAGE_JSON)) {
             return ProjectType.NODEJS;
         }
 
-        // 4. .NET (*.csproj o *.fsproj)
+        // 9. .NET (*.csproj o *.fsproj)
         if (hasCsprojFile(projectPath)) {
             return ProjectType.DOTNET;
         }
 
-        // 5. Python (requirements.txt o setup.py)
+        // 10. Python (requirements.txt o setup.py)
         if (fileExists(projectPath, Constants.FILE_REQUIREMENTS_TXT) ||
                 fileExists(projectPath, "setup.py")) {
             return ProjectType.PYTHON;

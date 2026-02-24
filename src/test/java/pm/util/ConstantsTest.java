@@ -79,6 +79,48 @@ class ConstantsTest {
     }
 
     @Test
+    @DisplayName("Rust commands are not blank")
+    void rustCommandsExist() {
+        assertFalse(Constants.BUILD_CARGO.isBlank());
+        assertFalse(Constants.RUN_CARGO.isBlank());
+        assertFalse(Constants.TEST_CARGO.isBlank());
+        assertFalse(Constants.CLEAN_CARGO.isBlank());
+    }
+
+    @Test
+    @DisplayName("Go commands are not blank")
+    void goCommandsExist() {
+        assertFalse(Constants.BUILD_GO.isBlank());
+        assertFalse(Constants.RUN_GO.isBlank());
+        assertFalse(Constants.TEST_GO.isBlank());
+        assertFalse(Constants.CLEAN_GO.isBlank());
+    }
+
+    @Test
+    @DisplayName("pnpm commands are not blank")
+    void pnpmCommandsExist() {
+        assertFalse(Constants.BUILD_PNPM.isBlank());
+        assertFalse(Constants.RUN_PNPM.isBlank());
+        assertFalse(Constants.TEST_PNPM.isBlank());
+    }
+
+    @Test
+    @DisplayName("Bun commands are not blank")
+    void bunCommandsExist() {
+        assertFalse(Constants.BUILD_BUN.isBlank());
+        assertFalse(Constants.RUN_BUN.isBlank());
+        assertFalse(Constants.TEST_BUN.isBlank());
+    }
+
+    @Test
+    @DisplayName("Yarn commands are not blank")
+    void yarnCommandsExist() {
+        assertFalse(Constants.BUILD_YARN.isBlank());
+        assertFalse(Constants.RUN_YARN.isBlank());
+        assertFalse(Constants.TEST_YARN.isBlank());
+    }
+
+    @Test
     @DisplayName("Detection file names are not blank")
     void detectionFilesExist() {
         assertFalse(Constants.FILE_BUILD_GRADLE.isBlank());
@@ -87,6 +129,12 @@ class ConstantsTest {
         assertFalse(Constants.FILE_PACKAGE_JSON.isBlank());
         assertFalse(Constants.FILE_CSPROJ.isBlank());
         assertFalse(Constants.FILE_REQUIREMENTS_TXT.isBlank());
+        assertFalse(Constants.FILE_CARGO_TOML.isBlank());
+        assertFalse(Constants.FILE_GO_MOD.isBlank());
+        assertFalse(Constants.FILE_PNPM_LOCK.isBlank());
+        assertFalse(Constants.FILE_BUN_LOCKB.isBlank());
+        assertFalse(Constants.FILE_BUN_LOCK.isBlank());
+        assertFalse(Constants.FILE_YARN_LOCK.isBlank());
     }
 
     @Test

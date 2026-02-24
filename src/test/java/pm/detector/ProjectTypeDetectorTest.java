@@ -72,11 +72,69 @@ class ProjectTypeDetectorTest {
         assertEquals(ProjectType.PYTHON, ProjectTypeDetector.detect(tempDir));
     }
 
+    // ============================================================
+    // NEW RUNTIMES: Rust, Go, pnpm, Bun, Yarn
+    // ============================================================
+
+    @Test
+    @DisplayName("Detects Rust project (Cargo.toml)")
+    void detectsRust() throws IOException {
+        Files.createFile(tempDir.resolve("Cargo.toml"));
+        assertEquals(ProjectType.RUST, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Detects Go project (go.mod)")
+    void detectsGo() throws IOException {
+        Files.createFile(tempDir.resolve("go.mod"));
+        assertEquals(ProjectType.GO, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Detects pnpm project (pnpm-lock.yaml)")
+    void detectsPnpm() throws IOException {
+        Files.createFile(tempDir.resolve("pnpm-lock.yaml"));
+        Files.createFile(tempDir.resolve("package.json"));
+        assertEquals(ProjectType.PNPM, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Detects Bun project (bun.lockb)")
+    void detectsBunLockb() throws IOException {
+        Files.createFile(tempDir.resolve("bun.lockb"));
+        Files.createFile(tempDir.resolve("package.json"));
+        assertEquals(ProjectType.BUN, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Detects Bun project (bun.lock)")
+    void detectsBunLock() throws IOException {
+        Files.createFile(tempDir.resolve("bun.lock"));
+        Files.createFile(tempDir.resolve("package.json"));
+        assertEquals(ProjectType.BUN, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Detects Yarn project (yarn.lock)")
+    void detectsYarn() throws IOException {
+        Files.createFile(tempDir.resolve("yarn.lock"));
+        Files.createFile(tempDir.resolve("package.json"));
+        assertEquals(ProjectType.YARN, ProjectTypeDetector.detect(tempDir));
+    }
+
+    // ============================================================
+    // UNKNOWN & EDGE CASES
+    // ============================================================
+
     @Test
     @DisplayName("Returns UNKNOWN for empty directory")
     void returnsUnknownForEmpty() {
         assertEquals(ProjectType.UNKNOWN, ProjectTypeDetector.detect(tempDir));
     }
+
+    // ============================================================
+    // PRIORITY TESTS
+    // ============================================================
 
     @Test
     @DisplayName("Gradle has priority over Maven when both exist")
@@ -94,6 +152,72 @@ class ProjectTypeDetectorTest {
         Files.createFile(tempDir.resolve("package.json"));
 
         assertEquals(ProjectType.MAVEN, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("pnpm has priority over Node.js (package.json + pnpm-lock.yaml)")
+    void pnpmPriorityOverNodejs() throws IOException {
+        Files.createFile(tempDir.resolve("package.json"));
+        Files.createFile(tempDir.resolve("pnpm-lock.yaml"));
+
+        assertEquals(ProjectType.PNPM, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Bun has priority over Node.js (package.json + bun.lockb)")
+    void bunPriorityOverNodejs() throws IOException {
+        Files.createFile(tempDir.resolve("package.json"));
+        Files.createFile(tempDir.resolve("bun.lockb"));
+
+        assertEquals(ProjectType.BUN, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Yarn has priority over Node.js (package.json + yarn.lock)")
+    void yarnPriorityOverNodejs() throws IOException {
+        Files.createFile(tempDir.resolve("package.json"));
+        Files.createFile(tempDir.resolve("yarn.lock"));
+
+        assertEquals(ProjectType.YARN, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Rust has priority over Go when both exist")
+    void rustPriorityOverGo() throws IOException {
+        Files.createFile(tempDir.resolve("Cargo.toml"));
+        Files.createFile(tempDir.resolve("go.mod"));
+
+        assertEquals(ProjectType.RUST, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("pnpm has priority over Yarn when both lock files exist")
+    void pnpmPriorityOverYarn() throws IOException {
+        Files.createFile(tempDir.resolve("package.json"));
+        Files.createFile(tempDir.resolve("pnpm-lock.yaml"));
+        Files.createFile(tempDir.resolve("yarn.lock"));
+
+        assertEquals(ProjectType.PNPM, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("pnpm has priority over Bun when both lock files exist")
+    void pnpmPriorityOverBun() throws IOException {
+        Files.createFile(tempDir.resolve("package.json"));
+        Files.createFile(tempDir.resolve("pnpm-lock.yaml"));
+        Files.createFile(tempDir.resolve("bun.lockb"));
+
+        assertEquals(ProjectType.PNPM, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Bun has priority over Yarn when both lock files exist")
+    void bunPriorityOverYarn() throws IOException {
+        Files.createFile(tempDir.resolve("package.json"));
+        Files.createFile(tempDir.resolve("bun.lockb"));
+        Files.createFile(tempDir.resolve("yarn.lock"));
+
+        assertEquals(ProjectType.BUN, ProjectTypeDetector.detect(tempDir));
     }
 
     @Test

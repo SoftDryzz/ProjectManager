@@ -29,7 +29,7 @@ import pm.detector.ProjectType;
  * }</pre>
  *
  * @author SoftDryzz
- * @version 1.2.0
+ * @version 1.3.0
  * @since 1.0.0
  */
 public class CommandConfigurator {
@@ -63,6 +63,11 @@ public class CommandConfigurator {
             case NODEJS -> configureNodeJS(project);
             case DOTNET -> configureDotNet(project);
             case PYTHON -> configurePython(project);
+            case RUST -> configureRust(project);
+            case GO -> configureGo(project);
+            case PNPM -> configurePnpm(project);
+            case BUN -> configureBun(project);
+            case YARN -> configureYarn(project);
             case UNKNOWN -> {
                 // Do not configure commands for unknown projects
                 // The user will have to add them manually
@@ -125,6 +130,38 @@ public class CommandConfigurator {
         // Python does not have universal standard commands
         // It depends heavily on the project (Django, Flask, simple script, etc.)
         // Let the user configure them manually
+    }
+
+    private static void configureRust(Project project) {
+        addIfAbsent(project, "build", Constants.BUILD_CARGO);
+        addIfAbsent(project, "run", Constants.RUN_CARGO);
+        addIfAbsent(project, "test", Constants.TEST_CARGO);
+        addIfAbsent(project, "clean", Constants.CLEAN_CARGO);
+    }
+
+    private static void configureGo(Project project) {
+        addIfAbsent(project, "build", Constants.BUILD_GO);
+        addIfAbsent(project, "run", Constants.RUN_GO);
+        addIfAbsent(project, "test", Constants.TEST_GO);
+        addIfAbsent(project, "clean", Constants.CLEAN_GO);
+    }
+
+    private static void configurePnpm(Project project) {
+        addIfAbsent(project, "build", Constants.BUILD_PNPM);
+        addIfAbsent(project, "run", Constants.RUN_PNPM);
+        addIfAbsent(project, "test", Constants.TEST_PNPM);
+    }
+
+    private static void configureBun(Project project) {
+        addIfAbsent(project, "build", Constants.BUILD_BUN);
+        addIfAbsent(project, "run", Constants.RUN_BUN);
+        addIfAbsent(project, "test", Constants.TEST_BUN);
+    }
+
+    private static void configureYarn(Project project) {
+        addIfAbsent(project, "build", Constants.BUILD_YARN);
+        addIfAbsent(project, "run", Constants.RUN_YARN);
+        addIfAbsent(project, "test", Constants.TEST_YARN);
     }
 
     /**

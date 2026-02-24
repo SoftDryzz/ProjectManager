@@ -163,7 +163,7 @@ pm run servicio-pedidos
 
 ## ✨ Características
 
-- 🔍 **Detección automática** - Detecta Gradle, Maven, Node.js, .NET, Python automáticamente
+- 🔍 **Detección automática** - Detecta Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn automáticamente
 - 🎯 **Comandos unificados** - Mismos comandos para todos los proyectos: `pm build`, `pm run`, `pm test`
 - 📦 **Gestión centralizada** - Todos los proyectos en un lugar, accesibles desde cualquier parte
 - ⚡ **Ejecución rápida** - Sin navegación de carpetas, ejecución instantánea de comandos
@@ -172,6 +172,7 @@ pm run servicio-pedidos
 - 🔧 **Variables de entorno** - Configura variables por proyecto (PORT, DEBUG, API_KEY, etc)
 - 🩺 **Runtime checker** - Detecta runtimes faltantes antes de ejecutar, muestra instrucciones de instalación
 - 🏥 **pm doctor** - Diagnostica tu entorno: verifica herramientas instaladas y valida rutas de proyectos
+- 🔄 **Auto-actualización** - Comprueba actualizaciones al arrancar, actualiza con `pm update`
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -194,13 +195,13 @@ No necesitas compilar. Solo descarga y ejecuta.
 
 **Paso 2.** Descarga **dos cosas**:
    - `Source code (zip)` — contiene los scripts de instalación
-   - `projectmanager-1.2.0.jar` — la aplicación pre-compilada
+   - `projectmanager-1.3.0.jar` — la aplicación pre-compilada
 
-**Paso 3.** Extrae el ZIP. Obtendrás una carpeta como `ProjectManager-1.2.0/`. Copia el JAR descargado dentro:
+**Paso 3.** Extrae el ZIP. Obtendrás una carpeta como `ProjectManager-1.3.0/`. Copia el JAR descargado dentro:
 
 ```
-ProjectManager-1.2.0/          ← carpeta extraída
-├── projectmanager-1.2.0.jar   ← coloca el JAR aquí
+ProjectManager-1.3.0/          ← carpeta extraída
+├── projectmanager-1.3.0.jar   ← coloca el JAR aquí
 ├── scripts/
 │   ├── install.ps1
 │   └── install.sh
@@ -208,7 +209,7 @@ ProjectManager-1.2.0/          ← carpeta extraída
 └── ...
 ```
 
-**Paso 4.** Abre una terminal **dentro de la carpeta `ProjectManager-1.2.0/`** y ejecuta el instalador:
+**Paso 4.** Abre una terminal **dentro de la carpeta `ProjectManager-1.3.0/`** y ejecuta el instalador:
 
 **Windows (PowerShell):** Clic derecho en la carpeta → "Abrir en Terminal", luego:
 ```powershell
@@ -278,6 +279,7 @@ pm version
 | `pm env list <nombre> [--show]` | Listar variables (valores sensibles enmascarados) |
 | `pm env remove <nombre> KEY` | Eliminar una variable |
 | `pm env clear <nombre>` | Eliminar todas las variables |
+| `pm update` | Actualizar a la última versión |
 | `pm doctor` | Diagnosticar entorno (runtimes, rutas) |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
@@ -339,9 +341,16 @@ Environment Variables
 |------|----------------------|---------------------|
 | **Gradle** | `build.gradle`, `build.gradle.kts` | build, run, test, clean |
 | **Maven** | `pom.xml` | package, exec:java, test, clean |
-| **Node.js** | `package.json` | build, start, test |
+| **Rust** | `Cargo.toml` | build, run, test, clean |
+| **Go** | `go.mod` | build, run, test, clean |
+| **pnpm** | `pnpm-lock.yaml` | build, dev, test |
+| **Bun** | `bun.lockb`, `bun.lock` | build, dev, test |
+| **Yarn** | `yarn.lock` | build, start, test |
+| **Node.js** | `package.json` (fallback) | build, start, test |
 | **.NET** | `*.csproj`, `*.fsproj` | build, run, test |
-| **Python** | `requirements.txt` | (configuración manual) |
+| **Python** | `requirements.txt`, `setup.py` | (configuración manual) |
+
+> **Prioridad de detección:** Cuando un proyecto tiene `package.json` y un lock file (pnpm-lock.yaml, bun.lockb, yarn.lock), se detecta el package manager específico en vez del Node.js genérico.
 
 **¿No encuentras tu tecnología?** ProjectManager funciona con cualquier proyecto - solo configura comandos manualmente.
 
@@ -472,14 +481,15 @@ Los proyectos se guardan en:
 - [x] Integración Git (branch, status, commits pendientes)
 - [x] GitHub Actions (CI/CD)
 - [x] Variables de entorno por proyecto
-- [x] Tests unitarios (172 tests en 15 clases de test)
+- [x] Tests unitarios (219 tests en 16 clases de test)
 - [x] Runtime checker (detecta runtimes faltantes con instrucciones de instalación)
 - [x] Comando `pm doctor` (diagnóstico del entorno)
 - [x] Comando `pm env` para gestionar variables desde CLI (set, get, list, remove, clear)
+- [x] Soporte para Rust, Go, pnpm, Bun, Yarn (detección automática, comandos, runtime checks)
+- [x] Comando `pm update` (auto-actualización desde GitHub Releases)
 
 ### 🔨 Planeado (Orden de Prioridad)
 - [ ] Alias de comandos para nombres de proyecto largos
-- [ ] Comando `pm update <name>` para modificar proyectos existentes (path, env vars, tipo)
 - [ ] Hooks pre/post comandos
 - [ ] Comando `scan` para detectar anotaciones @Command
 

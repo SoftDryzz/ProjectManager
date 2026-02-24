@@ -24,7 +24,7 @@ package pm.detector;
  * }</pre>
  *
  * @author SoftDryzz
- * @version 1.2.0
+ * @version 1.3.0
  * @since 1.0.0
  */
 public enum ProjectType {
@@ -68,6 +68,46 @@ public enum ProjectType {
      * <p>Typical commands: pip install -r requirements.txt, python main.py
      */
     PYTHON("Python"),
+
+    /**
+     * Rust project using Cargo as the build system.
+     *
+     * <p>Detection: Presence of Cargo.toml
+     * <p>Typical commands: cargo build, cargo run, cargo test
+     */
+    RUST("Rust"),
+
+    /**
+     * Go project using the Go toolchain.
+     *
+     * <p>Detection: Presence of go.mod
+     * <p>Typical commands: go build, go run ., go test ./...
+     */
+    GO("Go"),
+
+    /**
+     * JavaScript/TypeScript project using pnpm as the package manager.
+     *
+     * <p>Detection: Presence of pnpm-lock.yaml
+     * <p>Typical commands: pnpm build, pnpm dev, pnpm test
+     */
+    PNPM("pnpm"),
+
+    /**
+     * JavaScript/TypeScript project using Bun as runtime and package manager.
+     *
+     * <p>Detection: Presence of bun.lockb or bun.lock
+     * <p>Typical commands: bun run build, bun run dev, bun test
+     */
+    BUN("Bun"),
+
+    /**
+     * JavaScript/TypeScript project using Yarn as the package manager.
+     *
+     * <p>Detection: Presence of yarn.lock
+     * <p>Typical commands: yarn build, yarn start, yarn test
+     */
+    YARN("Yarn"),
 
     /**
      * Unknown or unsupported project type.
