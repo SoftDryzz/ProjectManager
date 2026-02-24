@@ -68,11 +68,16 @@ BIN_DIR="$HOME/bin"
 mkdir -p "$BIN_DIR"
 echo "✅ Directory: $BIN_DIR"
 
-# 4. Create pm script pointing to permanent location
+# 4. Create pm script pointing to permanent location (with auto-update swap)
 PM_SCRIPT="$BIN_DIR/pm"
 cat > "$PM_SCRIPT" << EOF
 #!/bin/bash
-java -jar "$INSTALLED_JAR" "\$@"
+PM_JAR="$INSTALLED_JAR"
+PM_NEW="\${PM_JAR}.new"
+if [ -f "\$PM_NEW" ]; then
+    mv -f "\$PM_NEW" "\$PM_JAR"
+fi
+java -jar "\$PM_JAR" "\$@"
 EOF
 
 chmod +x "$PM_SCRIPT"

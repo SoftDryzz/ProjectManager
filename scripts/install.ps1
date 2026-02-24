@@ -73,11 +73,17 @@ if (-not (Test-Path $binDir)) {
     Write-Host "Created: $binDir" -ForegroundColor Green
 }
 
-# 4. Create pm.bat pointing to permanent location
+# 4. Create pm.bat pointing to permanent location (with auto-update swap)
 $pmBat = "$binDir\pm.bat"
 @"
 @echo off
-java -jar "$installedJar" %*
+set "PM_JAR=$installedJar"
+set "PM_NEW=$installDir\projectmanager.jar.new"
+if exist "%PM_NEW%" (
+    del "%PM_JAR%" 2>nul
+    move "%PM_NEW%" "%PM_JAR%" >nul
+)
+java -jar "%PM_JAR%" %*
 "@ | Out-File -FilePath $pmBat -Encoding ASCII -Force
 
 Write-Host "Created: $pmBat" -ForegroundColor Green

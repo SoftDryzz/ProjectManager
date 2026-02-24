@@ -110,7 +110,7 @@ public final class UpdateChecker {
         OutputFormatter.info("Downloading " + jarFileName + "...");
 
         Path installDir = Constants.CONFIG_DIR;
-        Path targetJar = installDir.resolve("projectmanager.jar");
+        Path pendingJar = installDir.resolve("projectmanager.jar.new");
         Path tempJar = installDir.resolve("projectmanager.jar.tmp");
 
         try {
@@ -131,20 +131,24 @@ public final class UpdateChecker {
                 return;
             }
 
-            // Replace old JAR with new one
-            Files.move(tempJar, targetJar, StandardCopyOption.REPLACE_EXISTING);
+            // Save as .new — the wrapper script (pm/pm.bat) will swap it
+            // on next launch when the JVM is NOT holding a file lock.
+            Files.move(tempJar, pendingJar, StandardCopyOption.REPLACE_EXISTING);
 
             System.out.println();
-            OutputFormatter.success("Updated to version " + latestVersion + "!");
+            OutputFormatter.success("Update downloaded! Version " + latestVersion + " will be active on next run.");
             System.out.println();
-            System.out.println("  Installed to: " + targetJar);
+            System.out.println("  Downloaded: " + pendingJar);
             System.out.println("  Size: " + formatFileSize(fileSize));
+            System.out.println();
+            System.out.println("  " + OutputFormatter.YELLOW + "Restart pm to use the new version." + OutputFormatter.RESET);
             System.out.println();
 
         } catch (IOException e) {
-            // Clean up temp file if it exists
+            // Clean up temp files if they exist
             try {
                 Files.deleteIfExists(tempJar);
+                Files.deleteIfExists(pendingJar);
             } catch (IOException ignored) {
             }
             OutputFormatter.error("Failed to download update: " + e.getMessage());
