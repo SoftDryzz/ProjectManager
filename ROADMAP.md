@@ -118,7 +118,7 @@ Create dedicated install scripts/commands so users can install ProjectManager us
 
 ## Ideas from FindMatch (Real-world Multi-stack Project)
 
-These ideas come from analyzing [FindMatch](https://github.com/SoftDryzz/FindMatch), a real-world project with Flutter + Rust + Docker + PostgreSQL + Redis, multiple CI workflows, and a 4-person team.
+These ideas come from analyzing [FindMatch](https://github.com/AXIOM-ZER0/FindMatch), a real-world project with Flutter + Rust + Docker + PostgreSQL + Redis, multiple CI workflows, and a 4-person team.
 
 ### Multi-language project detection
 - Detect projects that use multiple languages (e.g., Rust backend + Flutter frontend)
