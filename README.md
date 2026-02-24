@@ -165,7 +165,39 @@ pm run order-service
 
 ---
 
-## 🚀 Quick Installation
+## 🚀 Installation
+
+### Option A: Download from Release (Recommended)
+
+No need to compile. Just download and run.
+
+1. **Download** the latest release from [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
+2. **Extract** the ZIP file
+3. **Run the installer:**
+
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+```
+
+> ⚠️ The `-ExecutionPolicy Bypass` flag is required because Windows blocks scripts downloaded from the internet. This is safe — the script only creates a `pm.bat` wrapper and adds it to your PATH.
+
+**Linux/Mac:**
+```bash
+chmod +x scripts/install.sh && ./scripts/install.sh
+```
+
+4. **Restart your terminal** and verify:
+```bash
+pm version
+```
+
+---
+
+### Option B: Build from Source
+
+Requires Java 17+ and Maven 3.6+.
+
 ```bash
 # 1. Clone repository
 git clone https://github.com/SoftDryzz/ProjectManager.git
@@ -175,7 +207,7 @@ cd ProjectManager
 mvn clean package
 
 # 3. Install (Windows)
-.\scripts\install.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 
 # 3. Install (Linux/Mac)
 chmod +x scripts/install.sh && ./scripts/install.sh
@@ -184,7 +216,7 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 pm version
 ```
 
-**Setup time:** 5 minutes  
+**Setup time:** 5 minutes
 **Benefits:** Forever  
 
 ---
