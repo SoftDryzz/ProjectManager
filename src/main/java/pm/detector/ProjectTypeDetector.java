@@ -16,6 +16,7 @@ import java.util.stream.Stream;
  * <li>Maven: presence of pom.xml</li>
  * <li>Rust: presence of Cargo.toml</li>
  * <li>Go: presence of go.mod</li>
+ * <li>Flutter: presence of pubspec.yaml</li>
  * <li>pnpm: presence of pnpm-lock.yaml (+ package.json)</li>
  * <li>Bun: presence of bun.lockb or bun.lock (+ package.json)</li>
  * <li>Yarn: presence of yarn.lock (+ package.json)</li>
@@ -75,33 +76,38 @@ public class ProjectTypeDetector {
             return ProjectType.GO;
         }
 
-        // 5. pnpm (pnpm-lock.yaml + package.json)
+        // 5. Flutter (pubspec.yaml)
+        if (fileExists(projectPath, Constants.FILE_PUBSPEC_YAML)) {
+            return ProjectType.FLUTTER;
+        }
+
+        // 6. pnpm (pnpm-lock.yaml + package.json)
         if (fileExists(projectPath, Constants.FILE_PNPM_LOCK)) {
             return ProjectType.PNPM;
         }
 
-        // 6. Bun (bun.lockb or bun.lock)
+        // 7. Bun (bun.lockb or bun.lock)
         if (fileExists(projectPath, Constants.FILE_BUN_LOCKB) ||
                 fileExists(projectPath, Constants.FILE_BUN_LOCK)) {
             return ProjectType.BUN;
         }
 
-        // 7. Yarn (yarn.lock)
+        // 8. Yarn (yarn.lock)
         if (fileExists(projectPath, Constants.FILE_YARN_LOCK)) {
             return ProjectType.YARN;
         }
 
-        // 8. Node.js (package.json - fallback for JS/TS without specific lock file)
+        // 9. Node.js (package.json - fallback for JS/TS without specific lock file)
         if (fileExists(projectPath, Constants.FILE_PACKAGE_JSON)) {
             return ProjectType.NODEJS;
         }
 
-        // 9. .NET (*.csproj o *.fsproj)
+        // 10. .NET (*.csproj o *.fsproj)
         if (hasCsprojFile(projectPath)) {
             return ProjectType.DOTNET;
         }
 
-        // 10. Python (requirements.txt o setup.py)
+        // 11. Python (requirements.txt o setup.py)
         if (fileExists(projectPath, Constants.FILE_REQUIREMENTS_TXT) ||
                 fileExists(projectPath, "setup.py")) {
             return ProjectType.PYTHON;

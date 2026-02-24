@@ -110,6 +110,14 @@ public enum ProjectType {
     YARN("Yarn"),
 
     /**
+     * Flutter/Dart mobile and web development framework.
+     *
+     * <p>Detection: Presence of pubspec.yaml
+     * <p>Typical commands: flutter build, flutter run, flutter test
+     */
+    FLUTTER("Flutter"),
+
+    /**
      * Unknown or unsupported project type.
      *
      * <p>Used when the type cannot be automatically determined.

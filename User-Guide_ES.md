@@ -164,7 +164,7 @@ pm add backend --path C:\projects\backend --env "PORT=3000,DEBUG=true,DB_HOST=lo
 pm add <nombre> --path <ruta> --type <tipo>
 ```
 
-**Tipos válidos:** `GRADLE`, `MAVEN`, `NODEJS`, `DOTNET`, `PYTHON`, `RUST`, `GO`, `PNPM`, `BUN`, `YARN`
+**Tipos válidos:** `GRADLE`, `MAVEN`, `NODEJS`, `DOTNET`, `PYTHON`, `RUST`, `GO`, `PNPM`, `BUN`, `YARN`, `FLUTTER`
 
 **Ejemplo:**
 ```bash
@@ -354,7 +354,7 @@ pm env clear <nombre>
 pm doctor
 ```
 
-Verifica runtimes instalados (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Cargo, Go, pnpm, Bun, Yarn) y valida las rutas de todos los proyectos registrados.
+Verifica runtimes instalados (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Cargo, Go, pnpm, Bun, Yarn, Flutter) y valida las rutas de todos los proyectos registrados.
 
 ---
 
@@ -929,6 +929,7 @@ pm run api-pedidos    # Puerto 3002
 | **Maven** | `pom.xml` | `build` (package), `run` (exec:java), `test`, `clean` |
 | **Rust** | `Cargo.toml` | `build`, `run`, `test`, `clean` |
 | **Go** | `go.mod` | `build`, `run`, `test`, `clean` |
+| **Flutter** | `pubspec.yaml` | `build`, `run`, `test`, `clean` |
 | **pnpm** | `pnpm-lock.yaml` | `build`, `dev`, `test` |
 | **Bun** | `bun.lockb`, `bun.lock` | `build`, `dev`, `test` |
 | **Yarn** | `yarn.lock` | `build`, `start`, `test` |
@@ -1033,6 +1034,7 @@ ProjectManager detecta automáticamente:
 - Python (básico)
 - Rust (Cargo)
 - Go
+- Flutter/Dart
 
 Para otros tipos, usa `--type UNKNOWN` y configura comandos manualmente.
 

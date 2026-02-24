@@ -962,6 +962,7 @@ public class ProjectManager {
                 {"pnpm",    "pnpm",    "--version"},
                 {"Bun",     "bun",     "--version"},
                 {"Yarn",    "yarn",    "--version"},
+                {"Flutter", "flutter", "--version"},
         };
 
         for (String[] rt : runtimes) {

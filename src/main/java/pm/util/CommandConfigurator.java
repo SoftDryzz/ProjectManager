@@ -68,6 +68,7 @@ public class CommandConfigurator {
             case PNPM -> configurePnpm(project);
             case BUN -> configureBun(project);
             case YARN -> configureYarn(project);
+            case FLUTTER -> configureFlutter(project);
             case UNKNOWN -> {
                 // Do not configure commands for unknown projects
                 // The user will have to add them manually
@@ -162,6 +163,13 @@ public class CommandConfigurator {
         addIfAbsent(project, "build", Constants.BUILD_YARN);
         addIfAbsent(project, "run", Constants.RUN_YARN);
         addIfAbsent(project, "test", Constants.TEST_YARN);
+    }
+
+    private static void configureFlutter(Project project) {
+        addIfAbsent(project, "build", Constants.BUILD_FLUTTER);
+        addIfAbsent(project, "run", Constants.RUN_FLUTTER);
+        addIfAbsent(project, "test", Constants.TEST_FLUTTER);
+        addIfAbsent(project, "clean", Constants.CLEAN_FLUTTER);
     }
 
     /**

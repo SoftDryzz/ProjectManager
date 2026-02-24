@@ -122,6 +122,13 @@ class ProjectTypeDetectorTest {
         assertEquals(ProjectType.YARN, ProjectTypeDetector.detect(tempDir));
     }
 
+    @Test
+    @DisplayName("Detects Flutter project (pubspec.yaml)")
+    void detectsFlutter() throws IOException {
+        Files.createFile(tempDir.resolve("pubspec.yaml"));
+        assertEquals(ProjectType.FLUTTER, ProjectTypeDetector.detect(tempDir));
+    }
+
     // ============================================================
     // UNKNOWN & EDGE CASES
     // ============================================================
@@ -208,6 +215,15 @@ class ProjectTypeDetectorTest {
         Files.createFile(tempDir.resolve("bun.lockb"));
 
         assertEquals(ProjectType.PNPM, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Flutter has priority over Node.js (pubspec.yaml + package.json)")
+    void flutterPriorityOverNodejs() throws IOException {
+        Files.createFile(tempDir.resolve("pubspec.yaml"));
+        Files.createFile(tempDir.resolve("package.json"));
+
+        assertEquals(ProjectType.FLUTTER, ProjectTypeDetector.detect(tempDir));
     }
 
     @Test

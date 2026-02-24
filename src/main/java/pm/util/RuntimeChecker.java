@@ -154,6 +154,15 @@ public final class RuntimeChecker {
                     System.exit(1);
                 }
             }
+            case FLUTTER -> {
+                if (!isCommandAvailable("flutter", "--version")) {
+                    printMissing("Flutter",
+                            "This Flutter project requires the Flutter SDK.",
+                            "winget install Google.Flutter",
+                            "https://flutter.dev/docs/get-started/install");
+                    System.exit(1);
+                }
+            }
         }
     }
 
@@ -184,6 +193,7 @@ public final class RuntimeChecker {
             case PNPM -> isCommandAvailable("pnpm", "--version");
             case BUN -> isCommandAvailable("bun", "--version");
             case YARN -> isCommandAvailable("yarn", "--version");
+            case FLUTTER -> isCommandAvailable("flutter", "--version");
             default -> true;
         };
     }

@@ -122,6 +122,13 @@ class RuntimeCheckerTest {
         assertEquals(RuntimeChecker.isCommandAvailable("yarn", "--version"), result);
     }
 
+    @Test
+    @DisplayName("Flutter runtime availability returns a boolean")
+    void flutterRuntimeAvailability() {
+        boolean result = RuntimeChecker.isRuntimeAvailable(ProjectType.FLUTTER);
+        assertEquals(RuntimeChecker.isCommandAvailable("flutter", "--version"), result);
+    }
+
     // ============================================================
     // checkRuntime (should not exit for available runtimes)
     // ============================================================

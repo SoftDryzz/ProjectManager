@@ -6,7 +6,7 @@
 
 **Un comando para todos tus proyectos. Sin importar la tecnología.**
 
-> Deja de perder tiempo recordando si es `gradle build`, `mvn package`, `cargo build` o `npm run build`. Solo usa `pm build`.
+> Deja de perder tiempo recordando si es `gradle build`, `mvn package`, `cargo build`, `flutter build` o `npm run build`. Solo usa `pm build`.
 
 [🇬🇧 Read in English](README.md)
 
@@ -343,6 +343,7 @@ Environment Variables
 | **Maven** | `pom.xml` | package, exec:java, test, clean |
 | **Rust** | `Cargo.toml` | build, run, test, clean |
 | **Go** | `go.mod` | build, run, test, clean |
+| **Flutter** | `pubspec.yaml` | build, run, test, clean |
 | **pnpm** | `pnpm-lock.yaml` | build, dev, test |
 | **Bun** | `bun.lockb`, `bun.lock` | build, dev, test |
 | **Yarn** | `yarn.lock` | build, start, test |

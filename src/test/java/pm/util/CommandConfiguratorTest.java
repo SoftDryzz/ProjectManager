@@ -180,6 +180,23 @@ class CommandConfiguratorTest {
     }
 
     // ============================================================
+    // FLUTTER
+    // ============================================================
+
+    @Test
+    @DisplayName("Configures Flutter default commands")
+    void configuresFlutter() {
+        Project project = createProject(ProjectType.FLUTTER);
+        CommandConfigurator.configureDefaultCommands(project);
+
+        assertEquals(Constants.BUILD_FLUTTER, project.getCommand("build"));
+        assertEquals(Constants.RUN_FLUTTER, project.getCommand("run"));
+        assertEquals(Constants.TEST_FLUTTER, project.getCommand("test"));
+        assertEquals(Constants.CLEAN_FLUTTER, project.getCommand("clean"));
+        assertEquals(4, project.commandCount());
+    }
+
+    // ============================================================
     // UNKNOWN
     // ============================================================
 
