@@ -6,7 +6,7 @@
 
 **One command for all your projects. No matter the stack.**
 
-> Stop wasting time remembering if it's `gradle build`, `mvn package`, or `npm run build`. Just use `pm build`.
+> Stop wasting time remembering if it's `gradle build`, `mvn package`, `cargo build`, or `npm run build`. Just use `pm build`.
 
 [🇪🇸 Leer en Español](README_ES.md)
 

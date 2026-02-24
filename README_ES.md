@@ -6,7 +6,7 @@
 
 **Un comando para todos tus proyectos. Sin importar la tecnología.**
 
-> Deja de perder tiempo recordando si es `gradle build`, `mvn package` o `npm run build`. Solo usa `pm build`.
+> Deja de perder tiempo recordando si es `gradle build`, `mvn package`, `cargo build` o `npm run build`. Solo usa `pm build`.
 
 [🇬🇧 Read in English](README.md)
 
