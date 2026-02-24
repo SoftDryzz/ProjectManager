@@ -453,6 +453,7 @@ ProjectManager/
 │   └── INSTALL.md                # Installation guide
 ├── User-Guide.md                 # Complete user guide (English)
 ├── User-Guide_ES.md              # Complete user guide (Spanish)
+├── ROADMAP.md                    # Future plans and ideas
 ├── CONTRIBUTING.md               # Contribution guidelines
 └── pom.xml
 ```
@@ -497,6 +498,10 @@ Projects are saved in:
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)
 - [ ] Shell autocompletion (bash/zsh/PowerShell tab completion)
+- [ ] Docker support (detect Dockerfile/docker-compose, manage services)
+- [ ] Multi-ecosystem installers (npm, Cargo, Homebrew, Scoop, etc.)
+
+> See [ROADMAP.md](ROADMAP.md) for the full roadmap with detailed plans.
 
 ---
 

@@ -164,7 +164,7 @@ pm add backend --path C:\projects\backend --env "PORT=3000,DEBUG=true,DB_HOST=lo
 pm add <nombre> --path <ruta> --type <tipo>
 ```
 
-**Tipos válidos:** `GRADLE`, `MAVEN`, `NODEJS`, `DOTNET`, `PYTHON`
+**Tipos válidos:** `GRADLE`, `MAVEN`, `NODEJS`, `DOTNET`, `PYTHON`, `RUST`, `GO`, `PNPM`, `BUN`, `YARN`
 
 **Ejemplo:**
 ```bash
@@ -354,7 +354,7 @@ pm env clear <nombre>
 pm doctor
 ```
 
-Verifica runtimes instalados (Java, Node.js, .NET, Python, Gradle, Maven) y valida las rutas de todos los proyectos registrados.
+Verifica runtimes instalados (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Cargo, Go, pnpm, Bun, Yarn) y valida las rutas de todos los proyectos registrados.
 
 ---
 
@@ -927,9 +927,16 @@ pm run api-pedidos    # Puerto 3002
 |------|----------------------|----------------------|
 | **Gradle** | `build.gradle`, `build.gradle.kts` | `build`, `run`, `test`, `clean` |
 | **Maven** | `pom.xml` | `build` (package), `run` (exec:java), `test`, `clean` |
-| **Node.js** | `package.json` | `build`, `run` (start), `test` |
+| **Rust** | `Cargo.toml` | `build`, `run`, `test`, `clean` |
+| **Go** | `go.mod` | `build`, `run`, `test`, `clean` |
+| **pnpm** | `pnpm-lock.yaml` | `build`, `dev`, `test` |
+| **Bun** | `bun.lockb`, `bun.lock` | `build`, `dev`, `test` |
+| **Yarn** | `yarn.lock` | `build`, `start`, `test` |
+| **Node.js** | `package.json` (fallback) | `build`, `start`, `test` |
 | **.NET** | `*.csproj`, `*.fsproj` | `build`, `run`, `test` |
-| **Python** | `requirements.txt` | (configuración manual) |
+| **Python** | `requirements.txt`, `setup.py` | (configuración manual) |
+
+> **Prioridad de detección:** Cuando un proyecto tiene `package.json` y un lock file (pnpm-lock.yaml, bun.lockb, yarn.lock), se detecta el package manager específico en vez del Node.js genérico.
 
 ---
 
@@ -1014,16 +1021,18 @@ pm add proyecto-viejo --path C:\nueva\ruta --env "VAR1=valor1"
 
 Actualmente, solo editando manualmente el archivo `projects.json`.
 
-🚧 **Próximamente:** Comando `pm update` para modificar proyectos desde CLI.
+**Tip:** Puedes editar el archivo `projects.json` directamente, o re-registrar el proyecto con `pm remove` + `pm add`.
 
 ### ¿Funciona con cualquier tipo de proyecto?
 
 ProjectManager detecta automáticamente:
 
 - Java (Gradle, Maven)
-- JavaScript/TypeScript (npm)
-- C# (.NET)
+- JavaScript/TypeScript (npm, pnpm, Bun, Yarn)
+- C# / F# (.NET)
 - Python (básico)
+- Rust (Cargo)
+- Go
 
 Para otros tipos, usa `--type UNKNOWN` y configura comandos manualmente.
 
@@ -1153,6 +1162,9 @@ pm env clear <nombre>                              # Eliminar todas
 
 # === DIAGNÓSTICOS ===
 pm doctor                                          # Verificar salud del entorno
+
+# === ACTUALIZACIONES ===
+pm update                                          # Actualizar a última versión
 
 # === AYUDA ===
 pm help                                            # Ayuda general

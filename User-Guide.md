@@ -164,7 +164,7 @@ pm add backend --path C:\projects\backend --env "PORT=3000,DEBUG=true,DB_HOST=lo
 pm add <name> --path <path> --type <type>
 ```
 
-**Valid types:** `GRADLE`, `MAVEN`, `NODEJS`, `DOTNET`, `PYTHON`
+**Valid types:** `GRADLE`, `MAVEN`, `NODEJS`, `DOTNET`, `PYTHON`, `RUST`, `GO`, `PNPM`, `BUN`, `YARN`
 
 **Example:**
 ```bash
@@ -354,7 +354,7 @@ pm env clear <name>
 pm doctor
 ```
 
-Verifies installed runtimes (Java, Node.js, .NET, Python, Gradle, Maven) and validates all registered project paths.
+Verifies installed runtimes (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Cargo, Go, pnpm, Bun, Yarn) and validates all registered project paths.
 
 ---
 
@@ -927,9 +927,16 @@ pm run api-orders    # Port 3002
 |------|-----------------|---------------------|
 | **Gradle** | `build.gradle`, `build.gradle.kts` | `build`, `run`, `test`, `clean` |
 | **Maven** | `pom.xml` | `build` (package), `run` (exec:java), `test`, `clean` |
-| **Node.js** | `package.json` | `build`, `run` (start), `test` |
+| **Rust** | `Cargo.toml` | `build`, `run`, `test`, `clean` |
+| **Go** | `go.mod` | `build`, `run`, `test`, `clean` |
+| **pnpm** | `pnpm-lock.yaml` | `build`, `dev`, `test` |
+| **Bun** | `bun.lockb`, `bun.lock` | `build`, `dev`, `test` |
+| **Yarn** | `yarn.lock` | `build`, `start`, `test` |
+| **Node.js** | `package.json` (fallback) | `build`, `start`, `test` |
 | **.NET** | `*.csproj`, `*.fsproj` | `build`, `run`, `test` |
-| **Python** | `requirements.txt` | (manual configuration) |
+| **Python** | `requirements.txt`, `setup.py` | (manual configuration) |
+
+> **Detection priority:** When a project has both `package.json` and a lock file (pnpm-lock.yaml, bun.lockb, yarn.lock), the specific package manager is detected instead of generic Node.js.
 
 ---
 
@@ -1014,16 +1021,18 @@ pm add old-project --path C:\new\path --env "VAR1=value1"
 
 Currently, only by manually editing the `projects.json` file.
 
-🚧 **Planned Feature:** `pm update` command to modify projects from the CLI.
+**Tip:** You can edit the `projects.json` file directly, or re-register the project with `pm remove` + `pm add`.
 
 ### Does it work with any type of project?
 
 ProjectManager automatically detects:
 
 - Java (Gradle, Maven)
-- JavaScript/TypeScript (npm)
-- C# (.NET)
+- JavaScript/TypeScript (npm, pnpm, Bun, Yarn)
+- C# / F# (.NET)
 - Python (basic)
+- Rust (Cargo)
+- Go
 
 For other types, use `--type UNKNOWN` and configure commands manually.
 
@@ -1153,6 +1162,9 @@ pm env clear <name>                            # Remove all variables
 
 # === DIAGNOSTICS ===
 pm doctor                                      # Check environment health
+
+# === UPDATES ===
+pm update                                      # Update to latest version
 
 # === HELP ===
 pm help                                        # General help
