@@ -1,37 +1,84 @@
 #!/bin/bash
 # ProjectManager - Installation Script for Linux/Mac
+# Works both from source (mvn clean package) and from GitHub Release download
+
+JAR_NAME="projectmanager-1.2.0.jar"
 
 echo "=== ProjectManager Installer ==="
 echo ""
 
-# 1. Verificar JAR
+# 1. Search for JAR in multiple locations
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-JAR_PATH="$SCRIPT_DIR/../target/projectmanager-1.2.0.jar"
 
-if [ ! -f "$JAR_PATH" ]; then
-    echo "❌ Error: JAR not found at $JAR_PATH"
-    echo "Please run: mvn clean package"
+JAR_PATH=""
+SEARCH_PATHS=(
+    "$SCRIPT_DIR/../target/$JAR_NAME"       # Built from source (mvn clean package)
+    "$SCRIPT_DIR/../$JAR_NAME"              # JAR placed in project root
+    "$SCRIPT_DIR/$JAR_NAME"                 # JAR placed next to script
+    "$SCRIPT_DIR/../../$JAR_NAME"           # One level up (nested ZIP extraction)
+)
+
+for path in "${SEARCH_PATHS[@]}"; do
+    if [ -f "$path" ]; then
+        JAR_PATH="$(cd "$(dirname "$path")" && pwd)/$(basename "$path")"
+        break
+    fi
+done
+
+# Also search by pattern in case version differs
+if [ -z "$JAR_PATH" ]; then
+    for dir in "$SCRIPT_DIR/../target" "$SCRIPT_DIR/.." "$SCRIPT_DIR"; do
+        if [ -d "$dir" ]; then
+            found=$(find "$dir" -maxdepth 1 -name "projectmanager-*.jar" ! -name "*-javadoc*" ! -name "original-*" 2>/dev/null | head -1)
+            if [ -n "$found" ]; then
+                JAR_PATH="$(cd "$(dirname "$found")" && pwd)/$(basename "$found")"
+                break
+            fi
+        fi
+    done
+fi
+
+if [ -z "$JAR_PATH" ]; then
+    echo "❌ Error: JAR not found ($JAR_NAME)"
+    echo ""
+    echo "Searched in:"
+    for path in "${SEARCH_PATHS[@]}"; do
+        echo "  - $path"
+    done
+    echo ""
+    echo "Options:"
+    echo "  1. Download the JAR from the GitHub Release page and place it next to this script"
+    echo "     https://github.com/SoftDryzz/ProjectManager/releases/latest"
+    echo "  2. Build from source: mvn clean package"
     exit 1
 fi
 
 echo "✅ Found: $JAR_PATH"
 
-# 2. Crear directorio bin
+# 2. Copy JAR to a permanent location
+INSTALL_DIR="$HOME/.projectmanager"
+mkdir -p "$INSTALL_DIR"
+
+INSTALLED_JAR="$INSTALL_DIR/projectmanager.jar"
+cp "$JAR_PATH" "$INSTALLED_JAR"
+echo "✅ Installed: $INSTALLED_JAR"
+
+# 3. Create bin directory
 BIN_DIR="$HOME/bin"
 mkdir -p "$BIN_DIR"
 echo "✅ Directory: $BIN_DIR"
 
-# 3. Crear script pm
+# 4. Create pm script pointing to permanent location
 PM_SCRIPT="$BIN_DIR/pm"
 cat > "$PM_SCRIPT" << EOF
 #!/bin/bash
-java -jar "$JAR_PATH" "\$@"
+java -jar "$INSTALLED_JAR" "\$@"
 EOF
 
 chmod +x "$PM_SCRIPT"
 echo "✅ Created: $PM_SCRIPT"
 
-# 4. Agregar al PATH si no está
+# 5. Add to PATH if not already there
 SHELL_RC=""
 if [ -f "$HOME/.bashrc" ]; then
     SHELL_RC="$HOME/.bashrc"
@@ -50,7 +97,7 @@ if [ -n "$SHELL_RC" ]; then
     fi
 fi
 
-# 5. Verificar Java
+# 6. Verify Java
 echo ""
 echo "Checking Java..."
 if command -v java &> /dev/null; then

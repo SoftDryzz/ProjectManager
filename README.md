@@ -171,23 +171,26 @@ pm run order-service
 
 No need to compile. Just download and run.
 
-1. **Download** the latest release from [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
-2. **Extract** the ZIP file
-3. **Run the installer:**
+1. **Go to** [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
+2. **Download two things:**
+   - The **Source code** (ZIP) — contains the install scripts
+   - The **`projectmanager-1.2.0.jar`** file — the pre-built application
+3. **Extract** the ZIP and **place the JAR** inside the extracted folder (next to `scripts/`)
+4. **Run the installer:**
 
 **Windows (PowerShell):**
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-> ⚠️ The `-ExecutionPolicy Bypass` flag is required because Windows blocks scripts downloaded from the internet. This is safe — the script only creates a `pm.bat` wrapper and adds it to your PATH.
+> ⚠️ The `-ExecutionPolicy Bypass` flag is required because Windows blocks scripts downloaded from the internet. This is safe — the script only copies the JAR and creates a `pm.bat` wrapper.
 
 **Linux/Mac:**
 ```bash
 chmod +x scripts/install.sh && ./scripts/install.sh
 ```
 
-4. **Restart your terminal** and verify:
+5. **Restart your terminal** and verify:
 ```bash
 pm version
 ```

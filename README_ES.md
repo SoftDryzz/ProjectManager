@@ -171,23 +171,26 @@ pm run servicio-pedidos
 
 No necesitas compilar. Solo descarga y ejecuta.
 
-1. **Descarga** la última release desde [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
-2. **Extrae** el archivo ZIP
-3. **Ejecuta el instalador:**
+1. **Ve a** [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
+2. **Descarga dos cosas:**
+   - El **Source code** (ZIP) — contiene los scripts de instalación
+   - El archivo **`projectmanager-1.2.0.jar`** — la aplicación pre-compilada
+3. **Extrae** el ZIP y **coloca el JAR** dentro de la carpeta extraída (junto a `scripts/`)
+4. **Ejecuta el instalador:**
 
 **Windows (PowerShell):**
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-> ⚠️ El flag `-ExecutionPolicy Bypass` es necesario porque Windows bloquea scripts descargados de internet. Es seguro — el script solo crea un wrapper `pm.bat` y lo agrega al PATH.
+> ⚠️ El flag `-ExecutionPolicy Bypass` es necesario porque Windows bloquea scripts descargados de internet. Es seguro — el script solo copia el JAR y crea un wrapper `pm.bat`.
 
 **Linux/Mac:**
 ```bash
 chmod +x scripts/install.sh && ./scripts/install.sh
 ```
 
-4. **Reinicia tu terminal** y verifica:
+5. **Reinicia tu terminal** y verifica:
 ```bash
 pm version
 ```

@@ -1,58 +1,111 @@
-﻿# ProjectManager - Installation Script for Windows
-# Run this after compiling with: mvn clean package
+# ProjectManager - Installation Script for Windows
+# Works both from source (mvn clean package) and from GitHub Release download
+
+$jarName = "projectmanager-1.2.0.jar"
 
 Write-Host "=== ProjectManager Installer ===" -ForegroundColor Cyan
 Write-Host ""
 
-# 1. Verificar que existe el JAR
-$jarPath = "$PSScriptRoot\..\target\projectmanager-1.2.0.jar"
-if (-not (Test-Path $jarPath)) {
-    Write-Host "Error: JAR no encontrado en $jarPath" -ForegroundColor Red
-    Write-Host "Por favor ejecuta primero: mvn clean package" -ForegroundColor Yellow
+# 1. Search for JAR in multiple locations
+$scriptDir = $PSScriptRoot
+$searchPaths = @(
+    "$scriptDir\..\target\$jarName",       # Built from source (mvn clean package)
+    "$scriptDir\..\$jarName",              # JAR placed in project root
+    "$scriptDir\$jarName",                 # JAR placed next to script
+    "$scriptDir\..\..\$jarName"            # One level up (nested ZIP extraction)
+)
+
+$jarPath = $null
+foreach ($path in $searchPaths) {
+    if (Test-Path $path) {
+        $jarPath = (Resolve-Path $path).Path
+        break
+    }
+}
+
+# Also search by pattern in case version differs
+if (-not $jarPath) {
+    $patterns = @(
+        "$scriptDir\..\target\projectmanager-*.jar",
+        "$scriptDir\..\projectmanager-*.jar",
+        "$scriptDir\projectmanager-*.jar"
+    )
+    foreach ($pattern in $patterns) {
+        $found = Get-ChildItem -Path $pattern -ErrorAction SilentlyContinue | Where-Object { $_.Name -notlike "*-javadoc*" -and $_.Name -notlike "*original-*" } | Select-Object -First 1
+        if ($found) {
+            $jarPath = $found.FullName
+            break
+        }
+    }
+}
+
+if (-not $jarPath) {
+    Write-Host "Error: JAR not found ($jarName)" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Searched in:" -ForegroundColor Yellow
+    foreach ($path in $searchPaths) {
+        Write-Host "  - $path" -ForegroundColor Gray
+    }
+    Write-Host ""
+    Write-Host "Options:" -ForegroundColor Yellow
+    Write-Host "  1. Download the JAR from the GitHub Release page and place it next to this script" -ForegroundColor Cyan
+    Write-Host "     https://github.com/SoftDryzz/ProjectManager/releases/latest" -ForegroundColor Cyan
+    Write-Host "  2. Build from source: mvn clean package" -ForegroundColor Cyan
     exit 1
 }
 
-Write-Host "Encontrado: $jarPath" -ForegroundColor Green
+Write-Host "Found: $jarPath" -ForegroundColor Green
 
-# 2. Crear directorio bin en home del usuario
+# 2. Copy JAR to a permanent location
+$installDir = "$env:USERPROFILE\.projectmanager"
+if (-not (Test-Path $installDir)) {
+    New-Item -Path $installDir -ItemType Directory -Force | Out-Null
+}
+
+$installedJar = "$installDir\projectmanager.jar"
+Copy-Item -Path $jarPath -Destination $installedJar -Force
+Write-Host "Installed: $installedJar" -ForegroundColor Green
+
+# 3. Create bin directory
 $binDir = "$env:USERPROFILE\bin"
 if (-not (Test-Path $binDir)) {
     New-Item -Path $binDir -ItemType Directory -Force | Out-Null
-    Write-Host "Creado: $binDir" -ForegroundColor Green
+    Write-Host "Created: $binDir" -ForegroundColor Green
 }
 
-# 3. Crear pm.bat
+# 4. Create pm.bat pointing to permanent location
 $pmBat = "$binDir\pm.bat"
 @"
 @echo off
-java -jar "$jarPath" %*
+java -jar "$installedJar" %*
 "@ | Out-File -FilePath $pmBat -Encoding ASCII -Force
 
-Write-Host "Creado: $pmBat" -ForegroundColor Green
+Write-Host "Created: $pmBat" -ForegroundColor Green
 
-# 4. Agregar bin al PATH si no estÃ¡
+# 5. Add bin to PATH if not already there
 $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($currentPath -notlike "*$binDir*") {
     [Environment]::SetEnvironmentVariable("Path", "$currentPath;$binDir", "User")
-    Write-Host "Agregado al PATH: $binDir" -ForegroundColor Green
+    Write-Host "Added to PATH: $binDir" -ForegroundColor Green
 } else {
-    Write-Host "Ya en PATH: $binDir" -ForegroundColor Yellow
+    Write-Host "Already in PATH: $binDir" -ForegroundColor Yellow
 }
 
-# 5. Verificar Java
+# 6. Verify Java
 Write-Host ""
-Write-Host "Verificando Java..." -ForegroundColor Yellow
+Write-Host "Checking Java..." -ForegroundColor Yellow
 try {
     $javaVersion = java -version 2>&1 | Select-Object -First 1
     Write-Host "Java OK: $javaVersion" -ForegroundColor Green
 } catch {
-    Write-Host "ADVERTENCIA: Java no encontrado en PATH" -ForegroundColor Red
-    Write-Host "Instala Java desde: https://adoptium.net/" -ForegroundColor Yellow
+    Write-Host "WARNING: Java not found in PATH" -ForegroundColor Red
+    Write-Host "Install Java from: https://adoptium.net/" -ForegroundColor Yellow
+    Write-Host "Or via winget: winget install EclipseAdoptium.Temurin.17.JDK" -ForegroundColor Yellow
 }
 
 Write-Host ""
-Write-Host "=== Instalacion Completa ===" -ForegroundColor Green
+Write-Host "=== Installation Complete ===" -ForegroundColor Green
 Write-Host ""
-Write-Host "Cierra y abre PowerShell de nuevo, luego ejecuta:" -ForegroundColor Yellow
+Write-Host "Close and reopen PowerShell, then run:" -ForegroundColor Yellow
 Write-Host "  pm help" -ForegroundColor Cyan
 Write-Host ""
