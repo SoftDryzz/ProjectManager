@@ -1,4 +1,3 @@
-@'
 #!/bin/bash
 # ProjectManager - Installation Script for Linux/Mac
 
@@ -7,7 +6,7 @@ echo ""
 
 # 1. Verificar JAR
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-JAR_PATH="$SCRIPT_DIR/../target/projectmanager-1.0.0.jar"
+JAR_PATH="$SCRIPT_DIR/../target/projectmanager-1.2.0.jar"
 
 if [ ! -f "$JAR_PATH" ]; then
     echo "❌ Error: JAR not found at $JAR_PATH"
@@ -68,6 +67,3 @@ echo ""
 echo "Restart your terminal, then run:"
 echo "  pm help"
 echo ""
-'@ | Out-File -FilePath scripts\install.sh -Encoding UTF8 -NoNewline
-
-Write-Host "✅ Creado: scripts\install.sh" -ForegroundColor Green

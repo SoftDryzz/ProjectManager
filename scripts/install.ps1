@@ -5,7 +5,7 @@ Write-Host "=== ProjectManager Installer ===" -ForegroundColor Cyan
 Write-Host ""
 
 # 1. Verificar que existe el JAR
-$jarPath = "$PSScriptRoot\..\target\projectmanager-1.0.0.jar"
+$jarPath = "$PSScriptRoot\..\target\projectmanager-1.2.0.jar"
 if (-not (Test-Path $jarPath)) {
     Write-Host "Error: JAR no encontrado en $jarPath" -ForegroundColor Red
     Write-Host "Por favor ejecuta primero: mvn clean package" -ForegroundColor Yellow
