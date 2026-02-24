@@ -12,6 +12,25 @@
 
 ---
 
+## 📑 Tabla de Contenidos
+
+- [¿Por Qué ProjectManager?](#-por-qué-projectmanager)
+- [Ejemplo de Ganancia Rápida](#-ejemplo-de-ganancia-rápida)
+- [Características](#-características)
+- [Requisitos](#-requisitos)
+- [Instalación](#-instalación)
+- [Uso](#-uso)
+- [Tipos de Proyecto Soportados](#️-tipos-de-proyecto-soportados)
+- [Variables de Entorno](#-variables-de-entorno)
+- [Integración Git](#-integración-git)
+- [Cómo Se Compara](#-cómo-se-compara)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Configuración](#️-configuración)
+- [Roadmap](#-roadmap)
+- [Contribuir](#-contribuir)
+
+---
+
 ## 🎯 ¿Por Qué ProjectManager?
 
 ### El Problema que Enfrentas Diariamente
@@ -171,29 +190,44 @@ pm run servicio-pedidos
 
 No necesitas compilar. Solo descarga y ejecuta.
 
-1. **Ve a** [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
-2. **Descarga dos cosas:**
-   - El **Source code** (ZIP) — contiene los scripts de instalación
-   - El archivo **`projectmanager-1.2.0.jar`** — la aplicación pre-compilada
-3. **Extrae** el ZIP y **coloca el JAR** dentro de la carpeta extraída (junto a `scripts/`)
-4. **Ejecuta el instalador:**
+**Paso 1.** Ve a [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
 
-**Windows (PowerShell):**
+**Paso 2.** Descarga **dos cosas**:
+   - `Source code (zip)` — contiene los scripts de instalación
+   - `projectmanager-1.2.0.jar` — la aplicación pre-compilada
+
+**Paso 3.** Extrae el ZIP. Obtendrás una carpeta como `ProjectManager-1.2.0/`. Copia el JAR descargado dentro:
+
+```
+ProjectManager-1.2.0/          ← carpeta extraída
+├── projectmanager-1.2.0.jar   ← coloca el JAR aquí
+├── scripts/
+│   ├── install.ps1
+│   └── install.sh
+├── README.md
+└── ...
+```
+
+**Paso 4.** Abre una terminal **dentro de la carpeta `ProjectManager-1.2.0/`** y ejecuta el instalador:
+
+**Windows (PowerShell):** Clic derecho en la carpeta → "Abrir en Terminal", luego:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-> ⚠️ El flag `-ExecutionPolicy Bypass` es necesario porque Windows bloquea scripts descargados de internet. Es seguro — el script solo copia el JAR y crea un wrapper `pm.bat`.
+> ⚠️ El flag `-ExecutionPolicy Bypass` es necesario porque Windows bloquea scripts descargados de internet. Es seguro — el script solo copia el JAR a `%USERPROFILE%\.projectmanager\` y crea un wrapper `pm.bat` en `%USERPROFILE%\bin\`.
 
 **Linux/Mac:**
 ```bash
 chmod +x scripts/install.sh && ./scripts/install.sh
 ```
 
-5. **Reinicia tu terminal** y verifica:
+**Paso 5.** Cierra y **vuelve a abrir tu terminal**, luego verifica:
 ```bash
 pm version
 ```
+
+> Tras la instalación, puedes eliminar el ZIP y la carpeta extraída. El JAR se copia a una ubicación permanente durante la instalación.
 
 ---
 

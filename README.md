@@ -12,6 +12,25 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Why ProjectManager?](#-why-projectmanager)
+- [Quick Win Example](#-quick-win-example)
+- [Features](#-features)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Supported Project Types](#️-supported-project-types)
+- [Environment Variables](#-environment-variables)
+- [Git Integration](#-git-integration)
+- [How It Compares](#-how-it-compares)
+- [Project Structure](#-project-structure)
+- [Configuration](#️-configuration)
+- [Roadmap](#-roadmap)
+- [Contributing](#-contributing)
+
+---
+
 ## 🎯 Why ProjectManager?
 
 ### The Problem You Face Daily
@@ -171,29 +190,44 @@ pm run order-service
 
 No need to compile. Just download and run.
 
-1. **Go to** [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
-2. **Download two things:**
-   - The **Source code** (ZIP) — contains the install scripts
-   - The **`projectmanager-1.2.0.jar`** file — the pre-built application
-3. **Extract** the ZIP and **place the JAR** inside the extracted folder (next to `scripts/`)
-4. **Run the installer:**
+**Step 1.** Go to [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
 
-**Windows (PowerShell):**
+**Step 2.** Download **two things**:
+   - `Source code (zip)` — contains the install scripts
+   - `projectmanager-1.2.0.jar` — the pre-built application
+
+**Step 3.** Extract the ZIP. You will get a folder like `ProjectManager-1.2.0/`. Copy the downloaded JAR inside it:
+
+```
+ProjectManager-1.2.0/          ← extracted folder
+├── projectmanager-1.2.0.jar   ← place the JAR here
+├── scripts/
+│   ├── install.ps1
+│   └── install.sh
+├── README.md
+└── ...
+```
+
+**Step 4.** Open a terminal **inside the `ProjectManager-1.2.0/` folder** and run the installer:
+
+**Windows (PowerShell):** Right-click the folder → "Open in Terminal", then:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-> ⚠️ The `-ExecutionPolicy Bypass` flag is required because Windows blocks scripts downloaded from the internet. This is safe — the script only copies the JAR and creates a `pm.bat` wrapper.
+> ⚠️ The `-ExecutionPolicy Bypass` flag is required because Windows blocks scripts downloaded from the internet. This is safe — the script only copies the JAR to `%USERPROFILE%\.projectmanager\` and creates a `pm.bat` wrapper in `%USERPROFILE%\bin\`.
 
 **Linux/Mac:**
 ```bash
 chmod +x scripts/install.sh && ./scripts/install.sh
 ```
 
-5. **Restart your terminal** and verify:
+**Step 5.** Close and **reopen your terminal**, then verify:
 ```bash
 pm version
 ```
+
+> After installation, you can delete the downloaded ZIP and extracted folder. The JAR is copied to a permanent location during install.
 
 ---
 
