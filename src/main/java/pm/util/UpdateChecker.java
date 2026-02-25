@@ -22,7 +22,7 @@ import java.nio.file.StandardCopyOption;
  * {@code https://api.github.com/repos/SoftDryzz/ProjectManager/releases/latest}
  *
  * @author SoftDryzz
- * @version 1.3.0
+ * @version 1.3.2
  * @since 1.2.0
  */
 public final class UpdateChecker {

@@ -12,7 +12,7 @@ import java.nio.file.Paths;
  * Gson Adapter for serializing/deserializing Path objects.
  *
  * @author SoftDryzz
- * @version 1.3.0
+ * @version 1.3.2
  * @since 1.0.0
  */
 public class PathAdapter extends TypeAdapter<Path> {
