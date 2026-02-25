@@ -458,9 +458,15 @@ ProjectManager/
 │   ├── install.ps1               # Instalador Windows
 │   ├── install.sh                # Instalador Linux/Mac
 │   └── INSTALL.md                # Guía de instalación
+├── docs/
+│   └── es/                       # Documentación en español
+│       ├── README.md
+│       ├── User-Guide.md
+│       ├── ROADMAP.md
+│       └── SECURITY.md
 ├── User-Guide.md                 # Guía completa (Inglés)
-├── User-Guide_ES.md              # Guía completa (Español)
 ├── ROADMAP.md                    # Planes futuros e ideas
+├── SECURITY.md                   # Política de seguridad
 ├── CONTRIBUTING.md               # Guía de contribución
 └── pom.xml
 ```
@@ -585,4 +591,4 @@ Licencias comerciales disponibles para organizaciones que requieran términos al
 
 **⭐ Si ProjectManager te ahorra tiempo, ¡dale una estrella en GitHub!**
 
-**💬 ¿Preguntas? Abre un issue o consulta la [Guía de Usuario](User-Guide_ES.md)**
+**💬 ¿Preguntas? Abre un issue o consulta la [Guía de Usuario](User-Guide.md)**

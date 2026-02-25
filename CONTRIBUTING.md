@@ -93,15 +93,15 @@ Before submitting a PR:
 When adding features:
 
 - Update README.md (English)
-- Update README_ES.md (Spanish)
+- Update `docs/es/README.md` (Spanish)
 - Update relevant User Guides if needed
 - Add JavaDoc for public methods
 
 ## 🌍 Translations
 
-We maintain documentation in English and Spanish. If you update documentation:
+We maintain documentation in English and Spanish. Spanish docs live in `docs/es/`. If you update documentation:
 
-- Update both README.md and README_ES.md
+- Update both `README.md` and `docs/es/README.md`
 - Keep translations consistent
 - If unsure about Spanish translation, ask for help
 

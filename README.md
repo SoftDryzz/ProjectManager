@@ -8,7 +8,7 @@
 
 > Stop wasting time remembering if it's `gradle build`, `mvn package`, `cargo build`, `flutter build`, or `npm run build`. Just use `pm build`.
 
-[🇪🇸 Leer en Español](README_ES.md)
+[🇪🇸 Leer en Español](docs/es/README.md)
 
 ---
 
@@ -458,9 +458,15 @@ ProjectManager/
 │   ├── install.ps1               # Windows installer
 │   ├── install.sh                # Linux/Mac installer
 │   └── INSTALL.md                # Installation guide
+├── docs/
+│   └── es/                       # Spanish documentation
+│       ├── README.md
+│       ├── User-Guide.md
+│       ├── ROADMAP.md
+│       └── SECURITY.md
 ├── User-Guide.md                 # Complete user guide (English)
-├── User-Guide_ES.md              # Complete user guide (Spanish)
 ├── ROADMAP.md                    # Future plans and ideas
+├── SECURITY.md                   # Security policy
 ├── CONTRIBUTING.md               # Contribution guidelines
 └── pom.xml
 ```
