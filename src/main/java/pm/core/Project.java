@@ -212,6 +212,14 @@ public final class Project {
     }
 
     /**
+     * Removes all commands from this project.
+     */
+    public void clearCommands() {
+        commands.clear();
+        lastModified = Instant.now();
+    }
+
+    /**
      * Gets the number of registered commands.
      *
      * @return number of available commands

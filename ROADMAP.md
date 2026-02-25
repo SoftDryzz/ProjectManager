@@ -4,6 +4,20 @@
 
 ---
 
+## v1.3.2 — Project Refresh & Outdated Detection
+
+### `pm refresh` command ✅
+Re-detect project types and update commands for already-registered projects. Solves the problem where projects registered before a new type was added have no commands.
+
+| Feature | Status |
+|---------|--------|
+| `pm refresh <name>` — refresh a specific project | ✅ Done |
+| `pm refresh --all` — refresh all registered projects | ✅ Done |
+| Detailed before/after command output | ✅ Done |
+| Automatic outdated type hints on `build`, `run`, `test`, `commands`, `info` | ✅ Done |
+
+---
+
 ## v1.4.0 — Multi-ecosystem Install & Docker Support
 
 ### Install scripts per ecosystem

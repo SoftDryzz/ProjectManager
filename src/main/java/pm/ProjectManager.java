@@ -42,6 +42,7 @@ import java.util.Map;
  * pm remove NAME                        Remove project
  * pm info NAME                          Show project information
  * pm env SUBCOMMAND NAME [options]      Manage environment variables
+ * pm refresh NAME | --all               Re-detect type and update commands
  * pm update                             Update to the latest version
  * pm help                               Show help
  * </pre>
@@ -87,6 +88,7 @@ public class ProjectManager {
                 case "remove", "rm" -> handleRemove(args);
                 case "info" -> handleInfo(args);
                 case "env" -> handleEnv(args);
+                case "refresh" -> handleRefresh(args);
                 case "update" -> UpdateChecker.performUpdate();
                 case "doctor" -> handleDoctor();
                 case "help", "-h", "--help" -> printHelp();
@@ -296,6 +298,8 @@ public class ProjectManager {
                 System.exit(1);
             }
 
+            checkTypeOutdated(project);
+
             // Get build command
             String buildCommand = project.getCommand("build");
             if (buildCommand == null) {
@@ -377,6 +381,8 @@ public class ProjectManager {
                 System.exit(1);
             }
 
+            checkTypeOutdated(project);
+
             String runCommand = project.getCommand("run");
             if (runCommand == null) {
                 OutputFormatter.error("No 'run' command configured for this project");
@@ -452,6 +458,8 @@ public class ProjectManager {
                 OutputFormatter.error("Project '" + projectName + "' not found");
                 System.exit(1);
             }
+
+            checkTypeOutdated(project);
 
             String testCommand = project.getCommand("test");
             if (testCommand == null) {
@@ -548,6 +556,8 @@ public class ProjectManager {
                 OutputFormatter.error("Project '" + projectName + "' not found");
                 System.exit(1);
             }
+
+            checkTypeOutdated(project);
 
             // Use OutputFormatter to show commands
             OutputFormatter.printCommands(project);
@@ -649,6 +659,8 @@ public class ProjectManager {
                 OutputFormatter.error("Project '" + projectName + "' not found");
                 System.exit(1);
             }
+
+            checkTypeOutdated(project);
 
             // Show detailed info
             OutputFormatter.section("Project Information");
@@ -936,6 +948,189 @@ public class ProjectManager {
     }
 
     // ============================================================
+    // COMMAND: REFRESH (Re-detect type and update commands)
+    // ============================================================
+
+    /**
+     * Handler for the "refresh" command.
+     * Re-detects the project type and replaces commands with the new defaults.
+     *
+     * <p>Usage:
+     * <ul>
+     * <li>{@code pm refresh <name>} — refresh a single project</li>
+     * <li>{@code pm refresh --all} — refresh all registered projects</li>
+     * </ul>
+     */
+    private static void handleRefresh(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+        boolean refreshAll = parser.hasFlag("all");
+        String name = parser.getPositional(1);
+
+        if (!refreshAll && (name == null || name.isBlank())) {
+            OutputFormatter.error("Specify a project name or use --all");
+            System.out.println("Usage:");
+            System.out.println("  pm refresh <name>    Refresh a specific project");
+            System.out.println("  pm refresh --all     Refresh all registered projects");
+            System.exit(1);
+        }
+
+        try {
+            if (refreshAll) {
+                refreshAllProjects();
+            } else {
+                refreshSingleProject(name);
+            }
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to refresh: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void refreshSingleProject(String name) throws IOException {
+        Project project = store.findProject(name);
+        if (project == null) {
+            OutputFormatter.error("Project not found: " + name);
+            System.exit(1);
+            return;
+        }
+
+        if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+            OutputFormatter.error("Project path does not exist: " + project.path());
+            System.exit(1);
+            return;
+        }
+
+        ProjectType oldType = project.type();
+        ProjectType newType = ProjectTypeDetector.detect(project.path());
+
+        // Create new project with detected type, preserving env vars
+        Project refreshed = new Project(project.name(), project.path(), newType);
+        CommandConfigurator.configureDefaultCommands(refreshed);
+
+        // Copy environment variables
+        for (Map.Entry<String, String> entry : project.envVars().entrySet()) {
+            refreshed.addEnvVar(entry.getKey(), entry.getValue());
+        }
+
+        store.saveProject(refreshed);
+
+        System.out.println();
+        if (oldType != newType) {
+            OutputFormatter.success("Project '" + name + "' refreshed");
+            System.out.println();
+            System.out.println("  Type changed: " + OutputFormatter.YELLOW + oldType.displayName() +
+                    OutputFormatter.RESET + " → " + OutputFormatter.GREEN + newType.displayName() + OutputFormatter.RESET);
+
+            // Show old commands (if any)
+            if (project.commandCount() > 0) {
+                System.out.println();
+                System.out.println("  " + OutputFormatter.YELLOW + "Old commands removed:" + OutputFormatter.RESET);
+                for (Map.Entry<String, String> cmd : project.commands().entrySet()) {
+                    System.out.println("    " + OutputFormatter.RED + "- " + cmd.getKey() + OutputFormatter.RESET +
+                            " → " + OutputFormatter.GRAY + cmd.getValue() + OutputFormatter.RESET);
+                }
+            }
+
+            // Show new commands
+            System.out.println();
+            System.out.println("  " + OutputFormatter.GREEN + "New commands configured:" + OutputFormatter.RESET);
+            for (Map.Entry<String, String> cmd : refreshed.commands().entrySet()) {
+                System.out.println("    " + OutputFormatter.GREEN + "+ " + cmd.getKey() + OutputFormatter.RESET +
+                        " → " + OutputFormatter.CYAN + cmd.getValue() + OutputFormatter.RESET);
+            }
+        } else {
+            OutputFormatter.success("Project '" + name + "' refreshed (commands updated)");
+            System.out.println();
+            System.out.println("  Type: " + newType.displayName() + " (unchanged)");
+
+            // Show current commands
+            System.out.println();
+            System.out.println("  " + OutputFormatter.GREEN + "Commands:" + OutputFormatter.RESET);
+            for (Map.Entry<String, String> cmd : refreshed.commands().entrySet()) {
+                System.out.println("    " + OutputFormatter.GREEN + cmd.getKey() + OutputFormatter.RESET +
+                        " → " + OutputFormatter.CYAN + cmd.getValue() + OutputFormatter.RESET);
+            }
+        }
+        System.out.println();
+    }
+
+    private static void refreshAllProjects() throws IOException {
+        Map<String, Project> projects = store.load();
+
+        if (projects.isEmpty()) {
+            System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+            return;
+        }
+
+        System.out.println();
+        OutputFormatter.info("Checking " + projects.size() + " projects...");
+        System.out.println();
+
+        int updated = 0;
+        int upToDate = 0;
+        int errors = 0;
+
+        for (Project project : projects.values()) {
+            String name = project.name();
+
+            if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+                System.out.println("  " + OutputFormatter.RED + "SKIP" + OutputFormatter.RESET +
+                        "  " + padRight(name, 20) + OutputFormatter.GRAY + "path not found" + OutputFormatter.RESET);
+                errors++;
+                continue;
+            }
+
+            ProjectType oldType = project.type();
+            ProjectType newType = ProjectTypeDetector.detect(project.path());
+
+            if (oldType != newType) {
+                // Create refreshed project
+                Project refreshed = new Project(name, project.path(), newType);
+                CommandConfigurator.configureDefaultCommands(refreshed);
+
+                // Copy environment variables
+                for (Map.Entry<String, String> entry : project.envVars().entrySet()) {
+                    refreshed.addEnvVar(entry.getKey(), entry.getValue());
+                }
+
+                store.saveProject(refreshed);
+
+                System.out.println("  " + OutputFormatter.GREEN + "UPD " + OutputFormatter.RESET +
+                        "  " + padRight(name, 20) +
+                        OutputFormatter.YELLOW + oldType.displayName() + OutputFormatter.RESET +
+                        " → " + OutputFormatter.GREEN + newType.displayName() + OutputFormatter.RESET);
+                for (Map.Entry<String, String> cmd : refreshed.commands().entrySet()) {
+                    System.out.println("        " + padRight("", 20) +
+                            OutputFormatter.GREEN + "+ " + cmd.getKey() + OutputFormatter.RESET +
+                            " → " + OutputFormatter.CYAN + cmd.getValue() + OutputFormatter.RESET);
+                }
+                updated++;
+            } else {
+                // Re-apply default commands (in case new commands were added to the type)
+                Project refreshed = new Project(name, project.path(), newType);
+                CommandConfigurator.configureDefaultCommands(refreshed);
+
+                for (Map.Entry<String, String> entry : project.envVars().entrySet()) {
+                    refreshed.addEnvVar(entry.getKey(), entry.getValue());
+                }
+
+                store.saveProject(refreshed);
+
+                System.out.println("  " + OutputFormatter.GREEN + "OK  " + OutputFormatter.RESET +
+                        "  " + padRight(name, 20) +
+                        OutputFormatter.GRAY + newType.displayName() + OutputFormatter.RESET);
+                upToDate++;
+            }
+        }
+
+        System.out.println();
+        System.out.println("  " + OutputFormatter.GREEN + updated + " updated" + OutputFormatter.RESET +
+                ", " + upToDate + " refreshed" +
+                (errors > 0 ? ", " + OutputFormatter.RED + errors + " skipped" + OutputFormatter.RESET : ""));
+        System.out.println();
+    }
+
+    // ============================================================
     // COMMAND: DOCTOR (Environment check)
     // ============================================================
 
@@ -1032,6 +1227,28 @@ public class ProjectManager {
         return text + " ".repeat(length - text.length());
     }
 
+    /**
+     * Checks if a project's stored type differs from what would be detected now.
+     * If so, prints a hint suggesting the user run pm refresh.
+     */
+    private static void checkTypeOutdated(Project project) {
+        try {
+            if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+                return;
+            }
+            ProjectType detected = ProjectTypeDetector.detect(project.path());
+            if (detected != project.type() && detected != ProjectType.UNKNOWN) {
+                System.out.println("  " + OutputFormatter.YELLOW + "hint:" + OutputFormatter.RESET +
+                        " detected type is " + OutputFormatter.GREEN + detected.displayName() + OutputFormatter.RESET +
+                        " but project is registered as " + OutputFormatter.YELLOW + project.type().displayName() + OutputFormatter.RESET);
+                System.out.println("  Run 'pm refresh " + project.name() + "' to update");
+                System.out.println();
+            }
+        } catch (Exception ignored) {
+            // Don't fail the main command because of the hint
+        }
+    }
+
     // ============================================================
     // OUTPUT AND HELP
     // ============================================================
@@ -1060,6 +1277,8 @@ public class ProjectManager {
           remove, rm <name>                         Remove project
           info <name>                               Show project details
           env <subcommand> <name> [options]         Manage environment variables
+          refresh <name>                            Re-detect type and update commands
+          refresh --all                             Refresh all registered projects
           update                                    Update to the latest version
           doctor                                    Check environment and runtimes
           help                                      Show this help

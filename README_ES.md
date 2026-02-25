@@ -173,6 +173,7 @@ pm run servicio-pedidos
 - 🩺 **Runtime checker** - Detecta runtimes faltantes antes de ejecutar, muestra instrucciones de instalación
 - 🏥 **pm doctor** - Diagnostica tu entorno: verifica herramientas instaladas y valida rutas de proyectos
 - 🔄 **Auto-actualización** - Comprueba actualizaciones al arrancar, actualiza con `pm update`
+- 🔃 **Refrescar proyectos** - Re-detecta tipos y actualiza comandos con `pm refresh`, avisa cuando los proyectos están desactualizados
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -279,6 +280,8 @@ pm version
 | `pm env list <nombre> [--show]` | Listar variables (valores sensibles enmascarados) |
 | `pm env remove <nombre> KEY` | Eliminar una variable |
 | `pm env clear <nombre>` | Eliminar todas las variables |
+| `pm refresh <nombre>` | Re-detectar tipo de proyecto y actualizar comandos |
+| `pm refresh --all` | Refrescar todos los proyectos registrados |
 | `pm update` | Actualizar a la última versión |
 | `pm doctor` | Diagnosticar entorno (runtimes, rutas) |
 | `pm help` | Mostrar ayuda |
@@ -489,6 +492,8 @@ Los proyectos se guardan en:
 - [x] Comando `pm env` para gestionar variables desde CLI (set, get, list, remove, clear)
 - [x] Soporte para Rust, Go, pnpm, Bun, Yarn (detección automática, comandos, runtime checks)
 - [x] Comando `pm update` (auto-actualización desde GitHub Releases)
+- [x] Soporte para Flutter/Dart (detección automática, comandos, runtime checks)
+- [x] Comando `pm refresh` (re-detectar tipos, actualizar comandos, avisos de desactualización)
 
 ### 🔨 Planeado (Orden de Prioridad)
 - [ ] Alias de comandos para nombres de proyecto largos

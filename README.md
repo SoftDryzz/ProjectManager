@@ -173,6 +173,7 @@ pm run order-service
 - 🩺 **Runtime checker** - Detects missing runtimes before execution, shows install instructions
 - 🏥 **pm doctor** - Diagnose your environment: verify installed tools and validate project paths
 - 🔄 **Auto-update** - Check for updates on startup, update with `pm update`
+- 🔃 **Project refresh** - Re-detect types and update commands with `pm refresh`, warns when projects are outdated
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -279,6 +280,8 @@ pm version
 | `pm env list <name> [--show]` | List variables (sensitive values masked) |
 | `pm env remove <name> KEY` | Remove a variable |
 | `pm env clear <name>` | Remove all variables |
+| `pm refresh <name>` | Re-detect project type and update commands |
+| `pm refresh --all` | Refresh all registered projects |
 | `pm update` | Update to the latest version |
 | `pm doctor` | Diagnose environment (runtimes, paths) |
 | `pm help` | Show help |
@@ -489,6 +492,8 @@ Projects are saved in:
 - [x] `pm env` command to manage variables from CLI (set, get, list, remove, clear)
 - [x] Support for Rust, Go, pnpm, Bun, Yarn (auto-detection, commands, runtime checks)
 - [x] `pm update` command (auto-update from GitHub Releases)
+- [x] Flutter/Dart support (auto-detection, commands, runtime checks)
+- [x] `pm refresh` command (re-detect types, update commands, outdated hints)
 
 ### 🔨 Planned (Priority Order)
 - [ ] Command aliases for long project names

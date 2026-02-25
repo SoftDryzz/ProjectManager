@@ -347,6 +347,41 @@ pm env clear <nombre>
 
 ---
 
+### 🔹 Refrescar Proyectos
+
+#### Refrescar un proyecto específico
+```bash
+pm refresh <nombre>
+```
+
+Re-detecta el tipo de proyecto y actualiza sus comandos por defecto. Útil cuando:
+- Un proyecto fue registrado antes de que su tipo fuera soportado (ej. Flutter añadido en v1.3.1)
+- El sistema de build del proyecto cambió (ej. migró de npm a pnpm)
+
+Muestra detalle antes/después: comandos antiguos eliminados, nuevos comandos añadidos, cambio de tipo.
+
+---
+
+#### Refrescar todos los proyectos
+```bash
+pm refresh --all
+```
+
+Re-detecta y actualiza todos los proyectos registrados a la vez. Muestra un resumen con conteo de actualizados, refrescados y omitidos.
+
+---
+
+#### Avisos automáticos de desactualización
+
+Al ejecutar `pm build`, `pm run`, `pm test`, `pm commands` o `pm info`, ProjectManager comprueba automáticamente si el tipo guardado del proyecto difiere del que se detectaría ahora. Si está desactualizado, muestra un aviso:
+
+```
+hint: detected type is Flutter but project is registered as Unknown
+Run 'pm refresh mi-proyecto' to update
+```
+
+---
+
 ### 🔹 Diagnósticos
 
 #### Verificar salud del entorno
@@ -1161,6 +1196,10 @@ pm env list <nombre>                               # Listar (enmascaradas)
 pm env list <nombre> --show                        # Listar (reveladas)
 pm env remove <nombre> KEY                         # Eliminar una variable
 pm env clear <nombre>                              # Eliminar todas
+
+# === REFRESH ===
+pm refresh <nombre>                                # Re-detectar tipo y actualizar comandos
+pm refresh --all                                   # Refrescar todos los proyectos
 
 # === DIAGNÓSTICOS ===
 pm doctor                                          # Verificar salud del entorno

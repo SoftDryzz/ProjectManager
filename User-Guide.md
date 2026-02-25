@@ -347,6 +347,41 @@ pm env clear <name>
 
 ---
 
+### 🔹 Project Refresh
+
+#### Refresh a specific project
+```bash
+pm refresh <name>
+```
+
+Re-detects the project type and updates its default commands. Useful when:
+- A project was registered before its type was supported (e.g., Flutter added in v1.3.1)
+- The project's build system changed (e.g., migrated from npm to pnpm)
+
+Shows detailed before/after: old commands removed, new commands added, type change.
+
+---
+
+#### Refresh all projects
+```bash
+pm refresh --all
+```
+
+Re-detects and updates all registered projects at once. Shows a summary with updated, refreshed, and skipped counts.
+
+---
+
+#### Automatic outdated hints
+
+When running `pm build`, `pm run`, `pm test`, `pm commands`, or `pm info`, ProjectManager automatically checks if the stored project type differs from what would be detected now. If outdated, it shows a hint:
+
+```
+hint: detected type is Flutter but project is registered as Unknown
+Run 'pm refresh my-project' to update
+```
+
+---
+
 ### 🔹 Diagnostics
 
 #### Check environment health
@@ -1161,6 +1196,10 @@ pm env list <name>                             # List (masked)
 pm env list <name> --show                      # List (revealed)
 pm env remove <name> KEY                       # Remove a variable
 pm env clear <name>                            # Remove all variables
+
+# === REFRESH ===
+pm refresh <name>                              # Re-detect type and update commands
+pm refresh --all                               # Refresh all projects
 
 # === DIAGNOSTICS ===
 pm doctor                                      # Check environment health
