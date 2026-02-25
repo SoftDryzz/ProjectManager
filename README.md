@@ -174,6 +174,7 @@ pm run order-service
 - 🏥 **pm doctor** - Diagnose your environment: verify installed tools and validate project paths
 - 🔄 **Auto-update** - Check for updates on startup, update with `pm update`
 - 🔃 **Project refresh** - Re-detect types and update commands with `pm refresh`, warns when projects are outdated
+- ✏️ **Rename & path update** - Rename projects or update paths with `pm rename`, preserving all data
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -196,13 +197,13 @@ No need to compile. Just download and run.
 
 **Step 2.** Download **two things**:
    - `Source code (zip)` — contains the install scripts
-   - `projectmanager-1.3.0.jar` — the pre-built application
+   - `projectmanager-X.Y.Z.jar` — the pre-built application (e.g., `projectmanager-1.3.4.jar`)
 
-**Step 3.** Extract the ZIP. You will get a folder like `ProjectManager-1.3.0/`. Copy the downloaded JAR inside it:
+**Step 3.** Extract the ZIP. You will get a folder like `ProjectManager-X.Y.Z/`. Copy the downloaded JAR inside it:
 
 ```
-ProjectManager-1.3.0/          ← extracted folder
-├── projectmanager-1.3.0.jar   ← place the JAR here
+ProjectManager-X.Y.Z/          ← extracted folder
+├── projectmanager-X.Y.Z.jar   ← place the JAR here
 ├── scripts/
 │   ├── install.ps1
 │   └── install.sh
@@ -210,7 +211,7 @@ ProjectManager-1.3.0/          ← extracted folder
 └── ...
 ```
 
-**Step 4.** Open a terminal **inside the `ProjectManager-1.3.0/` folder** and run the installer:
+**Step 4.** Open a terminal **inside the extracted folder** and run the installer:
 
 **Windows (PowerShell):** Right-click the folder → "Open in Terminal", then:
 ```powershell
@@ -280,6 +281,8 @@ pm version
 | `pm env list <name> [--show]` | List variables (sensitive values masked) |
 | `pm env remove <name> KEY` | Remove a variable |
 | `pm env clear <name>` | Remove all variables |
+| `pm rename <old> <new>` | Rename a project |
+| `pm rename <name> --path <path>` | Update project path |
 | `pm refresh <name>` | Re-detect project type and update commands |
 | `pm refresh --all` | Refresh all registered projects |
 | `pm update` | Update to the latest version |
@@ -494,6 +497,7 @@ Projects are saved in:
 - [x] `pm update` command (auto-update from GitHub Releases)
 - [x] Flutter/Dart support (auto-detection, commands, runtime checks)
 - [x] `pm refresh` command (re-detect types, update commands, outdated hints)
+- [x] `pm rename` command (rename projects, update paths, preserve all data)
 
 ### 🔨 Planned (Priority Order)
 - [ ] Command aliases for long project names

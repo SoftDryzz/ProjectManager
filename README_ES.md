@@ -174,6 +174,7 @@ pm run servicio-pedidos
 - 🏥 **pm doctor** - Diagnostica tu entorno: verifica herramientas instaladas y valida rutas de proyectos
 - 🔄 **Auto-actualización** - Comprueba actualizaciones al arrancar, actualiza con `pm update`
 - 🔃 **Refrescar proyectos** - Re-detecta tipos y actualiza comandos con `pm refresh`, avisa cuando los proyectos están desactualizados
+- ✏️ **Renombrar y actualizar ruta** - Renombra proyectos o actualiza rutas con `pm rename`, preservando todos los datos
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -196,13 +197,13 @@ No necesitas compilar. Solo descarga y ejecuta.
 
 **Paso 2.** Descarga **dos cosas**:
    - `Source code (zip)` — contiene los scripts de instalación
-   - `projectmanager-1.3.0.jar` — la aplicación pre-compilada
+   - `projectmanager-X.Y.Z.jar` — la aplicación pre-compilada (ej: `projectmanager-1.3.4.jar`)
 
-**Paso 3.** Extrae el ZIP. Obtendrás una carpeta como `ProjectManager-1.3.0/`. Copia el JAR descargado dentro:
+**Paso 3.** Extrae el ZIP. Obtendrás una carpeta como `ProjectManager-X.Y.Z/`. Copia el JAR descargado dentro:
 
 ```
-ProjectManager-1.3.0/          ← carpeta extraída
-├── projectmanager-1.3.0.jar   ← coloca el JAR aquí
+ProjectManager-X.Y.Z/          ← carpeta extraída
+├── projectmanager-X.Y.Z.jar   ← coloca el JAR aquí
 ├── scripts/
 │   ├── install.ps1
 │   └── install.sh
@@ -210,7 +211,7 @@ ProjectManager-1.3.0/          ← carpeta extraída
 └── ...
 ```
 
-**Paso 4.** Abre una terminal **dentro de la carpeta `ProjectManager-1.3.0/`** y ejecuta el instalador:
+**Paso 4.** Abre una terminal **dentro de la carpeta extraída** y ejecuta el instalador:
 
 **Windows (PowerShell):** Clic derecho en la carpeta → "Abrir en Terminal", luego:
 ```powershell
@@ -280,6 +281,8 @@ pm version
 | `pm env list <nombre> [--show]` | Listar variables (valores sensibles enmascarados) |
 | `pm env remove <nombre> KEY` | Eliminar una variable |
 | `pm env clear <nombre>` | Eliminar todas las variables |
+| `pm rename <viejo> <nuevo>` | Renombrar un proyecto |
+| `pm rename <nombre> --path <ruta>` | Actualizar ruta del proyecto |
 | `pm refresh <nombre>` | Re-detectar tipo de proyecto y actualizar comandos |
 | `pm refresh --all` | Refrescar todos los proyectos registrados |
 | `pm update` | Actualizar a la última versión |
@@ -494,6 +497,7 @@ Los proyectos se guardan en:
 - [x] Comando `pm update` (auto-actualización desde GitHub Releases)
 - [x] Soporte para Flutter/Dart (detección automática, comandos, runtime checks)
 - [x] Comando `pm refresh` (re-detectar tipos, actualizar comandos, avisos de desactualización)
+- [x] Comando `pm rename` (renombrar proyectos, actualizar rutas, preservar datos)
 
 ### 🔨 Planeado (Orden de Prioridad)
 - [ ] Alias de comandos para nombres de proyecto largos

@@ -11,6 +11,7 @@
 - [Command Reference](#-command-reference)
   - [Project Management](#-project-management)
   - [Command Execution](#-command-execution)
+  - [Rename & Path Update](#-rename--path-update)
   - [Environment Variable Management](#-environment-variable-management)
   - [Diagnostics](#-diagnostics)
   - [Help and Version](#-help-and-version)
@@ -63,7 +64,7 @@ pm version
 
 You should see something like:
 ```
-ProjectManager 1.3.0
+ProjectManager 1.3.4
 Java 25.0.1
 ```
 
@@ -84,7 +85,7 @@ pm add web-api --path C:\Users\User\projects\web-api
 **Expected Output:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.3.0         ║
+║  ProjectManager v1.3.4         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -343,6 +344,41 @@ pm env remove <name> KEY
 #### Clear all variables
 ```bash
 pm env clear <name>
+```
+
+---
+
+### 🔹 Rename & Path Update
+
+#### Rename a project
+```bash
+pm rename <old-name> <new-name>
+```
+
+**Example:**
+```bash
+pm rename backend-api my-api
+```
+
+Renames the project while preserving all commands, environment variables, and project type.
+
+---
+
+#### Update a project's path
+```bash
+pm rename <name> --path <new-path>
+```
+
+**Example:**
+```bash
+pm rename my-api --path /home/user/new-location/my-api
+```
+
+---
+
+#### Rename and update path at once
+```bash
+pm rename <old-name> <new-name> --path <new-path>
 ```
 
 ---
@@ -766,7 +802,7 @@ pm info web-api
 **Output:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.3.0         ║
+║  ProjectManager v1.3.4         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -1047,11 +1083,12 @@ Variables are saved in **plain text** in the JSON file. **Do not save secret key
 
 ### What happens if I move a project to another folder?
 
-You must update the path:
+Update the path with `pm rename`:
 ```bash
-pm remove old-project
-pm add old-project --path C:\new\path --env "VAR1=value1"
+pm rename my-project --path C:\new\path
 ```
+
+All commands, environment variables, and project type are preserved.
 
 ### Can I change the default commands?
 
@@ -1196,6 +1233,11 @@ pm env list <name>                             # List (masked)
 pm env list <name> --show                      # List (revealed)
 pm env remove <name> KEY                       # Remove a variable
 pm env clear <name>                            # Remove all variables
+
+# === RENAME ===
+pm rename <old> <new>                          # Rename project
+pm rename <name> --path <path>                 # Update project path
+pm rename <old> <new> --path <path>            # Both at once
 
 # === REFRESH ===
 pm refresh <name>                              # Re-detect type and update commands

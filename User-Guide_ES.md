@@ -11,6 +11,7 @@
 - [Referencia de Comandos](#-referencia-de-comandos)
   - [Gestión de Proyectos](#-gestión-de-proyectos)
   - [Ejecución de Comandos](#-ejecución-de-comandos)
+  - [Renombrar y Actualizar Ruta](#-renombrar-y-actualizar-ruta)
   - [Gestión de Variables de Entorno](#-gestión-de-variables-de-entorno)
   - [Diagnósticos](#-diagnósticos)
   - [Ayuda y Versión](#-ayuda-y-versión)
@@ -63,7 +64,7 @@ pm version
 
 Deberías ver algo como:
 ```
-ProjectManager 1.3.0
+ProjectManager 1.3.4
 Java 25.0.1
 ```
 
@@ -84,7 +85,7 @@ pm add web-api --path C:\Users\Usuario\projects\web-api
 **Salida Esperada:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.3.0         ║
+║  ProjectManager v1.3.4         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -343,6 +344,41 @@ pm env remove <nombre> KEY
 #### Limpiar todas las variables
 ```bash
 pm env clear <nombre>
+```
+
+---
+
+### 🔹 Renombrar y Actualizar Ruta
+
+#### Renombrar un proyecto
+```bash
+pm rename <nombre-viejo> <nombre-nuevo>
+```
+
+**Ejemplo:**
+```bash
+pm rename backend-api mi-api
+```
+
+Renombra el proyecto preservando todos los comandos, variables de entorno y tipo de proyecto.
+
+---
+
+#### Actualizar la ruta de un proyecto
+```bash
+pm rename <nombre> --path <nueva-ruta>
+```
+
+**Ejemplo:**
+```bash
+pm rename mi-api --path /home/user/nueva-ubicacion/mi-api
+```
+
+---
+
+#### Renombrar y actualizar ruta a la vez
+```bash
+pm rename <nombre-viejo> <nombre-nuevo> --path <nueva-ruta>
 ```
 
 ---
@@ -766,7 +802,7 @@ pm info web-api
 **Salida:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.3.0         ║
+║  ProjectManager v1.3.4         ║
 ║  Manage your projects          ║
 ╚════════════════════════════════╝
 
@@ -1047,11 +1083,12 @@ Las variables se guardan en **texto plano** en el archivo JSON. **No guardes cla
 
 ### ¿Qué pasa si muevo un proyecto a otra carpeta?
 
-Debes actualizar la ruta:
+Actualiza la ruta con `pm rename`:
 ```bash
-pm remove proyecto-viejo
-pm add proyecto-viejo --path C:\nueva\ruta --env "VAR1=valor1"
+pm rename mi-proyecto --path C:\nueva\ruta
 ```
+
+Todos los comandos, variables de entorno y tipo de proyecto se preservan.
 
 ### ¿Puedo cambiar los comandos por defecto?
 
@@ -1196,6 +1233,11 @@ pm env list <nombre>                               # Listar (enmascaradas)
 pm env list <nombre> --show                        # Listar (reveladas)
 pm env remove <nombre> KEY                         # Eliminar una variable
 pm env clear <nombre>                              # Eliminar todas
+
+# === RENOMBRAR ===
+pm rename <viejo> <nuevo>                          # Renombrar proyecto
+pm rename <nombre> --path <ruta>                   # Actualizar ruta
+pm rename <viejo> <nuevo> --path <ruta>            # Ambos a la vez
 
 # === REFRESH ===
 pm refresh <nombre>                                # Re-detectar tipo y actualizar comandos
