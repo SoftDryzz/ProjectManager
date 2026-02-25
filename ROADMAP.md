@@ -1,12 +1,14 @@
 # ProjectManager - Roadmap
 
 > Ideas and planned features for future versions.
+>
+> Some ideas inspired by analyzing [FindMatch](https://github.com/AXIOM-ZER0/FindMatch), a real-world multi-stack project (Flutter + Rust + Docker + PostgreSQL + Redis).
 
 ---
 
-## v1.3.2 — Project Refresh & Outdated Detection
+## v1.3.2 — Project Refresh & Outdated Detection ✅
 
-### `pm refresh` command ✅
+### `pm refresh` command
 Re-detect project types and update commands for already-registered projects. Solves the problem where projects registered before a new type was added have no commands.
 
 | Feature | Status |
@@ -18,25 +20,9 @@ Re-detect project types and update commands for already-registered projects. Sol
 
 ---
 
-## v1.4.0 — Multi-ecosystem Install & Docker Support
+## v1.4.0 — Docker Support & Service Orchestration
 
-### Install scripts per ecosystem
-Create dedicated install scripts/commands so users can install ProjectManager using their preferred package manager:
-
-| Ecosystem | Install Method | Status |
-|-----------|---------------|--------|
-| npm/npx | `npx projectmanager` or `npm i -g projectmanager` | Planned |
-| pnpm | `pnpm add -g projectmanager` | Planned |
-| Cargo | `cargo install projectmanager` | Planned |
-| Homebrew | `brew install projectmanager` | Planned |
-| Scoop (Windows) | `scoop install projectmanager` | Planned |
-| Go | `go install github.com/SoftDryzz/ProjectManager@latest` | Planned |
-| Bun | `bun add -g projectmanager` | Planned |
-| Yarn | `yarn global add projectmanager` | Planned |
-
-> **Note:** Each ecosystem install would wrap the JAR (or compile a native binary via GraalVM).
-
-### Docker support
+### Docker project detection
 - Detect `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml` in project root
 - New project type: `DOCKER`
 - Default commands:
@@ -44,19 +30,29 @@ Create dedicated install scripts/commands so users can install ProjectManager us
   - `run` → `docker compose up`
   - `stop` → `docker compose down`
   - `clean` → `docker compose down -v --rmi all`
+
+### Service orchestration
 - Detect multi-service Docker Compose and list services
-- Support `pm run <service>` to start individual services
+- `pm services` — show running/stopped services
+- `pm run <service>` — start individual services
+- `pm logs <service>` — tail logs of a specific service
+- Health check integration (`/health`, `/ready` endpoints)
 
 ---
 
-## v1.5.0 — CI/CD & Workflow Awareness
+## v1.5.0 — CI/CD, Deployment & Workflow Awareness
 
 ### CI/CD detection
 - Detect GitHub Actions (`.github/workflows/`)
 - Detect GitLab CI (`.gitlab-ci.yml`)
 - Detect Jenkins (`Jenkinsfile`)
 - Show CI status in `pm info`
-- New command: `pm ci` — open CI dashboard in browser or show last run status
+- `pm ci` — open CI dashboard in browser or show last run status
+
+### Deployment awareness
+- Detect deployment configs: `fly.toml`, `vercel.json`, `netlify.toml`, `railway.json`
+- `pm deploy` — trigger deployment to detected platform
+- `pm deploy status` — show deployment state
 
 ### Linting & formatting integration
 - Detect linters per project type:
@@ -65,8 +61,19 @@ Create dedicated install scripts/commands so users can install ProjectManager us
   - Node.js: `eslint`, `prettier`
   - Python: `ruff`, `black`, `flake8`
   - Java: `checkstyle`, `spotless`
-- New command: `pm lint` — run detected linter
-- New command: `pm fmt` — run detected formatter
+- `pm lint` — run detected linter
+- `pm fmt` — run detected formatter
+
+### Code generation detection
+- Detect build_runner (Flutter/Dart), protobuf, OpenAPI generators
+- `pm codegen` — run detected code generation tools
+- Warn if generated files are outdated
+
+### Team workflow support
+- Detect number of contributors from git log
+- `pm team` — show active contributors and their recent areas
+- Branch naming convention detection and validation
+- PR template detection
 
 ---
 
@@ -83,6 +90,11 @@ Create dedicated install scripts/commands so users can install ProjectManager us
 - `pm test --all` — test all modules
 - `pm run <module>` — run specific module
 
+### Multi-language project detection
+- Detect projects that use multiple languages (e.g., Rust backend + Flutter frontend)
+- Show all detected types: `pm info` → "Types: RUST, FLUTTER, DOCKER"
+- Run commands per component: `pm build backend`, `pm test mobile`
+
 ### Project templates
 - `pm init <type>` — scaffold a new project from templates
 - Built-in templates: Java (Maven/Gradle), Node.js, Rust, Go, Python, .NET
@@ -90,7 +102,7 @@ Create dedicated install scripts/commands so users can install ProjectManager us
 
 ---
 
-## v1.7.0 — Environments & Secrets
+## v1.7.0 — Environments, Secrets & Databases
 
 ### Environment management
 - Detect `.env`, `.env.local`, `.env.production` files
@@ -102,6 +114,11 @@ Create dedicated install scripts/commands so users can install ProjectManager us
 - Scan for common secret patterns (API keys, tokens, passwords)
 - Warn on `pm doctor` if secrets are committed
 - Integration with Vaultic or similar tools for encrypted env files
+
+### Database migration awareness
+- Detect migration tools: SQLx, Flyway, Liquibase, Prisma, Diesel, Alembic
+- `pm migrate` — run pending migrations
+- `pm migrate status` — show migration state
 
 ---
 
@@ -128,41 +145,25 @@ Create dedicated install scripts/commands so users can install ProjectManager us
 - `pm stats` — show build/test time trends
 - Identify slow builds and suggest optimizations
 
-### Ideas from FindMatch (Real-world Multi-stack Project)
+---
 
-> These ideas come from analyzing [FindMatch](https://github.com/AXIOM-ZER0/FindMatch), a real-world project with Flutter + Rust + Docker + PostgreSQL + Redis, multiple CI workflows, and a 4-person team.
+## Future — Multi-ecosystem Install
 
-### Multi-language project detection
-- Detect projects that use multiple languages (e.g., Rust backend + Flutter frontend)
-- Show all detected types: `pm info` → "Types: RUST, FLUTTER, DOCKER"
-- Run commands per component: `pm build backend`, `pm test mobile`
+### Install scripts per ecosystem
+Create dedicated install scripts/commands so users can install ProjectManager using their preferred package manager:
 
-### Database migration awareness
-- Detect migration tools: SQLx, Flyway, Liquibase, Prisma, Diesel, Alembic
-- `pm migrate` — run pending migrations
-- `pm migrate status` — show migration state
+| Ecosystem | Install Method | Status |
+|-----------|---------------|--------|
+| npm/npx | `npx projectmanager` or `npm i -g projectmanager` | Planned |
+| pnpm | `pnpm add -g projectmanager` | Planned |
+| Cargo | `cargo install projectmanager` | Planned |
+| Homebrew | `brew install projectmanager` | Planned |
+| Scoop (Windows) | `scoop install projectmanager` | Planned |
+| Go | `go install github.com/SoftDryzz/ProjectManager@latest` | Planned |
+| Bun | `bun add -g projectmanager` | Planned |
+| Yarn | `yarn global add projectmanager` | Planned |
 
-### Service orchestration
-- For projects with Docker Compose, detect and list services
-- `pm services` — show running/stopped services
-- `pm logs <service>` — tail logs of a specific service
-- Health check integration (`/health`, `/ready` endpoints)
-
-### Team workflow support
-- Detect number of contributors from git log
-- `pm team` — show active contributors and their recent areas
-- Branch naming convention detection and validation
-- PR template detection
-
-### Deployment awareness
-- Detect deployment configs: `fly.toml`, `vercel.json`, `netlify.toml`, `railway.json`
-- `pm deploy` — trigger deployment to detected platform
-- `pm deploy status` — show deployment state
-
-### Code generation detection
-- Detect build_runner (Flutter/Dart), protobuf, OpenAPI generators
-- `pm codegen` — run detected code generation tools
-- Warn if generated files are outdated
+> **Note:** Each ecosystem install would wrap the JAR (or compile a native binary via GraalVM).
 
 ---
 
