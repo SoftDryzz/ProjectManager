@@ -175,6 +175,7 @@ pm run servicio-pedidos
 - 🔄 **Auto-actualización** - Comprueba actualizaciones al arrancar, actualiza con `pm update`
 - 🔃 **Refrescar proyectos** - Re-detecta tipos y actualiza comandos con `pm refresh`, avisa cuando los proyectos están desactualizados
 - ✏️ **Renombrar y actualizar ruta** - Renombra proyectos o actualiza rutas con `pm rename`, preservando todos los datos
+- 🎨 **Comandos personalizados** - Añade tus propios comandos con `pm commands add` (tunnel, lint, deploy, etc.)
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -274,6 +275,9 @@ pm version
 | `pm run <nombre>` | Ejecutar un proyecto |
 | `pm test <nombre>` | Ejecutar tests |
 | `pm commands <nombre>` | Ver comandos disponibles |
+| `pm commands <nombre> add <cmd> "<línea>"` | Añadir un comando personalizado |
+| `pm commands <nombre> remove <cmd>` | Eliminar un comando |
+| `pm commands --all` | Ver comandos de todos los proyectos |
 | `pm info <nombre>` | Ver información detallada (incluyendo estado Git) |
 | `pm remove <nombre>` | Eliminar proyecto |
 | `pm env set <nombre> KEY=VALUE` | Configurar variables de entorno |
@@ -504,6 +508,8 @@ Los proyectos se guardan en:
 - [x] Soporte para Flutter/Dart (detección automática, comandos, runtime checks)
 - [x] Comando `pm refresh` (re-detectar tipos, actualizar comandos, avisos de desactualización)
 - [x] Comando `pm rename` (renombrar proyectos, actualizar rutas, preservar datos)
+- [x] Soporte CLI interactivo (auto-detección TTY para `pm run`, `pm build`, `pm test`)
+- [x] Comandos personalizados (`pm commands add/remove`, `pm commands --all`)
 
 ### 🔨 Planeado (Orden de Prioridad)
 - [ ] Alias de comandos para nombres de proyecto largos

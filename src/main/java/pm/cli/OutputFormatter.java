@@ -224,6 +224,40 @@ public class OutputFormatter {
     }
 
     /**
+     * Displays commands for all registered projects.
+     *
+     * @param projects map of all projects (name → project)
+     */
+    public static void printAllCommands(Map<String, Project> projects) {
+        System.out.println();
+        System.out.println("Commands for All Projects (" + projects.size() + ")");
+        System.out.println("─".repeat(40));
+
+        for (Project project : projects.values()) {
+            System.out.println();
+            System.out.println(BOLD + project.name() + RESET + " " +
+                    GRAY + "(" + project.type().displayName() + ")" + RESET);
+
+            if (project.commandCount() == 0) {
+                System.out.println("  " + GRAY + "No commands configured" + RESET);
+                continue;
+            }
+
+            int maxLen = project.commands().keySet().stream()
+                    .mapToInt(String::length)
+                    .max()
+                    .orElse(0);
+
+            project.commands().forEach((name, command) -> {
+                String padding = " ".repeat(maxLen - name.length());
+                System.out.println("  " + GREEN + name + RESET + padding + " → " + CYAN + command + RESET);
+            });
+        }
+
+        System.out.println();
+    }
+
+    /**
      * Displays the environment variables of a project.
      *
      * @param project project to show variables for

@@ -175,6 +175,7 @@ pm run order-service
 - 🔄 **Auto-update** - Check for updates on startup, update with `pm update`
 - 🔃 **Project refresh** - Re-detect types and update commands with `pm refresh`, warns when projects are outdated
 - ✏️ **Rename & path update** - Rename projects or update paths with `pm rename`, preserving all data
+- 🎨 **Custom commands** - Add your own commands with `pm commands add` (tunnel, lint, deploy, etc.)
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -274,6 +275,9 @@ pm version
 | `pm run <name>` | Run a project |
 | `pm test <name>` | Run tests |
 | `pm commands <name>` | View available commands |
+| `pm commands <name> add <cmd> "<line>"` | Add a custom command |
+| `pm commands <name> remove <cmd>` | Remove a command |
+| `pm commands --all` | View commands for all projects |
 | `pm info <name>` | View detailed information (including Git status) |
 | `pm remove <name>` | Remove project |
 | `pm env set <name> KEY=VALUE` | Set environment variables |
@@ -504,6 +508,8 @@ Projects are saved in:
 - [x] Flutter/Dart support (auto-detection, commands, runtime checks)
 - [x] `pm refresh` command (re-detect types, update commands, outdated hints)
 - [x] `pm rename` command (rename projects, update paths, preserve all data)
+- [x] Interactive CLI support (auto TTY detection for `pm run`, `pm build`, `pm test`)
+- [x] Custom commands (`pm commands add/remove`, `pm commands --all`)
 
 ### 🔨 Planned (Priority Order)
 - [ ] Command aliases for long project names

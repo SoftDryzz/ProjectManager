@@ -59,7 +59,23 @@ Usa `ProcessBuilder.inheritIO()` para conectar stdin/stdout/stderr directamente 
 
 ---
 
-## v1.3.6 — Manejo de Errores y Seguridad de Datos
+## v1.3.6 — Comandos Personalizados ✅
+
+### Gestión de comandos personalizados
+Permitir a los usuarios crear, eliminar y listar comandos personalizados por proyecto. Los comandos por defecto (build, run, test, clean) se siguen auto-detectando — los comandos personalizados los extienden.
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| `pm commands <proyecto> add <nombre> "<comando>"` — crear un comando personalizado | ✅ Hecho |
+| `pm commands <proyecto> remove <nombre>` — eliminar un comando personalizado | ✅ Hecho |
+| `pm commands <proyecto>` — listar comandos de un proyecto específico (ya existe) | ✅ Hecho |
+| `pm commands --all` — listar todos los comandos de todos los proyectos registrados | ✅ Hecho |
+| Los comandos personalizados se persisten en `projects.json` junto a los por defecto | ✅ Hecho |
+| Actualizar comandos existentes re-añadiéndolos con nuevo valor | ✅ Hecho |
+
+---
+
+## v1.3.7 — Manejo de Errores y Seguridad de Datos
 
 ### Almacenamiento robusto de proyectos
 Prevenir pérdida de datos y eliminar mensajes de error crípticos. El usuario nunca debería ver un stack trace de Java ni perder sus proyectos registrados.
@@ -82,7 +98,7 @@ Prevenir pérdida de datos y eliminar mensajes de error crípticos. El usuario n
 
 ---
 
-## v1.3.7 — Ejecución Segura de Comandos
+## v1.3.8 — Ejecución Segura de Comandos
 
 ### Seguridad de rutas en comandos shell
 Corregir que comandos fallen cuando las rutas del proyecto contienen espacios o caracteres especiales. También previene posible inyección de shell desde rutas crafteadas.
@@ -101,7 +117,7 @@ Corregir que comandos fallen cuando las rutas del proyecto contienen espacios o 
 
 ---
 
-## v1.3.8 — Auto-Update Robusto
+## v1.3.9 — Auto-Update Robusto
 
 ### Integridad de descarga y resiliencia de red
 Asegurar que el auto-updater maneje casos límite con gracia: descargas parciales, loops de redirección y fallos de red con feedback claro.
