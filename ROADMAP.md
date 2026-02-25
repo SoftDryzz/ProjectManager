@@ -3,6 +3,8 @@
 > Ideas and planned features for future versions.
 >
 > Some ideas inspired by analyzing [FindMatch](https://github.com/AXIOM-ZER0/FindMatch), a real-world multi-stack project (Flutter + Rust + Docker + PostgreSQL + Redis).
+>
+> **Versioning:** Follows [Semantic Versioning](https://semver.org/). Each release corresponds to a GitHub Release with tag `vX.Y.Z` and asset `projectmanager-X.Y.Z.jar`.
 
 ---
 
@@ -20,7 +22,30 @@ Re-detect project types and update commands for already-registered projects. Sol
 
 ---
 
-## v1.4.0 — Docker Support & Service Orchestration
+## v1.3.3 — Update Fix & ROADMAP Update ✅
+
+| Feature | Status |
+|---------|--------|
+| Fix post-update message: "Run any pm command to use the new version" | ✅ Done |
+| ROADMAP reorganization with new planned features | ✅ Done |
+
+---
+
+## v1.3.4 — Rename & Path Update ✅
+
+### `pm rename` command
+Rename projects and/or update their registered path without losing commands or environment variables.
+
+| Feature | Status |
+|---------|--------|
+| `pm rename old-name new-name` — rename project | ✅ Done |
+| `pm rename name --path /new/path` — update path | ✅ Done |
+| `pm rename old-name new-name --path /new/path` — both | ✅ Done |
+| Preserves commands, env vars, and project type | ✅ Done |
+
+---
+
+## v1.4.0 — Docker Support
 
 ### Docker project detection
 - Detect `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml` in project root
@@ -31,7 +56,11 @@ Re-detect project types and update commands for already-registered projects. Sol
   - `stop` → `docker compose down`
   - `clean` → `docker compose down -v --rmi all`
 
-### Service orchestration
+---
+
+## v1.4.1 — Service Orchestration
+
+### Docker Compose services
 - Detect multi-service Docker Compose and list services
 - `pm services` — show running/stopped services
 - `pm run <service>` — start individual services
@@ -40,13 +69,17 @@ Re-detect project types and update commands for already-registered projects. Sol
 
 ---
 
-## v1.5.0 — CI/CD, Security & Developer Experience
+## v1.5.0 — Shell Autocompletion
 
-### Shell autocompletion
+### `pm completions` command
 - Generate completion scripts for bash, zsh, fish, and PowerShell
 - `pm completions <shell>` — output completion script for the specified shell
 - Autocomplete project names, commands, and flags
 - Zero dependencies — generates static shell scripts
+
+---
+
+## v1.5.1 — Doctor Health Score
 
 ### `pm doctor` expanded
 - Health score: **A/B/C/D/F** rating based on project best practices
@@ -55,7 +88,11 @@ Re-detect project types and update commands for already-registered projects. Sol
 - `pm doctor` — show full health report with score
 - `pm doctor --score` — show only the letter grade
 
-### `pm secure`
+---
+
+## v1.5.2 — Security Scan
+
+### `pm secure` command
 - Best practices security scan (filesystem patterns only, no secret management)
 - Checks:
   - Dockerfile runs as non-root user
@@ -66,17 +103,38 @@ Re-detect project types and update commands for already-registered projects. Sol
 - `pm secure` — run all checks and show report
 - `pm secure --fix` — auto-fix what can be fixed (e.g., add entries to `.gitignore`)
 
-### Dependency audit
-- `pm audit` — check for known vulnerabilities using native ecosystem tools
+---
+
+## v1.5.3 — Dependency Audit
+
+### `pm audit` command
+- Check for known vulnerabilities using native ecosystem tools:
   - npm: `npm audit`
   - Cargo: `cargo audit`
   - Go: `govulncheck`
   - Python: `pip-audit`
   - Maven: OWASP dependency-check
 - Show summary with severity levels
-- Suggest fixes where available
+- **Suggest** fixes where available — never auto-update dependencies
+- The developer decides whether to update; PM only informs
 
-### CI/CD detection
+> **Important:** `pm audit` is read-only. It reports vulnerabilities and suggests what *could* be updated, but never modifies `package.json`, `Cargo.toml`, or any dependency file. The developer may be using specific versions intentionally.
+
+---
+
+## v1.5.4 — Export & Import
+
+### `pm export` / `pm import` commands
+- `pm export` — export all registered projects to a portable JSON file
+- `pm import <file>` — import projects from an exported file
+- Useful for migrating between machines or sharing team setups
+- Validates paths on import and warns about missing directories
+
+---
+
+## v1.6.0 — CI/CD Detection
+
+### CI/CD awareness
 - Detect GitHub Actions (`.github/workflows/`)
 - Detect GitLab CI (`.gitlab-ci.yml`)
 - Detect Jenkins (`Jenkinsfile`)
@@ -88,7 +146,11 @@ Re-detect project types and update commands for already-registered projects. Sol
 - `pm deploy` — trigger deployment to detected platform
 - `pm deploy status` — show deployment state
 
-### Linting & formatting integration
+---
+
+## v1.6.1 — Linting & Formatting
+
+### `pm lint` / `pm fmt` commands
 - Detect linters per project type:
   - Rust: `cargo fmt`, `cargo clippy`
   - Go: `gofmt`, `golangci-lint`
@@ -97,6 +159,10 @@ Re-detect project types and update commands for already-registered projects. Sol
   - Java: `checkstyle`, `spotless`
 - `pm lint` — run detected linter
 - `pm fmt` — run detected formatter
+
+---
+
+## v1.6.2 — Code Generation & Team Workflows
 
 ### Code generation detection
 - Detect build_runner (Flutter/Dart), protobuf, OpenAPI generators
@@ -111,7 +177,7 @@ Re-detect project types and update commands for already-registered projects. Sol
 
 ---
 
-## v1.6.0 — Multi-project Workspaces
+## v1.7.0 — Multi-project Workspaces
 
 ### Monorepo support
 - Detect monorepo structures:
@@ -129,20 +195,18 @@ Re-detect project types and update commands for already-registered projects. Sol
 - Show all detected types: `pm info` → "Types: RUST, FLUTTER, DOCKER"
 - Run commands per component: `pm build backend`, `pm test mobile`
 
-### Project templates
+---
+
+## v1.7.1 — Project Templates
+
+### `pm init` command
 - `pm init <type>` — scaffold a new project from templates
 - Built-in templates: Java (Maven/Gradle), Node.js, Rust, Go, Python, .NET
 - Support custom templates from GitHub repos
 
-### Project export & import
-- `pm export` — export all registered projects to a portable JSON file
-- `pm import <file>` — import projects from an exported file
-- Useful for migrating between machines or sharing team setups
-- Validates paths on import and warns about missing directories
-
 ---
 
-## v1.7.0 — Environments, Secrets & Databases
+## v1.8.0 — Environments, Secrets & Databases
 
 ### Environment management
 - Detect `.env`, `.env.local`, `.env.production` files
