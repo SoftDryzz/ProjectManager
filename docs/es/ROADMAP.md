@@ -45,23 +45,17 @@ Renombra proyectos y/o actualiza su ruta registrada sin perder comandos ni varia
 
 ---
 
-## v1.3.5 — Soporte para CLI Interactiva
+## v1.3.5 — Soporte para CLI Interactiva ✅
 
 ### `inheritIO` para procesos interactivos
-Corregir que procesos que requieren entrada del usuario (menús interactivos, prompts, selecciones) se queden colgados indefinidamente. Actualmente `CommandExecutor` no pasa stdin a los procesos hijos y lee la salida línea por línea, lo que rompe CLIs interactivas.
-
-**Escenarios afectados:**
-- React Native / Expo: `press a for Android, i for iOS`
-- Flutter: selección de dispositivo en `flutter run`
-- Gradle: prompts interactivos durante el build
-- Cualquier CLI que espere entrada de teclado del usuario
+Usa `ProcessBuilder.inheritIO()` para conectar stdin/stdout/stderr directamente al terminal del usuario. Auto-detecta presencia de TTY para usar modo buffered en CI/CD.
 
 | Funcionalidad | Estado |
 |---------------|--------|
-| Usar `ProcessBuilder.inheritIO()` para comandos `pm run` | Planificado |
-| Detectar modo interactivo vs no interactivo | Planificado |
-| Preservar métricas de `ExecutionResult` (exit code, duración) | Planificado |
-| Fallback graceful si el terminal no es TTY | Planificado |
+| Método `executeWithInheritedIO()` en CommandExecutor | ✅ Hecho |
+| Auto-detect TTY (`System.console()`) para `pm run`, `pm build`, `pm test` | ✅ Hecho |
+| Preservar métricas de `ExecutionResult` (exit code, duración) | ✅ Hecho |
+| Fallback graceful a modo buffered si el terminal no es TTY | ✅ Hecho |
 
 ---
 

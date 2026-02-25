@@ -45,23 +45,17 @@ Rename projects and/or update their registered path without losing commands or e
 
 ---
 
-## v1.3.5 — Interactive CLI Support
+## v1.3.5 — Interactive CLI Support ✅
 
 ### `inheritIO` for interactive processes
-Fix processes that require user input (interactive menus, prompts, selections) hanging indefinitely. Currently `CommandExecutor` does not pass stdin to child processes and reads output line-by-line, which breaks interactive CLIs.
-
-**Affected scenarios:**
-- React Native / Expo: `press a for Android, i for iOS`
-- Flutter: `flutter run` device selection
-- Gradle: interactive prompts during build
-- Any CLI that expects user keyboard input
+Fix processes that require user input (interactive menus, prompts, selections) hanging indefinitely. Uses `ProcessBuilder.inheritIO()` to connect stdin/stdout/stderr directly to the user's terminal. Auto-detects TTY presence to fallback to buffered mode in CI/CD.
 
 | Feature | Status |
 |---------|--------|
-| Use `ProcessBuilder.inheritIO()` for `pm run` commands | Planned |
-| Detect interactive vs non-interactive mode | Planned |
-| Preserve `ExecutionResult` metrics (exit code, duration) | Planned |
-| Graceful fallback if terminal is not a TTY | Planned |
+| `executeWithInheritedIO()` method in CommandExecutor | ✅ Done |
+| Auto-detect TTY (`System.console()`) for `pm run`, `pm build`, `pm test` | ✅ Done |
+| Preserve `ExecutionResult` metrics (exit code, duration) | ✅ Done |
+| Graceful fallback to buffered mode if terminal is not a TTY | ✅ Done |
 
 ---
 
