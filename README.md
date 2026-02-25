@@ -176,6 +176,7 @@ pm run order-service
 - 🔃 **Project refresh** - Re-detect types and update commands with `pm refresh`, warns when projects are outdated
 - ✏️ **Rename & path update** - Rename projects or update paths with `pm rename`, preserving all data
 - 🎨 **Custom commands** - Add your own commands with `pm commands add` (tunnel, lint, deploy, etc.)
+- 🛡️ **Data safety** - Atomic writes, automatic backup, and recovery from corrupted JSON
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -510,6 +511,7 @@ Projects are saved in:
 - [x] `pm rename` command (rename projects, update paths, preserve all data)
 - [x] Interactive CLI support (auto TTY detection for `pm run`, `pm build`, `pm test`)
 - [x] Custom commands (`pm commands add/remove`, `pm commands --all`)
+- [x] Error handling & data safety (atomic writes, backup, recovery, friendly errors)
 
 ### 🔨 Planned (Priority Order)
 - [ ] Command aliases for long project names

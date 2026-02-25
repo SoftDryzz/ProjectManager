@@ -36,6 +36,8 @@ ProjectManager is a **local CLI tool** that manages project metadata and execute
 ### Data storage
 
 - All data is stored locally in `~/.projectmanager/projects.json`
+- **Atomic writes** (since v1.3.7) — data is written to a temp file first, then renamed. No partial writes can corrupt your data.
+- **Automatic backup** (since v1.3.7) — `projects.json.bak` is created before every write. If the main file becomes corrupted, it is automatically restored from backup on the next command.
 - No data is sent to external servers (except the GitHub API for update checks)
 - No telemetry, analytics, or tracking of any kind
 
@@ -43,8 +45,8 @@ ProjectManager is a **local CLI tool** that manages project metadata and execute
 
 ProjectManager executes shell commands configured by the user. These commands run with the **same permissions as the user** who invokes `pm`.
 
-**Current limitations (being addressed in v1.3.7):**
-- Project paths are not escaped before being passed to shell commands. Paths containing shell metacharacters (`&`, `|`, `;`, etc.) could lead to unintended command execution. Avoid registering projects with special characters in their paths until v1.3.7.
+**Current limitations (being addressed in v1.3.8):**
+- Project paths are not escaped before being passed to shell commands. Paths containing shell metacharacters (`&`, `|`, `;`, etc.) could lead to unintended command execution. Avoid registering projects with special characters in their paths until v1.3.8.
 
 ### Network access
 
@@ -55,7 +57,7 @@ ProjectManager only connects to the internet for **two purposes**:
 
 Both connections use HTTPS. No authentication tokens or personal data are transmitted.
 
-**Current limitations (being addressed in v1.3.8):**
+**Current limitations (being addressed in v1.3.9):**
 - Downloaded JAR integrity is validated only by a minimum size check (> 1KB). A more robust validation (expected file size from API response) is planned.
 - Redirect loops from the GitHub API are not capped, which could cause a hang.
 
@@ -79,12 +81,12 @@ No runtime dependencies are pulled from the network. The application is fully se
 ## Known Security Considerations
 
 ### Shell command injection via project paths
-- **Status:** Known, fix planned for v1.3.7
+- **Status:** Known, fix planned for v1.3.8
 - **Risk:** Low — requires the user to manually register a project with a malicious path
 - **Mitigation:** Do not register projects whose paths contain shell metacharacters (`&`, `|`, `;`, `` ` ``, `$`, etc.)
 
 ### Update mechanism integrity
-- **Status:** Known, improvements planned for v1.3.8
+- **Status:** Known, improvements planned for v1.3.9
 - **Risk:** Low — downloads only from GitHub Releases over HTTPS
 - **Mitigation:** Verify the downloaded JAR manually if concerned (`sha256sum` comparison with the release page)
 
@@ -99,9 +101,9 @@ No runtime dependencies are pulled from the network. The application is fully se
 
 | Version | Security Improvement |
 |---------|---------------------|
-| v1.3.6  | Atomic file writes to prevent data corruption; remove stack traces from user output |
-| v1.3.7  | Escape shell metacharacters in project paths; validate directories before execution |
-| v1.3.8  | Validate download integrity; cap redirect loops; distinguish network error types |
+| v1.3.7 ✅ | Atomic file writes, automatic backup, corrupted data recovery, field validation on load, user-friendly error messages (no stack traces) |
+| v1.3.8  | Escape shell metacharacters in project paths; validate directories before execution |
+| v1.3.9  | Validate download integrity; cap redirect loops; distinguish network error types |
 | v1.5.2  | `pm secure` command — filesystem security scan for project best practices |
 
 ---
@@ -110,6 +112,6 @@ No runtime dependencies are pulled from the network. The application is fully se
 
 1. **Keep ProjectManager updated** — Run `pm update` regularly
 2. **Use descriptive project names** — Avoid names that match PM commands (`build`, `run`, `list`)
-3. **Avoid special characters in project paths** — Until v1.3.7, paths with `&`, `|`, `;` may cause issues
+3. **Avoid special characters in project paths** — Until v1.3.8, paths with `&`, `|`, `;` may cause issues
 4. **Review custom commands** — Commands set with `pm commands set` execute as your user. Review them before running.
 5. **Protect your home directory** — On shared systems, ensure `~/.projectmanager/` is not world-readable

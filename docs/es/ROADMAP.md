@@ -75,26 +75,26 @@ Permitir a los usuarios crear, eliminar y listar comandos personalizados por pro
 
 ---
 
-## v1.3.7 — Manejo de Errores y Seguridad de Datos
+## v1.3.7 — Manejo de Errores y Seguridad de Datos ✅
 
 ### Almacenamiento robusto de proyectos
 Prevenir pérdida de datos y eliminar mensajes de error crípticos. El usuario nunca debería ver un stack trace de Java ni perder sus proyectos registrados.
 
 | Funcionalidad | Estado |
 |---------------|--------|
-| Escritura atómica de archivos (escribir en archivo temporal, luego renombrar) | Planificado |
-| Backup automático de `projects.json` antes de escribir | Planificado |
-| Recuperación de JSON corrupto (cargar backup automáticamente) | Planificado |
-| Validar campos requeridos al cargar (nombre, ruta o tipo nulos) | Planificado |
-| Manejo graceful de valores `ProjectType` inválidos en JSON | Planificado |
+| Escritura atómica de archivos (escribir en archivo temporal, luego renombrar) | ✅ Hecho |
+| Backup automático de `projects.json` antes de escribir | ✅ Hecho |
+| Recuperación de JSON corrupto (cargar backup automáticamente) | ✅ Hecho |
+| Validar campos requeridos al cargar (nombre, ruta o tipo nulos) | ✅ Hecho |
+| Manejo graceful de valores `ProjectType` inválidos en JSON | ✅ Hecho |
 
 ### Mensajes de error amigables
 | Funcionalidad | Estado |
 |---------------|--------|
-| Eliminar `e.printStackTrace()` del main — no mostrar stack traces al usuario | Planificado |
-| Mensajes de error específicos: permisos, disco lleno, archivo no encontrado, JSON corrupto | Planificado |
-| Orientación accionable en mensajes de error (ej. "Ejecuta `pm doctor` para diagnosticar") | Planificado |
-| Feedback en operaciones Git — mostrar por qué falta la info de git en vez de ocultarla | Planificado |
+| Eliminar `e.printStackTrace()` del main — no mostrar stack traces al usuario | ✅ Hecho |
+| Mensajes de error específicos: permisos, disco lleno, archivo no encontrado, JSON corrupto | ✅ Hecho |
+| Orientación accionable en mensajes de error (ej. "Ejecuta `pm doctor` para diagnosticar") | ✅ Hecho |
+| Feedback en operaciones Git — mostrar por qué falta la info de git en vez de ocultarla | ✅ Hecho |
 
 ---
 

@@ -39,6 +39,7 @@
   - [Estructura del Archivo projects.json](#estructura-del-archivo-projectsjson)
   - [Edición Manual](#edición-manual-avanzado)
 - [Preguntas Frecuentes (FAQ)](#-preguntas-frecuentes-faq)
+- [Seguridad de Datos y Manejo de Errores](#️-seguridad-de-datos-y-manejo-de-errores)
 - [Solución de Problemas](#-solución-de-problemas)
 - [Cheatsheet Rápido](#-cheatsheet-rápido)
 - [Flujo de Trabajo Completo](#-flujo-de-trabajo-completo)
@@ -1262,6 +1263,69 @@ rm -rf ~/.projectmanager
 ```
 
 Luego elimina `~/bin` del PATH en tu `.bashrc` o `.zshrc`.
+
+---
+
+## 🛡️ Seguridad de Datos y Manejo de Errores
+
+ProjectManager protege tus datos con múltiples capas de seguridad:
+
+### Escritura Atómica
+
+Cada vez que modificas un proyecto (add, remove, rename, env set, commands add, etc.), ProjectManager escribe primero en un **archivo temporal** y luego lo renombra a `projects.json`. Esto significa:
+
+- Si tu ordenador pierde energía a mitad de escritura, tus datos están seguros
+- Si el disco se queda sin espacio, el archivo original queda intacto
+- No puede haber escrituras parciales o corruptas
+
+### Backup Automático
+
+Antes de cada escritura, el `projects.json` actual se respalda en `projects.json.bak`. Esto ocurre automáticamente — no necesitas hacer nada.
+
+**Ubicación:** `~/.projectmanager/projects.json.bak`
+
+### Recuperación Automática
+
+Si `projects.json` se corrompe (ej. error de edición manual), ProjectManager automáticamente:
+
+1. Detecta la corrupción en el siguiente comando
+2. Carga el backup (`projects.json.bak`)
+3. Restaura el backup como archivo principal
+4. Muestra un aviso: *"projects.json was corrupted — restored from backup (N projects recovered)"*
+
+### Validación
+
+Al cargar proyectos, ProjectManager valida cada entrada:
+
+| Problema | Comportamiento |
+|----------|----------------|
+| Ruta faltante | Entrada omitida con aviso |
+| Tipo de proyecto desconocido (ej. `"type": "INVALID"`) | Se establece como UNKNOWN con aviso |
+| Nombre de proyecto faltante | Usa la clave del mapa como fallback |
+| Comandos/envVars nulos | Se tratan como vacíos |
+
+Esto significa que una entrada corrupta no impide que el resto se cargue.
+
+### Mensajes de Error Amigables
+
+ProjectManager nunca muestra stack traces de Java. En su lugar, recibes mensajes claros con orientación:
+
+| Error | Mensaje |
+|-------|---------|
+| Permiso denegado | *"Permission denied: /ruta — check file permissions"* |
+| Disco lleno | *"Disk is full — free some space and try again"* |
+| JSON corrupto (sin backup) | *"projects.json is corrupted — Location: /ruta"* |
+| Error inesperado | *"If this persists, run `pm doctor` to diagnose"* |
+
+### Feedback de Git
+
+Al ver información del proyecto (`pm info`), la información de Git ahora muestra feedback claro en vez de ocultar los fallos:
+
+| Situación | Muestra |
+|-----------|---------|
+| No es un repositorio git | `Git: not a repository` |
+| Git no instalado | `Branch: could not read (is git installed?)` |
+| Sin rama de seguimiento remota | `Unpushed: no remote tracking branch` |
 
 ---
 

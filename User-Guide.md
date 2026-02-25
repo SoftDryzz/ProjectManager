@@ -39,6 +39,7 @@
   - [projects.json File Structure](#projectsjson-file-structure)
   - [Manual Editing](#manual-editing-advanced)
 - [Frequently Asked Questions (FAQ)](#-frequently-asked-questions-faq)
+- [Data Safety & Error Handling](#️-data-safety--error-handling)
 - [Troubleshooting](#-troubleshooting)
 - [Quick Cheatsheet](#-quick-cheatsheet)
 - [Complete Workflow](#-complete-workflow)
@@ -1262,6 +1263,69 @@ rm -rf ~/.projectmanager
 ```
 
 Then remove `~/bin` from the PATH in your `.bashrc` or `.zshrc`.
+
+---
+
+## 🛡️ Data Safety & Error Handling
+
+ProjectManager protects your data with multiple layers of safety:
+
+### Atomic Writes
+
+Every time you modify a project (add, remove, rename, env set, commands add, etc.), ProjectManager writes to a **temporary file first**, then renames it to `projects.json`. This means:
+
+- If your computer loses power mid-write, your data is safe
+- If the disk runs out of space, the original file is untouched
+- No partial or corrupted writes can happen
+
+### Automatic Backup
+
+Before every write, the current `projects.json` is backed up to `projects.json.bak`. This happens automatically — you don't need to do anything.
+
+**Location:** `~/.projectmanager/projects.json.bak`
+
+### Automatic Recovery
+
+If `projects.json` becomes corrupted (e.g., manual editing error), ProjectManager automatically:
+
+1. Detects the corruption on the next command
+2. Loads the backup (`projects.json.bak`)
+3. Restores the backup as the main file
+4. Shows a warning: *"projects.json was corrupted — restored from backup (N projects recovered)"*
+
+### Validation
+
+When loading projects, ProjectManager validates each entry:
+
+| Issue | Behavior |
+|-------|----------|
+| Missing path | Entry skipped with warning |
+| Unknown project type (e.g., `"type": "INVALID"`) | Defaults to UNKNOWN with warning |
+| Missing project name | Uses map key as fallback |
+| Null commands/envVars | Treated as empty |
+
+This means one corrupted entry won't prevent the rest from loading.
+
+### Friendly Error Messages
+
+ProjectManager never shows Java stack traces. Instead, you get clear messages with guidance:
+
+| Error | Message |
+|-------|---------|
+| Permission denied | *"Permission denied: /path — check file permissions"* |
+| Disk full | *"Disk is full — free some space and try again"* |
+| Corrupted JSON (no backup) | *"projects.json is corrupted — Location: /path"* |
+| Unexpected error | *"If this persists, run `pm doctor` to diagnose"* |
+
+### Git Feedback
+
+When viewing project info (`pm info`), git information now shows clear feedback instead of hiding failures:
+
+| Situation | Display |
+|-----------|---------|
+| Not a git repository | `Git: not a repository` |
+| Git not installed | `Branch: could not read (is git installed?)` |
+| No remote tracking branch | `Unpushed: no remote tracking branch` |
 
 ---
 

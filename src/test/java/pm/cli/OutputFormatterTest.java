@@ -234,6 +234,21 @@ class OutputFormatterTest {
     }
 
     // ============================================================
+    // GIT FEEDBACK
+    // ============================================================
+
+    @Test
+    @DisplayName("printProject shows 'not a repository' for non-git project")
+    void printProjectShowsNotARepo() {
+        // Project with path that is not a git repo
+        Project project = new Project("test", Paths.get(System.getProperty("java.io.tmpdir")), ProjectType.NODEJS);
+        OutputFormatter.printProject(project);
+        String output = getOutput();
+
+        assertTrue(output.contains("not a repository"));
+    }
+
+    // ============================================================
     // ANSI CONSTANTS
     // ============================================================
 

@@ -36,6 +36,8 @@ ProjectManager es una **herramienta CLI local** que gestiona metadatos de proyec
 ### Almacenamiento de datos
 
 - Todos los datos se almacenan localmente en `~/.projectmanager/projects.json`
+- **Escritura atómica** (desde v1.3.7) — los datos se escriben primero en un archivo temporal y luego se renombran. Ninguna escritura parcial puede corromper tus datos.
+- **Backup automático** (desde v1.3.7) — se crea `projects.json.bak` antes de cada escritura. Si el archivo principal se corrompe, se restaura automáticamente desde el backup en el siguiente comando.
 - No se envían datos a servidores externos (excepto al API de GitHub para verificar actualizaciones)
 - Sin telemetría, analíticas ni rastreo de ningún tipo
 
@@ -43,8 +45,8 @@ ProjectManager es una **herramienta CLI local** que gestiona metadatos de proyec
 
 ProjectManager ejecuta comandos shell configurados por el usuario. Estos comandos se ejecutan con los **mismos permisos que el usuario** que invoca `pm`.
 
-**Limitaciones actuales (se abordarán en v1.3.7):**
-- Las rutas de los proyectos no se escapan antes de pasarlas a comandos shell. Rutas que contengan metacaracteres shell (`&`, `|`, `;`, etc.) podrían llevar a ejecución de comandos no deseada. Evita registrar proyectos con caracteres especiales en sus rutas hasta la v1.3.7.
+**Limitaciones actuales (se abordarán en v1.3.8):**
+- Las rutas de los proyectos no se escapan antes de pasarlas a comandos shell. Rutas que contengan metacaracteres shell (`&`, `|`, `;`, etc.) podrían llevar a ejecución de comandos no deseada. Evita registrar proyectos con caracteres especiales en sus rutas hasta la v1.3.8.
 
 ### Acceso a red
 
@@ -55,7 +57,7 @@ ProjectManager solo se conecta a internet para **dos propósitos**:
 
 Ambas conexiones usan HTTPS. No se transmiten tokens de autenticación ni datos personales.
 
-**Limitaciones actuales (se abordarán en v1.3.8):**
+**Limitaciones actuales (se abordarán en v1.3.9):**
 - La integridad del JAR descargado se valida solo con un check de tamaño mínimo (> 1KB). Se planea una validación más robusta (tamaño esperado desde la respuesta del API).
 - Los loops de redirección del API de GitHub no están limitados, lo que podría causar un cuelgue.
 
@@ -79,12 +81,12 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 ## Consideraciones de Seguridad Conocidas
 
 ### Inyección de comandos shell vía rutas de proyecto
-- **Estado:** Conocido, corrección planificada para v1.3.7
+- **Estado:** Conocido, corrección planificada para v1.3.8
 - **Riesgo:** Bajo — requiere que el usuario registre manualmente un proyecto con una ruta maliciosa
 - **Mitigación:** No registrar proyectos cuyas rutas contengan metacaracteres shell (`&`, `|`, `;`, `` ` ``, `$`, etc.)
 
 ### Integridad del mecanismo de actualización
-- **Estado:** Conocido, mejoras planificadas para v1.3.8
+- **Estado:** Conocido, mejoras planificadas para v1.3.9
 - **Riesgo:** Bajo — solo descarga desde GitHub Releases por HTTPS
 - **Mitigación:** Verificar el JAR descargado manualmente si hay dudas (comparación con `sha256sum` de la página de releases)
 
@@ -99,9 +101,9 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 
 | Versión | Mejora de Seguridad |
 |---------|---------------------|
-| v1.3.6  | Escritura atómica de archivos para prevenir corrupción de datos; eliminar stack traces de la salida al usuario |
-| v1.3.7  | Escapar metacaracteres shell en rutas de proyecto; validar directorios antes de la ejecución |
-| v1.3.8  | Validar integridad de descarga; limitar loops de redirección; distinguir tipos de error de red |
+| v1.3.7 ✅ | Escritura atómica, backup automático, recuperación de datos corruptos, validación de campos al cargar, mensajes de error amigables (sin stack traces) |
+| v1.3.8  | Escapar metacaracteres shell en rutas de proyecto; validar directorios antes de la ejecución |
+| v1.3.9  | Validar integridad de descarga; limitar loops de redirección; distinguir tipos de error de red |
 | v1.5.2  | Comando `pm secure` — escaneo de seguridad del sistema de archivos para buenas prácticas del proyecto |
 
 ---
@@ -110,6 +112,6 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 
 1. **Mantén ProjectManager actualizado** — Ejecuta `pm update` regularmente
 2. **Usa nombres de proyecto descriptivos** — Evita nombres que coincidan con comandos de PM (`build`, `run`, `list`)
-3. **Evita caracteres especiales en rutas de proyecto** — Hasta la v1.3.7, rutas con `&`, `|`, `;` pueden causar problemas
+3. **Evita caracteres especiales en rutas de proyecto** — Hasta la v1.3.8, rutas con `&`, `|`, `;` pueden causar problemas
 4. **Revisa los comandos personalizados** — Los comandos configurados con `pm commands set` se ejecutan con tus permisos. Revísalos antes de ejecutarlos.
 5. **Protege tu directorio home** — En sistemas compartidos, asegura que `~/.projectmanager/` no sea legible por todos
