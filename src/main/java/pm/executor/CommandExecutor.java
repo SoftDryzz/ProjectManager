@@ -20,7 +20,7 @@ import java.util.Map;
  * </ul>
  *
  * @author SoftDryzz
- * @version 1.3.3
+ * @version 1.3.5
  * @since 1.0.0
  */
 public class CommandExecutor {
@@ -138,6 +138,108 @@ public class CommandExecutor {
     public ExecutionResult execute(String command, Path workingDirectory)
             throws IOException, InterruptedException {
         return execute(command, workingDirectory, 0);
+    }
+
+    /**
+     * Executes a system command with inherited IO (interactive mode).
+     *
+     * <p>Connects stdin, stdout, and stderr directly to the user's terminal,
+     * allowing interactive processes (React Native menus, Flutter device selection,
+     * Gradle prompts) to work correctly.
+     *
+     * <p>Use this method when the terminal is interactive ({@code System.console() != null}).
+     * Falls back to {@link #execute(String, Path, long)} when no TTY is available.
+     *
+     * @param command command to execute
+     * @param workingDirectory directory where to execute
+     * @param timeoutSeconds timeout in seconds (0 = no timeout)
+     * @return execution result
+     * @throws IOException if execution fails
+     * @throws InterruptedException if the process is interrupted
+     */
+    public ExecutionResult executeWithInheritedIO(String command, Path workingDirectory, long timeoutSeconds)
+            throws IOException, InterruptedException {
+        return executeWithInheritedIO(command, workingDirectory, timeoutSeconds, null);
+    }
+
+    /**
+     * Executes a system command with inherited IO and custom environment variables.
+     *
+     * @param command command to execute
+     * @param workingDirectory directory where to execute
+     * @param timeoutSeconds timeout in seconds (0 = no timeout)
+     * @param envVars additional environment variables
+     * @return execution result
+     * @throws IOException if execution fails
+     * @throws InterruptedException if the process is interrupted
+     */
+    public ExecutionResult executeWithInheritedIO(String command, Path workingDirectory, long timeoutSeconds, Map<String, String> envVars)
+            throws IOException, InterruptedException {
+
+        // Validate parameters
+        if (command == null || command.isBlank()) {
+            throw new IllegalArgumentException("Command cannot be null or blank");
+        }
+
+        if (workingDirectory == null) {
+            throw new IllegalArgumentException("Working directory cannot be null");
+        }
+
+        // Detect operating system to use the correct shell
+        String[] shellCommand = getShellCommand(command);
+
+        // Create ProcessBuilder
+        ProcessBuilder processBuilder = new ProcessBuilder(shellCommand);
+
+        // Set working directory
+        processBuilder.directory(workingDirectory.toFile());
+
+        // Add custom environment variables
+        if (envVars != null && !envVars.isEmpty()) {
+            processBuilder.environment().putAll(envVars);
+        }
+
+        // Inherit terminal IO — stdin, stdout, stderr connect directly to user's terminal
+        processBuilder.inheritIO();
+
+        // Start process
+        long startTime = System.currentTimeMillis();
+        Process process = processBuilder.start();
+
+        // Variable to store the exit code
+        int exitCode;
+
+        // Wait for process to finish (with timeout if specified)
+        if (timeoutSeconds > 0) {
+            boolean finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
+
+            if (!finished) {
+                process.destroyForcibly();
+
+                long duration = System.currentTimeMillis() - startTime;
+                return new ExecutionResult(
+                        false,
+                        -1,
+                        duration,
+                        "Process timed out after " + timeoutSeconds + " seconds"
+                );
+            }
+
+            exitCode = process.waitFor();
+        } else {
+            exitCode = process.waitFor();
+        }
+
+        // Calculate duration
+        long duration = System.currentTimeMillis() - startTime;
+
+        // Create result
+        return new ExecutionResult(
+                exitCode == 0,
+                exitCode,
+                duration,
+                exitCode == 0 ? "Command completed successfully" : "Command failed"
+        );
     }
 
     /**

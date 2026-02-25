@@ -321,12 +321,16 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            // Execute with env vars if configured
+            // Execute: use inherited IO when running in a real terminal (interactive mode)
             CommandExecutor.ExecutionResult result;
-            if (project.envVarCount() > 0) {
-                result = executor.execute(buildCommand, project.path(), 300, project.envVars());
+            if (System.console() != null) {
+                result = executor.executeWithInheritedIO(buildCommand, project.path(), 300, project.envVars());
             } else {
-                result = executor.execute(buildCommand, project.path(), 300);
+                if (project.envVarCount() > 0) {
+                    result = executor.execute(buildCommand, project.path(), 300, project.envVars());
+                } else {
+                    result = executor.execute(buildCommand, project.path(), 300);
+                }
             }
 
             // Show result
@@ -401,12 +405,16 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            // Execute with env vars if configured
+            // Execute: use inherited IO when running in a real terminal (interactive mode)
             CommandExecutor.ExecutionResult result;
-            if (project.envVarCount() > 0) {
-                result = executor.execute(runCommand, project.path(), 0, project.envVars());
+            if (System.console() != null) {
+                result = executor.executeWithInheritedIO(runCommand, project.path(), 0, project.envVars());
             } else {
-                result = executor.execute(runCommand, project.path(), 0);
+                if (project.envVarCount() > 0) {
+                    result = executor.execute(runCommand, project.path(), 0, project.envVars());
+                } else {
+                    result = executor.execute(runCommand, project.path(), 0);
+                }
             }
 
             System.out.println();
@@ -479,12 +487,16 @@ public class ProjectManager {
             System.out.println();
 
 
-            // Execute with env vars if configured
+            // Execute: use inherited IO when running in a real terminal (interactive mode)
             CommandExecutor.ExecutionResult result;
-            if (project.envVarCount() > 0) {
-                result = executor.execute(testCommand, project.path(), 600, project.envVars());
+            if (System.console() != null) {
+                result = executor.executeWithInheritedIO(testCommand, project.path(), 600, project.envVars());
             } else {
-                result = executor.execute(testCommand, project.path(), 600); // timeout: 10 mins for tests
+                if (project.envVarCount() > 0) {
+                    result = executor.execute(testCommand, project.path(), 600, project.envVars());
+                } else {
+                    result = executor.execute(testCommand, project.path(), 600);
+                }
             }
 
             System.out.println();
