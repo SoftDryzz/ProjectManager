@@ -104,6 +104,38 @@ public class ProjectStore {
     }
 
     /**
+     * Renames a project (creates a new entry with the new name, removes the old one).
+     *
+     * @param oldName current project name
+     * @param newName desired new name
+     * @return the renamed project, or null if oldName not found
+     * @throws IllegalArgumentException if newName already exists
+     */
+    public Project renameProject(String oldName, String newName) throws IOException {
+        Map<String, Project> projects = load();
+
+        Project existing = projects.get(oldName);
+        if (existing == null) {
+            return null;
+        }
+
+        if (projects.containsKey(newName)) {
+            throw new IllegalArgumentException("A project named '" + newName + "' already exists");
+        }
+
+        // Create new project with new name, copy everything else
+        Project renamed = new Project(newName, existing.path(), existing.type());
+        existing.commands().forEach(renamed::addCommand);
+        existing.envVars().forEach(renamed::addEnvVar);
+
+        projects.remove(oldName);
+        projects.put(newName, renamed);
+        save(projects);
+
+        return renamed;
+    }
+
+    /**
      * Creates the configuration directory if it does not exist.
      */
     private void ensureConfigDirExists() throws IOException {

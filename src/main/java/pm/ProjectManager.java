@@ -86,6 +86,7 @@ public class ProjectManager {
                 case "scan" -> handleScan(args);
                 case "commands", "cmd" -> handleCommands(args);
                 case "remove", "rm" -> handleRemove(args);
+                case "rename" -> handleRename(args);
                 case "info" -> handleInfo(args);
                 case "env" -> handleEnv(args);
                 case "refresh" -> handleRefresh(args);
@@ -633,6 +634,106 @@ public class ProjectManager {
 
     // ============================================================
     // COMMAND: INFO (Show project information)
+    // ============================================================
+    // COMMAND: RENAME (Rename project or update path)
+    // ============================================================
+
+    /**
+     * Handler for the "rename" command.
+     * Renames a project and/or updates its path.
+     *
+     * <p>Usage:
+     * <ul>
+     * <li>{@code pm rename old-name new-name} — rename project</li>
+     * <li>{@code pm rename name --path /new/path} — update path</li>
+     * <li>{@code pm rename old-name new-name --path /new/path} — both</li>
+     * </ul>
+     *
+     * @param args command arguments
+     */
+    private static void handleRename(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+
+        String currentName = parser.getPositional(1);
+        String newName = parser.getPositional(2);
+        String newPath = parser.getFlag("path");
+
+        if (currentName == null || currentName.isBlank()) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm rename <current-name> [new-name] [--path <new-path>]");
+            System.exit(1);
+        }
+
+        // At least one change must be specified
+        if ((newName == null || newName.isBlank()) && (newPath == null || newPath.isBlank())) {
+            OutputFormatter.error("Specify a new name, a new path with --path, or both");
+            System.out.println("Usage: pm rename <current-name> [new-name] [--path <new-path>]");
+            System.exit(1);
+        }
+
+        try {
+            Project project = store.findProject(currentName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + currentName + "' not found");
+                System.exit(1);
+            }
+
+            String finalName = (newName != null && !newName.isBlank()) ? newName : currentName;
+            Path finalPath = project.path();
+
+            // Validate new path if provided
+            if (newPath != null && !newPath.isBlank()) {
+                String expandedPath = newPath.replace("~", System.getProperty("user.home"));
+                finalPath = Paths.get(expandedPath).toAbsolutePath().normalize();
+
+                if (!Files.exists(finalPath)) {
+                    OutputFormatter.error("Path does not exist: " + finalPath);
+                    System.exit(1);
+                }
+                if (!Files.isDirectory(finalPath)) {
+                    OutputFormatter.error("Path is not a directory: " + finalPath);
+                    System.exit(1);
+                }
+            }
+
+            // Check if new name conflicts with existing project
+            if (!finalName.equals(currentName)) {
+                Project conflict = store.findProject(finalName);
+                if (conflict != null) {
+                    OutputFormatter.error("A project named '" + finalName + "' already exists");
+                    System.exit(1);
+                }
+            }
+
+            // Build the renamed/moved project
+            Project updated = new Project(finalName, finalPath, project.type());
+            project.commands().forEach(updated::addCommand);
+            project.envVars().forEach(updated::addEnvVar);
+
+            // Remove old, save new
+            store.removeProject(currentName);
+            store.saveProject(updated);
+
+            // Show result
+            System.out.println();
+            OutputFormatter.success("Project updated");
+            System.out.println();
+            if (!finalName.equals(currentName)) {
+                System.out.println("  Name: " + OutputFormatter.YELLOW + currentName +
+                        OutputFormatter.RESET + " → " + OutputFormatter.GREEN + finalName + OutputFormatter.RESET);
+            }
+            if (!finalPath.equals(project.path())) {
+                System.out.println("  Path: " + OutputFormatter.YELLOW + project.path() +
+                        OutputFormatter.RESET + " → " + OutputFormatter.GREEN + finalPath + OutputFormatter.RESET);
+            }
+            System.out.println();
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to rename project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
     // ============================================================
 
     /**
@@ -1275,6 +1376,7 @@ public class ProjectManager {
           scan <name>                               Scan for commands in code
           commands, cmd <name>                      List available commands
           remove, rm <name>                         Remove project
+          rename <name> [new-name] [--path <path>]   Rename project or update path
           info <name>                               Show project details
           env <subcommand> <name> [options]         Manage environment variables
           refresh <name>                            Re-detect type and update commands
