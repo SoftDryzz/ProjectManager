@@ -299,6 +299,143 @@ Executes the project tests (e.g., `gradle test`, `mvn test`, `npm test`) **autom
 
 ---
 
+### 🔹 Custom Commands
+
+ProjectManager auto-detects default commands (build, run, test, clean) based on the project type. But you can also **add your own custom commands** for anything else you need.
+
+#### Why custom commands?
+
+Default commands cover the basics, but real projects often need more:
+- Start a tunnel for mobile testing (`npx expo start --tunnel`)
+- Lint your code (`npm run lint`)
+- Deploy to production (`docker compose up -d`)
+- Start a database (`docker run -d -p 5432:5432 postgres`)
+- Generate code (`flutter pub run build_runner build`)
+- Run a specific script (`npm run seed:db`)
+
+Instead of remembering these long commands, save them once and run them with a short name.
+
+---
+
+#### Add a custom command
+```bash
+pm commands <name> add <command-name> "<command-line>"
+```
+
+**Examples:**
+```bash
+# Add a tunnel command for Expo
+pm commands my-app add tunnel "npx expo start --tunnel"
+
+# Add a lint command
+pm commands my-app add lint "npm run lint"
+
+# Add a deploy command
+pm commands my-app add deploy "docker compose up -d"
+
+# Add a database starter
+pm commands my-app add start-db "docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret postgres:15"
+
+# Add code generation
+pm commands my-app add codegen "flutter pub run build_runner build --delete-conflicting-outputs"
+```
+
+After adding, the command is saved permanently in `projects.json` alongside the auto-detected defaults.
+
+> **Tip:** If the command contains flags with `--`, wrap it in quotes so your shell passes it correctly.
+
+---
+
+#### Remove a custom command
+```bash
+pm commands <name> remove <command-name>
+```
+
+**Example:**
+```bash
+pm commands my-app remove tunnel
+```
+
+Removes the command from the project. This works for both custom commands and auto-detected defaults.
+
+---
+
+#### List commands for a project
+```bash
+pm commands <name>
+```
+
+Shows all available commands (default + custom):
+```
+Available Commands for my-app
+────────────────────────────────────────
+
+  build   → npm run build
+  run     → npm start
+  test    → npm test
+  tunnel  → npx expo start --tunnel
+  lint    → npm run lint
+  deploy  → docker compose up -d
+```
+
+---
+
+#### List commands for all projects
+```bash
+pm commands --all
+```
+
+Shows commands for every registered project at once:
+```
+Commands for All Projects (3)
+────────────────────────────────────────
+
+my-app (Node.js)
+  build   → npm run build
+  run     → npm start
+  tunnel  → npx expo start --tunnel
+
+backend-api (Maven)
+  build  → mvn package
+  run    → mvn exec:java
+  test   → mvn test
+
+rust-service (Rust)
+  build  → cargo build
+  run    → cargo run
+  test   → cargo test
+```
+
+---
+
+#### Update an existing command
+
+To change a command, simply add it again with the new value:
+```bash
+pm commands my-app add run "npx expo start --tunnel"
+```
+
+This overwrites the previous value.
+
+---
+
+#### Common use cases
+
+| Use Case | Command |
+|----------|---------|
+| Mobile tunnel | `pm commands app add tunnel "npx expo start --tunnel"` |
+| Lint code | `pm commands app add lint "npm run lint"` |
+| Format code | `pm commands app add fmt "npm run prettier -- --write ."` |
+| Deploy | `pm commands app add deploy "docker compose up -d"` |
+| Database | `pm commands app add db "docker run -d -p 5432:5432 postgres"` |
+| Code generation | `pm commands app add codegen "flutter pub run build_runner build"` |
+| Seed data | `pm commands app add seed "npm run seed:db"` |
+| Type checking | `pm commands app add typecheck "npx tsc --noEmit"` |
+| Watch mode | `pm commands app add watch "npm run dev -- --watch"` |
+| Production build | `pm commands app add prod "npm run build:prod"` |
+
+---
+
 ### 🔹 Environment Variable Management
 
 #### Set variables
@@ -1218,6 +1355,9 @@ pm add <name> --path <path> --env "K=v,K2=v2"  # Register with variables
 pm list                                        # List all
 pm info <name>                                 # View full details
 pm commands <name>                             # View available commands
+pm commands <name> add <cmd> "<line>"          # Add a custom command
+pm commands <name> remove <cmd>                # Remove a command
+pm commands --all                              # View all commands (all projects)
 pm remove <name>                               # Remove (with confirmation)
 pm remove <name> --force                       # Remove (without confirmation)
 

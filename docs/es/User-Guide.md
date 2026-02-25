@@ -299,6 +299,143 @@ Ejecuta los tests del proyecto (ej: `gradle test`, `mvn test`, `npm test`) **aut
 
 ---
 
+### 🔹 Comandos Personalizados
+
+ProjectManager auto-detecta comandos por defecto (build, run, test, clean) según el tipo de proyecto. Pero también puedes **añadir tus propios comandos personalizados** para cualquier otra cosa que necesites.
+
+#### ¿Por qué comandos personalizados?
+
+Los comandos por defecto cubren lo básico, pero los proyectos reales necesitan más:
+- Iniciar un túnel para testing móvil (`npx expo start --tunnel`)
+- Lint de tu código (`npm run lint`)
+- Deploy a producción (`docker compose up -d`)
+- Iniciar una base de datos (`docker run -d -p 5432:5432 postgres`)
+- Generar código (`flutter pub run build_runner build`)
+- Ejecutar un script específico (`npm run seed:db`)
+
+En vez de recordar estos comandos largos, guárdalos una vez y ejecútalos con un nombre corto.
+
+---
+
+#### Añadir un comando personalizado
+```bash
+pm commands <nombre> add <nombre-comando> "<línea-de-comando>"
+```
+
+**Ejemplos:**
+```bash
+# Añadir un comando tunnel para Expo
+pm commands mi-app add tunnel "npx expo start --tunnel"
+
+# Añadir un comando de lint
+pm commands mi-app add lint "npm run lint"
+
+# Añadir un comando de deploy
+pm commands mi-app add deploy "docker compose up -d"
+
+# Añadir un starter de base de datos
+pm commands mi-app add start-db "docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=secret postgres:15"
+
+# Añadir generación de código
+pm commands mi-app add codegen "flutter pub run build_runner build --delete-conflicting-outputs"
+```
+
+Después de añadirlo, el comando se guarda permanentemente en `projects.json` junto a los comandos auto-detectados.
+
+> **Tip:** Si el comando contiene flags con `--`, envuélvelo en comillas para que tu shell lo pase correctamente.
+
+---
+
+#### Eliminar un comando personalizado
+```bash
+pm commands <nombre> remove <nombre-comando>
+```
+
+**Ejemplo:**
+```bash
+pm commands mi-app remove tunnel
+```
+
+Elimina el comando del proyecto. Funciona tanto para comandos personalizados como para los auto-detectados.
+
+---
+
+#### Listar comandos de un proyecto
+```bash
+pm commands <nombre>
+```
+
+Muestra todos los comandos disponibles (por defecto + personalizados):
+```
+Available Commands for mi-app
+────────────────────────────────────────
+
+  build   → npm run build
+  run     → npm start
+  test    → npm test
+  tunnel  → npx expo start --tunnel
+  lint    → npm run lint
+  deploy  → docker compose up -d
+```
+
+---
+
+#### Listar comandos de todos los proyectos
+```bash
+pm commands --all
+```
+
+Muestra los comandos de todos los proyectos registrados a la vez:
+```
+Commands for All Projects (3)
+────────────────────────────────────────
+
+mi-app (Node.js)
+  build   → npm run build
+  run     → npm start
+  tunnel  → npx expo start --tunnel
+
+backend-api (Maven)
+  build  → mvn package
+  run    → mvn exec:java
+  test   → mvn test
+
+rust-service (Rust)
+  build  → cargo build
+  run    → cargo run
+  test   → cargo test
+```
+
+---
+
+#### Actualizar un comando existente
+
+Para cambiar un comando, simplemente añádelo de nuevo con el nuevo valor:
+```bash
+pm commands mi-app add run "npx expo start --tunnel"
+```
+
+Esto sobreescribe el valor anterior.
+
+---
+
+#### Casos de uso comunes
+
+| Caso de Uso | Comando |
+|-------------|---------|
+| Túnel móvil | `pm commands app add tunnel "npx expo start --tunnel"` |
+| Lint de código | `pm commands app add lint "npm run lint"` |
+| Formatear código | `pm commands app add fmt "npm run prettier -- --write ."` |
+| Deploy | `pm commands app add deploy "docker compose up -d"` |
+| Base de datos | `pm commands app add db "docker run -d -p 5432:5432 postgres"` |
+| Generación de código | `pm commands app add codegen "flutter pub run build_runner build"` |
+| Seed de datos | `pm commands app add seed "npm run seed:db"` |
+| Chequeo de tipos | `pm commands app add typecheck "npx tsc --noEmit"` |
+| Modo watch | `pm commands app add watch "npm run dev -- --watch"` |
+| Build de producción | `pm commands app add prod "npm run build:prod"` |
+
+---
+
 ### 🔹 Gestión de Variables de Entorno
 
 #### Establecer variables
@@ -1218,6 +1355,9 @@ pm add <nombre> --path <ruta> --env "C=v,C2=v2"    # Registrar con variables
 pm list                                            # Listar todos
 pm info <nombre>                                   # Ver detalles completos
 pm commands <nombre>                               # Ver comandos disponibles
+pm commands <nombre> add <cmd> "<línea>"           # Añadir comando personalizado
+pm commands <nombre> remove <cmd>                  # Eliminar un comando
+pm commands --all                                  # Ver todos los comandos (todos los proyectos)
 pm remove <nombre>                                 # Eliminar (con confirmación)
 pm remove <nombre> --force                         # Eliminar (sin confirmación)
 

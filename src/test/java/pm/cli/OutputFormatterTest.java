@@ -148,6 +148,63 @@ class OutputFormatterTest {
     }
 
     // ============================================================
+    // ALL COMMANDS (--all)
+    // ============================================================
+
+    @Test
+    @DisplayName("printAllCommands shows all projects with commands")
+    void printAllCommandsShowsAll() {
+        Map<String, Project> projects = new HashMap<>();
+
+        Project api = new Project("api", Paths.get("/tmp/api"), ProjectType.MAVEN);
+        api.addCommand("build", "mvn package");
+        api.addCommand("deploy", "docker compose up");
+        projects.put("api", api);
+
+        Project web = new Project("web", Paths.get("/tmp/web"), ProjectType.NODEJS);
+        web.addCommand("build", "npm run build");
+        web.addCommand("tunnel", "npx expo start --tunnel");
+        projects.put("web", web);
+
+        OutputFormatter.printAllCommands(projects);
+        String output = getOutput();
+
+        assertTrue(output.contains("Commands for All Projects (2)"));
+        assertTrue(output.contains("api"));
+        assertTrue(output.contains("mvn package"));
+        assertTrue(output.contains("web"));
+        assertTrue(output.contains("npx expo start --tunnel"));
+    }
+
+    @Test
+    @DisplayName("printAllCommands shows 'no commands' for empty project")
+    void printAllCommandsShowsEmpty() {
+        Map<String, Project> projects = new HashMap<>();
+        projects.put("empty", new Project("empty", Paths.get("/tmp/empty"), ProjectType.UNKNOWN));
+
+        OutputFormatter.printAllCommands(projects);
+        String output = getOutput();
+
+        assertTrue(output.contains("empty"));
+        assertTrue(output.contains("No commands configured"));
+    }
+
+    @Test
+    @DisplayName("printAllCommands shows project type in parentheses")
+    void printAllCommandsShowsType() {
+        Map<String, Project> projects = new HashMap<>();
+        Project p = new Project("rust-app", Paths.get("/tmp/rust"), ProjectType.RUST);
+        p.addCommand("build", "cargo build");
+        projects.put("rust-app", p);
+
+        OutputFormatter.printAllCommands(projects);
+        String output = getOutput();
+
+        assertTrue(output.contains("rust-app"));
+        assertTrue(output.contains("Rust"));
+    }
+
+    // ============================================================
     // ENVIRONMENT VARIABLES
     // ============================================================
 

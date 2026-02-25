@@ -59,7 +59,23 @@ Fix processes that require user input (interactive menus, prompts, selections) h
 
 ---
 
-## v1.3.6 — Error Handling & Data Safety
+## v1.3.6 — Custom Commands ✅
+
+### Custom command management
+Allow users to create, remove, and list custom commands per project. Default commands (build, run, test, clean) remain auto-detected — custom commands extend them.
+
+| Feature | Status |
+|---------|--------|
+| `pm commands <project> add <name> "<command>"` — create a custom command | ✅ Done |
+| `pm commands <project> remove <name>` — remove a custom command | ✅ Done |
+| `pm commands <project>` — list commands for a specific project (already exists) | ✅ Done |
+| `pm commands --all` — list all commands across all registered projects | ✅ Done |
+| Custom commands are persisted in `projects.json` alongside defaults | ✅ Done |
+| Update existing commands by re-adding with new value | ✅ Done |
+
+---
+
+## v1.3.7 — Error Handling & Data Safety
 
 ### Robust project storage
 Prevent data loss and eliminate cryptic error messages. The user should never see a Java stack trace or lose their registered projects.
@@ -82,7 +98,7 @@ Prevent data loss and eliminate cryptic error messages. The user should never se
 
 ---
 
-## v1.3.7 — Safe Command Execution
+## v1.3.8 — Safe Command Execution
 
 ### Path safety in shell commands
 Fix commands failing when project paths contain spaces or special characters. Also prevents potential shell injection from crafted project paths.
@@ -101,7 +117,7 @@ Fix commands failing when project paths contain spaces or special characters. Al
 
 ---
 
-## v1.3.8 — Robust Auto-Update
+## v1.3.9 — Robust Auto-Update
 
 ### Download integrity and network resilience
 Ensure the auto-updater handles edge cases gracefully: partial downloads, redirect loops, and network failures with clear feedback.

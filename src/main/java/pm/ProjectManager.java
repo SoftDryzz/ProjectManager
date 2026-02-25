@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -554,15 +555,39 @@ public class ProjectManager {
      * @param args command arguments
      */
     private static void handleCommands(String[] args) {
-        ArgsParser parser = new ArgsParser(args);
-
-        String projectName = parser.getPositional(1);
-        if (projectName == null || projectName.isBlank()) {
-            OutputFormatter.error("Project name is required");
-            System.out.println("Usage: pm commands <name>");
-            System.exit(1);
+        // Handle --all flag: pm commands --all
+        if (args.length >= 2 && args[1].equals("--all")) {
+            handleCommandsAll();
+            return;
         }
 
+        // Need at least a project name
+        if (args.length < 2) {
+            printCommandsHelp();
+            return;
+        }
+
+        String projectName = args[1];
+
+        // Check for subcommands: pm commands <project> add|remove
+        if (args.length >= 3) {
+            String subcommand = args[2].toLowerCase();
+            switch (subcommand) {
+                case "add" -> {
+                    handleCommandsAdd(args, projectName);
+                    return;
+                }
+                case "remove", "rm" -> {
+                    handleCommandsRemove(args, projectName);
+                    return;
+                }
+                default -> {
+                    // Unknown subcommand — fall through to show commands
+                }
+            }
+        }
+
+        // Default: show commands for this project
         try {
             Project project = store.findProject(projectName);
             if (project == null) {
@@ -571,14 +596,147 @@ public class ProjectManager {
             }
 
             checkTypeOutdated(project);
-
-            // Use OutputFormatter to show commands
             OutputFormatter.printCommands(project);
 
         } catch (IOException e) {
             OutputFormatter.error("Failed to load project: " + e.getMessage());
             System.exit(1);
         }
+    }
+
+    /**
+     * Adds a custom command to a project.
+     *
+     * <p>Usage: {@code pm commands <project> add <name> "<command>"}
+     *
+     * @param args command arguments
+     * @param projectName target project name
+     */
+    private static void handleCommandsAdd(String[] args, String projectName) {
+        if (args.length < 5) {
+            OutputFormatter.error("Command name and command line are required");
+            System.out.println("Usage: pm commands <project> add <name> \"<command>\"");
+            System.out.println("Example: pm commands my-app add tunnel \"npx expo start --tunnel\"");
+            System.exit(1);
+        }
+
+        String commandName = args[3];
+        // Join remaining args as the command value (supports unquoted multi-word commands)
+        String commandLine = String.join(" ", Arrays.copyOfRange(args, 4, args.length));
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            boolean existed = project.hasCommand(commandName);
+            project.addCommand(commandName, commandLine);
+            store.saveProject(project);
+
+            System.out.println();
+            if (existed) {
+                OutputFormatter.success("Command '" + commandName + "' updated in '" + projectName + "'");
+            } else {
+                OutputFormatter.success("Command '" + commandName + "' added to '" + projectName + "'");
+            }
+            System.out.println("  " + OutputFormatter.GREEN + commandName + OutputFormatter.RESET
+                    + " → " + OutputFormatter.CYAN + commandLine + OutputFormatter.RESET);
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to update project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Removes a custom command from a project.
+     *
+     * <p>Usage: {@code pm commands <project> remove <name>}
+     *
+     * @param args command arguments
+     * @param projectName target project name
+     */
+    private static void handleCommandsRemove(String[] args, String projectName) {
+        if (args.length < 4) {
+            OutputFormatter.error("Command name is required");
+            System.out.println("Usage: pm commands <project> remove <name>");
+            System.exit(1);
+        }
+
+        String commandName = args[3];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            if (!project.hasCommand(commandName)) {
+                OutputFormatter.error("Command '" + commandName + "' not found in project '" + projectName + "'");
+                System.exit(1);
+            }
+
+            project.removeCommand(commandName);
+            store.saveProject(project);
+
+            System.out.println();
+            OutputFormatter.success("Command '" + commandName + "' removed from '" + projectName + "'");
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to update project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Lists commands for all registered projects.
+     *
+     * <p>Usage: {@code pm commands --all}
+     */
+    private static void handleCommandsAll() {
+        try {
+            Map<String, Project> projects = store.load();
+
+            if (projects.isEmpty()) {
+                OutputFormatter.info("No projects registered yet.");
+                System.out.println("Add your first project with:");
+                System.out.println("  pm add <name> --path <path>");
+                return;
+            }
+
+            OutputFormatter.printAllCommands(projects);
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Prints help for the commands subcommand.
+     */
+    private static void printCommandsHelp() {
+        System.out.println("""
+        Usage: pm commands <project> [subcommand]
+
+        Subcommands:
+          (none)                        Show available commands for the project
+          add <name> "<command>"        Add a custom command
+          remove <name>                 Remove a command
+
+        Flags:
+          --all                         Show commands for all registered projects
+
+        Examples:
+          pm commands my-app
+          pm commands my-app add tunnel "npx expo start --tunnel"
+          pm commands my-app add lint "npm run lint"
+          pm commands my-app remove tunnel
+          pm commands --all
+        """);
     }
 
     // ============================================================
@@ -1387,6 +1545,9 @@ public class ProjectManager {
           test <name>                               Run tests
           scan <name>                               Scan for commands in code
           commands, cmd <name>                      List available commands
+          commands <name> add <cmd> "<line>"         Add a custom command
+          commands <name> remove <cmd>               Remove a command
+          commands --all                              List commands for all projects
           remove, rm <name>                         Remove project
           rename <name> [new-name] [--path <path>]   Rename project or update path
           info <name>                               Show project details
@@ -1414,6 +1575,8 @@ public class ProjectManager {
           pm env set web-server PORT=3000,DEBUG=true
           pm env list web-server
           pm commands backend-api
+          pm commands backend-api add deploy "docker compose up -d"
+          pm commands --all
           pm info web-server
         """);
     }
