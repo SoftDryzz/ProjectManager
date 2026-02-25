@@ -565,7 +565,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 📄 License
 
-This project is licensed under the MIT License. See `LICENSE` file for details.
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**. See [`LICENSE`](LICENSE) for details.
+
+Commercial licensing is available for organizations that require alternative terms. See [`COMMERCIAL.md`](COMMERCIAL.md) for details or contact: **legal@softdryzz.com**
 
 ---
 

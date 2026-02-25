@@ -14,6 +14,14 @@
     <name>ProjectManager</name>
     <description>CLI tool to manage multiple projects - Scan commands, build, run, monitor</description>
 
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <!-- Configuración de Java 17 -->
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
