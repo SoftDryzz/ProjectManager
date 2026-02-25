@@ -13,6 +13,8 @@ import pm.util.RuntimeChecker;
 import pm.util.UpdateChecker;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -102,10 +104,7 @@ public class ProjectManager {
                 }
             }
         } catch (Exception e) {
-            // Capture any unhandled exceptions
-            OutputFormatter.error("Unexpected error: " + e.getMessage());
-            e.printStackTrace();
-            System.exit(1);
+            handleFatalError(e);
         }
     }
 
@@ -1584,6 +1583,68 @@ public class ProjectManager {
     private static void printVersion() {
         System.out.println("ProjectManager " + Constants.VERSION);
         System.out.println("Java " + System.getProperty("java.version"));
+    }
+
+    /**
+     * Produces a user-friendly description for an IOException.
+     * Maps common I/O failure causes to actionable messages.
+     *
+     * @param e the IOException
+     * @return human-readable error description
+     */
+    private static String describeIOError(IOException e) {
+        String message = e.getMessage();
+        if (message == null) {
+            message = e.getClass().getSimpleName();
+        }
+
+        // Corrupted JSON (our ProjectStore wraps these)
+        if (message.contains("corrupted")) {
+            return message;
+        }
+
+        // Disk full
+        String lower = message.toLowerCase();
+        if (lower.contains("no space") || lower.contains("disk full") || lower.contains("not enough space")) {
+            return "Disk is full — free some space and try again.";
+        }
+
+        // Permission denied
+        if (lower.contains("permission denied") || lower.contains("access denied")) {
+            return "Permission denied — check file permissions on ~/.projectmanager/";
+        }
+
+        // File not found
+        if (lower.contains("no such file") || lower.contains("cannot find")) {
+            return "File not found: " + message;
+        }
+
+        return "Failed: " + message;
+    }
+
+    /**
+     * Handles any unhandled exception that escapes a command handler.
+     * Dispatches to specific messages based on exception type.
+     *
+     * @param e the exception
+     */
+    static void handleFatalError(Exception e) {
+        if (e instanceof AccessDeniedException ade) {
+            OutputFormatter.error("Permission denied: " + ade.getFile());
+            System.out.println("Check that you have read/write access to the file.");
+            System.out.println("On Linux/Mac, try: chmod 644 " + ade.getFile());
+        } else if (e instanceof FileSystemException fse) {
+            String msg = fse.getReason() != null ? fse.getReason() : fse.getMessage();
+            OutputFormatter.error("File system error: " + msg);
+            System.out.println("This may indicate a full disk, a read-only filesystem, or a locked file.");
+            System.out.println("File: " + fse.getFile());
+        } else if (e instanceof IOException ioe) {
+            OutputFormatter.error(describeIOError(ioe));
+        } else {
+            OutputFormatter.error("Unexpected error: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
+            System.out.println("If this persists, run 'pm doctor' to diagnose your environment.");
+        }
+        System.exit(1);
     }
 
     /**

@@ -176,6 +176,7 @@ pm run servicio-pedidos
 - 🔃 **Refrescar proyectos** - Re-detecta tipos y actualiza comandos con `pm refresh`, avisa cuando los proyectos están desactualizados
 - ✏️ **Renombrar y actualizar ruta** - Renombra proyectos o actualiza rutas con `pm rename`, preservando todos los datos
 - 🎨 **Comandos personalizados** - Añade tus propios comandos con `pm commands add` (tunnel, lint, deploy, etc.)
+- 🛡️ **Seguridad de datos** - Escritura atómica, backup automático y recuperación de JSON corrupto
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -510,6 +511,7 @@ Los proyectos se guardan en:
 - [x] Comando `pm rename` (renombrar proyectos, actualizar rutas, preservar datos)
 - [x] Soporte CLI interactivo (auto-detección TTY para `pm run`, `pm build`, `pm test`)
 - [x] Comandos personalizados (`pm commands add/remove`, `pm commands --all`)
+- [x] Manejo de errores y seguridad de datos (escritura atómica, backup, recuperación, errores amigables)
 
 ### 🔨 Planeado (Orden de Prioridad)
 - [ ] Alias de comandos para nombres de proyecto largos

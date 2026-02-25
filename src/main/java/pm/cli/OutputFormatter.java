@@ -135,16 +135,20 @@ public class OutputFormatter {
     private static void printGitInfo(Path projectPath) {
         // Check if it's a Git repository
         if (!GitIntegration.isGitRepository(projectPath)) {
+            System.out.println();
+            System.out.println("  " + GRAY + "Git: not a repository" + RESET);
             return;
         }
 
         System.out.println();
         System.out.println("  " + BOLD + "Git:" + RESET);
 
-        //Current Branch
+        // Current Branch
         String branch = GitIntegration.getCurrentBranch(projectPath);
         if (branch != null) {
             System.out.println("    Branch: " + GREEN + branch + RESET);
+        } else {
+            System.out.println("    Branch: " + GRAY + "could not read (is git installed?)" + RESET);
         }
 
         // Status (modified files, etc.)
@@ -155,6 +159,8 @@ public class OutputFormatter {
             } else {
                 System.out.println("    Status: " + YELLOW + status.toString() + RESET);
             }
+        } else {
+            System.out.println("    Status: " + GRAY + "could not read" + RESET);
         }
 
         // Commits pending push
@@ -164,6 +170,8 @@ public class OutputFormatter {
                     (commitsAhead > 1 ? "s" : "") + RESET);
         } else if (commitsAhead == 0) {
             System.out.println("    Unpushed: " + GREEN + "✓ Up to date" + RESET);
+        } else {
+            System.out.println("    Unpushed: " + GRAY + "no remote tracking branch" + RESET);
         }
     }
 

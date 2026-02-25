@@ -75,26 +75,26 @@ Allow users to create, remove, and list custom commands per project. Default com
 
 ---
 
-## v1.3.7 — Error Handling & Data Safety
+## v1.3.7 — Error Handling & Data Safety ✅
 
 ### Robust project storage
 Prevent data loss and eliminate cryptic error messages. The user should never see a Java stack trace or lose their registered projects.
 
 | Feature | Status |
 |---------|--------|
-| Atomic file writes (write to temp file, then rename) | Planned |
-| Automatic backup of `projects.json` before write | Planned |
-| Recovery from corrupted JSON (load backup automatically) | Planned |
-| Validate required fields on load (null name, path, type) | Planned |
-| Graceful handling of invalid `ProjectType` values in JSON | Planned |
+| Atomic file writes (write to temp file, then rename) | ✅ Done |
+| Automatic backup of `projects.json` before write | ✅ Done |
+| Recovery from corrupted JSON (load backup automatically) | ✅ Done |
+| Validate required fields on load (null name, path, type) | ✅ Done |
+| Graceful handling of invalid `ProjectType` values in JSON | ✅ Done |
 
 ### User-friendly error messages
 | Feature | Status |
 |---------|--------|
-| Remove `e.printStackTrace()` from main — no stack traces shown to user | Planned |
-| Specific error messages: permissions, disk full, file not found, corrupted JSON | Planned |
-| Actionable guidance in error messages (e.g., "Run `pm doctor` to diagnose") | Planned |
-| Git operation feedback — show why git info is missing instead of hiding it | Planned |
+| Remove `e.printStackTrace()` from main — no stack traces shown to user | ✅ Done |
+| Specific error messages: permissions, disk full, file not found, corrupted JSON | ✅ Done |
+| Actionable guidance in error messages (e.g., "Run `pm doctor` to diagnose") | ✅ Done |
+| Git operation feedback — show why git info is missing instead of hiding it | ✅ Done |
 
 ---
 
