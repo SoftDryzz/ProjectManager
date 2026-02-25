@@ -141,7 +141,7 @@ public final class UpdateChecker {
             System.out.println("  Downloaded: " + pendingJar);
             System.out.println("  Size: " + formatFileSize(fileSize));
             System.out.println();
-            System.out.println("  " + OutputFormatter.YELLOW + "Restart pm to use the new version." + OutputFormatter.RESET);
+            System.out.println("  " + OutputFormatter.YELLOW + "Run any pm command to use the new version." + OutputFormatter.RESET);
             System.out.println();
 
         } catch (IOException e) {

@@ -40,7 +40,41 @@ Re-detect project types and update commands for already-registered projects. Sol
 
 ---
 
-## v1.5.0 — CI/CD, Deployment & Workflow Awareness
+## v1.5.0 — CI/CD, Security & Developer Experience
+
+### Shell autocompletion
+- Generate completion scripts for bash, zsh, fish, and PowerShell
+- `pm completions <shell>` — output completion script for the specified shell
+- Autocomplete project names, commands, and flags
+- Zero dependencies — generates static shell scripts
+
+### `pm doctor` expanded
+- Health score: **A/B/C/D/F** rating based on project best practices
+- Checks: `.gitignore` exists, README present, tests configured, CI detected, dependencies up to date
+- Actionable recommendations per check
+- `pm doctor` — show full health report with score
+- `pm doctor --score` — show only the letter grade
+
+### `pm secure`
+- Best practices security scan (filesystem patterns only, no secret management)
+- Checks:
+  - Dockerfile runs as non-root user
+  - `.env` files are in `.gitignore`
+  - No hardcoded `http://` URLs in config files (should be `https://`)
+  - Sensitive files (`.pem`, `.key`) are in `.gitignore`
+  - Dependencies lockfile exists
+- `pm secure` — run all checks and show report
+- `pm secure --fix` — auto-fix what can be fixed (e.g., add entries to `.gitignore`)
+
+### Dependency audit
+- `pm audit` — check for known vulnerabilities using native ecosystem tools
+  - npm: `npm audit`
+  - Cargo: `cargo audit`
+  - Go: `govulncheck`
+  - Python: `pip-audit`
+  - Maven: OWASP dependency-check
+- Show summary with severity levels
+- Suggest fixes where available
 
 ### CI/CD detection
 - Detect GitHub Actions (`.github/workflows/`)
@@ -100,6 +134,12 @@ Re-detect project types and update commands for already-registered projects. Sol
 - Built-in templates: Java (Maven/Gradle), Node.js, Rust, Go, Python, .NET
 - Support custom templates from GitHub repos
 
+### Project export & import
+- `pm export` — export all registered projects to a portable JSON file
+- `pm import <file>` — import projects from an exported file
+- Useful for migrating between machines or sharing team setups
+- Validates paths on import and warns about missing directories
+
 ---
 
 ## v1.7.0 — Environments, Secrets & Databases
@@ -113,7 +153,10 @@ Re-detect project types and update commands for already-registered projects. Sol
 ### Secrets detection
 - Scan for common secret patterns (API keys, tokens, passwords)
 - Warn on `pm doctor` if secrets are committed
-- Integration with Vaultic or similar tools for encrypted env files
+- Optional [Vaultic](https://crates.io/crates/vaultic) detection (not a dependency — PM works fully without it):
+  - **Not installed** → recommend install options: `cargo install vaultic` (requires [Rust toolchain](https://rustup.rs)) or download binary from [GitHub Releases](https://github.com/SoftDryzz/Vaultic/releases). Always link to [Vaultic repo](https://github.com/SoftDryzz/Vaultic) for docs
+  - **Installed but not initialized** → suggest `vaultic init` with link to docs so the user understands what it does before running it
+  - **Installed and configured** → show enhanced secret management hints (e.g., `vaultic encrypt .env`)
 
 ### Database migration awareness
 - Detect migration tools: SQLx, Flyway, Liquibase, Prisma, Diesel, Alembic
@@ -129,16 +172,6 @@ Re-detect project types and update commands for already-registered projects. Sol
 - Show: build status, test results, git status, dependencies
 - Navigate between registered projects
 - Quick actions (build, test, clean) from dashboard
-
-### Dependency audit
-- `pm audit` — check for known vulnerabilities
-  - npm: `npm audit`
-  - Cargo: `cargo audit`
-  - Go: `govulncheck`
-  - Python: `pip-audit`
-  - Maven: OWASP dependency-check
-- Show summary with severity levels
-- Suggest fixes where available
 
 ### Performance tracking
 - Track build times across runs
