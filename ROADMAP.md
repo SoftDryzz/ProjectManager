@@ -45,6 +45,83 @@ Rename projects and/or update their registered path without losing commands or e
 
 ---
 
+## v1.3.5 — Interactive CLI Support
+
+### `inheritIO` for interactive processes
+Fix processes that require user input (interactive menus, prompts, selections) hanging indefinitely. Currently `CommandExecutor` does not pass stdin to child processes and reads output line-by-line, which breaks interactive CLIs.
+
+**Affected scenarios:**
+- React Native / Expo: `press a for Android, i for iOS`
+- Flutter: `flutter run` device selection
+- Gradle: interactive prompts during build
+- Any CLI that expects user keyboard input
+
+| Feature | Status |
+|---------|--------|
+| Use `ProcessBuilder.inheritIO()` for `pm run` commands | Planned |
+| Detect interactive vs non-interactive mode | Planned |
+| Preserve `ExecutionResult` metrics (exit code, duration) | Planned |
+| Graceful fallback if terminal is not a TTY | Planned |
+
+---
+
+## v1.3.6 — Error Handling & Data Safety
+
+### Robust project storage
+Prevent data loss and eliminate cryptic error messages. The user should never see a Java stack trace or lose their registered projects.
+
+| Feature | Status |
+|---------|--------|
+| Atomic file writes (write to temp file, then rename) | Planned |
+| Automatic backup of `projects.json` before write | Planned |
+| Recovery from corrupted JSON (load backup automatically) | Planned |
+| Validate required fields on load (null name, path, type) | Planned |
+| Graceful handling of invalid `ProjectType` values in JSON | Planned |
+
+### User-friendly error messages
+| Feature | Status |
+|---------|--------|
+| Remove `e.printStackTrace()` from main — no stack traces shown to user | Planned |
+| Specific error messages: permissions, disk full, file not found, corrupted JSON | Planned |
+| Actionable guidance in error messages (e.g., "Run `pm doctor` to diagnose") | Planned |
+| Git operation feedback — show why git info is missing instead of hiding it | Planned |
+
+---
+
+## v1.3.7 — Safe Command Execution
+
+### Path safety in shell commands
+Fix commands failing when project paths contain spaces or special characters. Also prevents potential shell injection from crafted project paths.
+
+**Affected scenarios:**
+- `C:\Users\Mi Usuario\proyectos` — spaces in Windows paths
+- `/home/user/my&project` — `&` interpreted as shell operator
+- Paths with `(`, `)`, `|`, `;` — break shell parsing
+
+| Feature | Status |
+|---------|--------|
+| Properly escape/quote paths passed to shell commands | Planned |
+| Validate working directory exists before execution | Planned |
+| Prevent shell metacharacter injection from project paths | Planned |
+| Clear error message when project directory is missing or moved | Planned |
+
+---
+
+## v1.3.8 — Robust Auto-Update
+
+### Download integrity and network resilience
+Ensure the auto-updater handles edge cases gracefully: partial downloads, redirect loops, and network failures with clear feedback.
+
+| Feature | Status |
+|---------|--------|
+| Validate downloaded JAR integrity (expected size from API response) | Planned |
+| Detect and break redirect loops (max 5 redirects) | Planned |
+| Distinguish network errors: timeout vs DNS failure vs firewall | Planned |
+| Clear message when offline: "No internet connection — update check skipped" | Planned |
+| Prevent partial/corrupted JAR from being installed | Planned |
+
+---
+
 ## v1.4.0 — Docker Support
 
 ### Docker project detection
