@@ -16,7 +16,7 @@ Solo la última release recibe actualizaciones de seguridad. Recomendamos usar s
 Si descubres una vulnerabilidad de seguridad, repórtala **de forma privada**:
 
 1. **NO abras un issue público** — esto podría exponer la vulnerabilidad antes de que haya una corrección disponible
-2. Contacta por email: **[softdryzz@proton.me](mailto:softdryzz@proton.me)**
+2. Contacta por email: **[security@softdryzz.com](mailto:security@softdryzz.com)**
 3. Incluye:
    - Descripción de la vulnerabilidad
    - Pasos para reproducirla

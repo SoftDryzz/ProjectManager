@@ -16,7 +16,7 @@ Only the latest release receives security updates. We recommend always using the
 If you discover a security vulnerability, please report it **privately**:
 
 1. **Do NOT open a public issue** — this could expose the vulnerability before a fix is available
-2. Contact via email: **[softdryzz@proton.me](mailto:softdryzz@proton.me)**
+2. Contact via email: **[security@softdryzz.com](mailto:security@softdryzz.com)**
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce
