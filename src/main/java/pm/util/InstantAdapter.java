@@ -14,7 +14,7 @@ import java.time.Instant;
  * due to reflection restrictions in the java.base module.
  *
  * @author SoftDryzz
- * @version 1.3.2
+ * @version 1.3.3
  * @since 1.0.0
  */
 public class InstantAdapter extends TypeAdapter<Instant> {

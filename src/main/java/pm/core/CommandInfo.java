@@ -32,7 +32,7 @@ package pm.core;
  * @param description command description (can be null)
  *
  * @author SoftDryzz
- * @version 1.3.2
+ * @version 1.3.3
  * @since 1.0.0
  */
 public record CommandInfo(

@@ -35,7 +35,7 @@ import java.util.Objects;
  * }</pre>
  *
  * @author SoftDryzz
- * @version 1.3.2
+ * @version 1.3.3
  * @since 1.0.0
  */
 public final class Project {
