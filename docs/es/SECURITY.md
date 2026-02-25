@@ -89,6 +89,7 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 - **Estado:** Conocido, mejoras planificadas para v1.3.9
 - **Riesgo:** Bajo — solo descarga desde GitHub Releases por HTTPS
 - **Mitigación:** Verificar el JAR descargado manualmente si hay dudas (comparación con `sha256sum` de la página de releases)
+- **Instalación:** Para instrucciones detalladas de instalación y verificación, consulta la [Guía de Instalación](scripts/INSTALL.md)
 
 ### Permisos de archivos locales
 - **Estado:** Aceptable
@@ -111,7 +112,8 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 ## Buenas Prácticas para Usuarios
 
 1. **Mantén ProjectManager actualizado** — Ejecuta `pm update` regularmente
-2. **Usa nombres de proyecto descriptivos** — Evita nombres que coincidan con comandos de PM (`build`, `run`, `list`)
-3. **Evita caracteres especiales en rutas de proyecto** — Hasta la v1.3.8, rutas con `&`, `|`, `;` pueden causar problemas
-4. **Revisa los comandos personalizados** — Los comandos configurados con `pm commands set` se ejecutan con tus permisos. Revísalos antes de ejecutarlos.
-5. **Protege tu directorio home** — En sistemas compartidos, asegura que `~/.projectmanager/` no sea legible por todos
+2. **Sigue la guía de instalación** — Consulta [INSTALL.md](scripts/INSTALL.md) para instrucciones completas de configuración y solución de problemas
+3. **Usa nombres de proyecto descriptivos** — Evita nombres que coincidan con comandos de PM (`build`, `run`, `list`)
+4. **Evita caracteres especiales en rutas de proyecto** — Hasta la v1.3.8, rutas con `&`, `|`, `;` pueden causar problemas
+5. **Revisa los comandos personalizados** — Los comandos configurados con `pm commands set` se ejecutan con tus permisos. Revísalos antes de ejecutarlos.
+6. **Protege tu directorio home** — En sistemas compartidos, asegura que `~/.projectmanager/` no sea legible por todos

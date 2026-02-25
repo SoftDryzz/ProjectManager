@@ -89,6 +89,7 @@ No runtime dependencies are pulled from the network. The application is fully se
 - **Status:** Known, improvements planned for v1.3.9
 - **Risk:** Low — downloads only from GitHub Releases over HTTPS
 - **Mitigation:** Verify the downloaded JAR manually if concerned (`sha256sum` comparison with the release page)
+- **Installation:** For detailed installation and verification steps, see the [Installation Guide](scripts/INSTALL.md)
 
 ### Local file permissions
 - **Status:** Acceptable
@@ -111,7 +112,8 @@ No runtime dependencies are pulled from the network. The application is fully se
 ## Best Practices for Users
 
 1. **Keep ProjectManager updated** — Run `pm update` regularly
-2. **Use descriptive project names** — Avoid names that match PM commands (`build`, `run`, `list`)
-3. **Avoid special characters in project paths** — Until v1.3.8, paths with `&`, `|`, `;` may cause issues
-4. **Review custom commands** — Commands set with `pm commands set` execute as your user. Review them before running.
-5. **Protect your home directory** — On shared systems, ensure `~/.projectmanager/` is not world-readable
+2. **Follow the installation guide** — See [INSTALL.md](scripts/INSTALL.md) for complete setup instructions and troubleshooting
+3. **Use descriptive project names** — Avoid names that match PM commands (`build`, `run`, `list`)
+4. **Avoid special characters in project paths** — Until v1.3.8, paths with `&`, `|`, `;` may cause issues
+5. **Review custom commands** — Commands set with `pm commands set` execute as your user. Review them before running.
+6. **Protect your home directory** — On shared systems, ensure `~/.projectmanager/` is not world-readable
