@@ -6,6 +6,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -111,5 +112,99 @@ class CommandExecutorTest {
     void formattedDurationZero() {
         var result = new CommandExecutor.ExecutionResult(true, 0, 0, "OK");
         assertEquals("0s", result.formattedDuration());
+    }
+
+    // ============================================================
+    // INHERITED IO EXECUTION — executeWithInheritedIO()
+    // ============================================================
+
+    @Test
+    @DisplayName("executeWithInheritedIO runs echo command successfully")
+    void inheritedIOExecutesEcho() throws IOException, InterruptedException {
+        CommandExecutor.ExecutionResult result =
+                executor.executeWithInheritedIO("echo hello", tempDir, 10);
+
+        assertTrue(result.success());
+        assertEquals(0, result.exitCode());
+        assertTrue(result.durationMs() >= 0);
+        assertEquals("Command completed successfully", result.message());
+    }
+
+    @Test
+    @DisplayName("executeWithInheritedIO returns failure for invalid command")
+    void inheritedIOFailsOnInvalidCommand() throws IOException, InterruptedException {
+        CommandExecutor.ExecutionResult result =
+                executor.executeWithInheritedIO("nonexistent_command_12345", tempDir, 5);
+
+        assertFalse(result.success());
+        assertNotEquals(0, result.exitCode());
+        assertEquals("Command failed", result.message());
+    }
+
+    @Test
+    @DisplayName("executeWithInheritedIO throws on null command")
+    void inheritedIOThrowsOnNullCommand() {
+        assertThrows(IllegalArgumentException.class,
+                () -> executor.executeWithInheritedIO(null, tempDir, 10));
+    }
+
+    @Test
+    @DisplayName("executeWithInheritedIO throws on blank command")
+    void inheritedIOThrowsOnBlankCommand() {
+        assertThrows(IllegalArgumentException.class,
+                () -> executor.executeWithInheritedIO("  ", tempDir, 10));
+    }
+
+    @Test
+    @DisplayName("executeWithInheritedIO throws on null working directory")
+    void inheritedIOThrowsOnNullDirectory() {
+        assertThrows(IllegalArgumentException.class,
+                () -> executor.executeWithInheritedIO("echo test", null, 10));
+    }
+
+    @Test
+    @DisplayName("executeWithInheritedIO works with environment variables")
+    void inheritedIOWorksWithEnvVars() throws IOException, InterruptedException {
+        Map<String, String> envVars = Map.of("TEST_VAR", "hello");
+        CommandExecutor.ExecutionResult result =
+                executor.executeWithInheritedIO("echo test", tempDir, 10, envVars);
+
+        assertTrue(result.success());
+        assertEquals(0, result.exitCode());
+    }
+
+    @Test
+    @DisplayName("executeWithInheritedIO works with null env vars")
+    void inheritedIOWorksWithNullEnvVars() throws IOException, InterruptedException {
+        CommandExecutor.ExecutionResult result =
+                executor.executeWithInheritedIO("echo test", tempDir, 10, null);
+
+        assertTrue(result.success());
+        assertEquals(0, result.exitCode());
+    }
+
+    @Test
+    @DisplayName("executeWithInheritedIO works with empty env vars")
+    void inheritedIOWorksWithEmptyEnvVars() throws IOException, InterruptedException {
+        CommandExecutor.ExecutionResult result =
+                executor.executeWithInheritedIO("echo test", tempDir, 10, Map.of());
+
+        assertTrue(result.success());
+        assertEquals(0, result.exitCode());
+    }
+
+    // ============================================================
+    // REGRESSION — existing execute() still works
+    // ============================================================
+
+    @Test
+    @DisplayName("Original execute with env vars still works")
+    void executeWithEnvVarsStillWorks() throws IOException, InterruptedException {
+        Map<String, String> envVars = Map.of("MY_VAR", "value");
+        CommandExecutor.ExecutionResult result =
+                executor.execute("echo test", tempDir, 10, envVars);
+
+        assertTrue(result.success());
+        assertEquals(0, result.exitCode());
     }
 }
