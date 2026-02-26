@@ -130,6 +130,39 @@ class ProjectTypeDetectorTest {
     }
 
     // ============================================================
+    // DOCKER
+    // ============================================================
+
+    @Test
+    @DisplayName("Detects Docker project (docker-compose.yml)")
+    void detectsDockerComposeYml() throws IOException {
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.DOCKER, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Detects Docker project (docker-compose.yaml)")
+    void detectsDockerComposeYaml() throws IOException {
+        Files.createFile(tempDir.resolve("docker-compose.yaml"));
+        assertEquals(ProjectType.DOCKER, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Standalone Dockerfile does NOT trigger DOCKER type")
+    void standaloneDockerfileNotDocker() throws IOException {
+        Files.createFile(tempDir.resolve("Dockerfile"));
+        assertEquals(ProjectType.UNKNOWN, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Detects Docker when both compose files exist")
+    void detectsDockerBothComposeFiles() throws IOException {
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        Files.createFile(tempDir.resolve("docker-compose.yaml"));
+        assertEquals(ProjectType.DOCKER, ProjectTypeDetector.detect(tempDir));
+    }
+
+    // ============================================================
     // UNKNOWN & EDGE CASES
     // ============================================================
 
@@ -235,6 +268,78 @@ class ProjectTypeDetectorTest {
 
         assertEquals(ProjectType.BUN, ProjectTypeDetector.detect(tempDir));
     }
+
+    // ============================================================
+    // LANGUAGE WINS OVER DOCKER
+    // ============================================================
+
+    @Test
+    @DisplayName("Gradle has priority over Docker")
+    void gradlePriorityOverDocker() throws IOException {
+        Files.createFile(tempDir.resolve("build.gradle"));
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.GRADLE, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Maven has priority over Docker")
+    void mavenPriorityOverDocker() throws IOException {
+        Files.createFile(tempDir.resolve("pom.xml"));
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.MAVEN, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Node.js has priority over Docker")
+    void nodejsPriorityOverDocker() throws IOException {
+        Files.createFile(tempDir.resolve("package.json"));
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.NODEJS, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Rust has priority over Docker")
+    void rustPriorityOverDocker() throws IOException {
+        Files.createFile(tempDir.resolve("Cargo.toml"));
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.RUST, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Go has priority over Docker")
+    void goPriorityOverDocker() throws IOException {
+        Files.createFile(tempDir.resolve("go.mod"));
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.GO, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Python has priority over Docker")
+    void pythonPriorityOverDocker() throws IOException {
+        Files.createFile(tempDir.resolve("requirements.txt"));
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.PYTHON, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName(".NET has priority over Docker")
+    void dotnetPriorityOverDocker() throws IOException {
+        Files.createFile(tempDir.resolve("MyApp.csproj"));
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.DOTNET, ProjectTypeDetector.detect(tempDir));
+    }
+
+    @Test
+    @DisplayName("Flutter has priority over Docker")
+    void flutterPriorityOverDocker() throws IOException {
+        Files.createFile(tempDir.resolve("pubspec.yaml"));
+        Files.createFile(tempDir.resolve("docker-compose.yml"));
+        assertEquals(ProjectType.FLUTTER, ProjectTypeDetector.detect(tempDir));
+    }
+
+    // ============================================================
+    // ERROR CASES
+    // ============================================================
 
     @Test
     @DisplayName("Throws on null path")

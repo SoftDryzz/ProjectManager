@@ -113,6 +113,12 @@ public class ProjectTypeDetector {
             return ProjectType.PYTHON;
         }
 
+        // 12. Docker (docker-compose.yml or docker-compose.yaml)
+        if (fileExists(projectPath, Constants.FILE_DOCKER_COMPOSE_YML) ||
+                fileExists(projectPath, Constants.FILE_DOCKER_COMPOSE_YAML)) {
+            return ProjectType.DOCKER;
+        }
+
         // Could not detect
         return ProjectType.UNKNOWN;
     }
