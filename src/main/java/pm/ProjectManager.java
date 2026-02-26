@@ -1441,6 +1441,7 @@ public class ProjectManager {
                 {"Bun",     "bun",     "--version"},
                 {"Yarn",    "yarn",    "--version"},
                 {"Flutter", "flutter", "--version"},
+                {"Docker",  "docker",  "--version"},
         };
 
         for (String[] rt : runtimes) {

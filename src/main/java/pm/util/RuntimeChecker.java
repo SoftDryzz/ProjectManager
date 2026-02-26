@@ -163,6 +163,15 @@ public final class RuntimeChecker {
                     System.exit(1);
                 }
             }
+            case DOCKER -> {
+                if (!isCommandAvailable("docker", "--version")) {
+                    printMissing("Docker",
+                            "This project uses Docker Compose and requires Docker.",
+                            "winget install Docker.DockerDesktop",
+                            "https://docs.docker.com/get-docker/");
+                    System.exit(1);
+                }
+            }
         }
     }
 
@@ -194,6 +203,7 @@ public final class RuntimeChecker {
             case BUN -> isCommandAvailable("bun", "--version");
             case YARN -> isCommandAvailable("yarn", "--version");
             case FLUTTER -> isCommandAvailable("flutter", "--version");
+            case DOCKER -> isCommandAvailable("docker", "--version");
             default -> true;
         };
     }

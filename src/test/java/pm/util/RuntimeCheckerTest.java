@@ -129,6 +129,13 @@ class RuntimeCheckerTest {
         assertEquals(RuntimeChecker.isCommandAvailable("flutter", "--version"), result);
     }
 
+    @Test
+    @DisplayName("Docker runtime availability returns a boolean")
+    void dockerRuntimeAvailability() {
+        boolean result = RuntimeChecker.isRuntimeAvailable(ProjectType.DOCKER);
+        assertEquals(RuntimeChecker.isCommandAvailable("docker", "--version"), result);
+    }
+
     // ============================================================
     // checkRuntime (should not exit for available runtimes)
     // ============================================================
