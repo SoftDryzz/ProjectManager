@@ -17,6 +17,7 @@
   - [Gestión de Variables de Entorno](#-gestión-de-variables-de-entorno)
   - [Diagnósticos](#-diagnósticos)
   - [Escaneo de Seguridad](#-escaneo-de-seguridad)
+  - [Auditoría de Dependencias](#-auditoría-de-dependencias)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -721,6 +722,50 @@ Añade automáticamente entradas faltantes a `.gitignore`:
 - `*.pem`, `*.key`, `*.p12`, `*.pfx` (claves privadas y certificados)
 
 Crea `.gitignore` si no existe. **No** duplica entradas existentes.
+
+---
+
+### 🔹 Auditoría de Dependencias
+
+#### Auditar todos los proyectos en busca de vulnerabilidades conocidas
+```bash
+pm audit
+```
+
+Ejecuta herramientas nativas de auditoría de vulnerabilidades en cada proyecto registrado y muestra un resumen unificado con niveles de severidad.
+
+| Tipo de Proyecto | Herramienta de Auditoría | ¿Requiere Instalación Separada? |
+|-----------------|------------------------|-------------------------------|
+| Node.js | `npm audit --json` | No (incluido con npm) |
+| pnpm | `pnpm audit --json` | No (incluido) |
+| Yarn | `yarn audit --json` | No (incluido) |
+| Rust | `cargo audit --json` | Sí (`cargo install cargo-audit`) |
+| Go | `govulncheck -json ./...` | Sí (`go install golang.org/x/vuln/cmd/govulncheck@latest`) |
+| Python | `pip-audit --format=json` | Sí (`pip install pip-audit`) |
+| .NET | `dotnet list package --vulnerable` | No (incluido con .NET SDK) |
+| Maven/Gradle | N/A | Muestra recomendación del plugin OWASP |
+| Bun/Flutter/Docker | N/A | Omitido (sin herramienta nativa) |
+
+**Niveles de severidad:** CRITICAL, HIGH, MEDIUM, LOW — mapeados desde los niveles nativos de cada ecosistema.
+
+**Solo lectura:** `pm audit` nunca modifica archivos de dependencias. Sugiere correcciones pero el desarrollador decide si actualizar.
+
+**Ejemplo de salida:**
+```
+=== Dependency Audit ===
+
+  backend (Node.js)
+    ⚠ 3 vulnerabilities found
+      2 moderate, 1 high
+    Suggestion: Run 'npm audit fix' to resolve
+
+  api-server (Rust)
+    ✓ No known vulnerabilities
+
+  data-service (Maven)
+    ℹ No native audit tool for Maven
+      Consider: OWASP dependency-check plugin
+```
 
 ---
 
@@ -1674,6 +1719,9 @@ pm doctor --score                                  # Compacto: solo calificacion
 # === SEGURIDAD ===
 pm secure                                          # Escanear proyectos buscando problemas de seguridad
 pm secure --fix                                    # Auto-corregir problemas de .gitignore
+
+# === AUDITORÍA ===
+pm audit                                           # Auditar dependencias en busca de vulnerabilidades
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión
