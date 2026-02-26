@@ -13,6 +13,7 @@
   - [Command Execution](#-command-execution)
   - [Rename & Path Update](#-rename--path-update)
   - [Pre-/Post-Command Hooks](#-prepost-command-hooks)
+  - [Shell Autocompletion](#-shell-autocompletion)
   - [Environment Variable Management](#-environment-variable-management)
   - [Diagnostics](#-diagnostics)
   - [Help and Version](#-help-and-version)
@@ -489,6 +490,49 @@ pm hooks my-api remove pre-build "npm run lint"
 - Hooks have a fixed **60-second timeout**.
 - Hooks inherit the project's **environment variables**.
 - Hooks work with all commands: `build`, `run`, `test`, `clean`, `stop`, and any custom command.
+
+---
+
+### 🔹 Shell Autocompletion
+
+Enable TAB completion for all `pm` commands, project names, and subcommands.
+
+#### Generate completion script
+```bash
+pm completions <shell>
+```
+
+#### Setup
+
+**Bash** — add to `~/.bashrc`:
+```bash
+eval "$(pm completions bash)"
+```
+
+**Zsh** — add to `~/.zshrc`:
+```bash
+eval "$(pm completions zsh)"
+```
+
+**Fish** — save to completions directory:
+```bash
+pm completions fish > ~/.config/fish/completions/pm.fish
+```
+
+**PowerShell** — add to `$PROFILE`:
+```powershell
+pm completions powershell | Out-String | Invoke-Expression
+```
+
+#### What gets autocompleted?
+
+- **Top-level commands** — `pm b<TAB>` → `build`
+- **Project names** — `pm build <TAB>` → lists all registered projects
+- **Subcommands** — `pm env <TAB>` → `set`, `get`, `list`, `remove`, `clear`
+- **Flags** — `pm add myproject <TAB>` → `--path`, `--type`, `--env`
+- **Hook slots** — `pm hooks myproject add <TAB>` → `pre-build`, `post-run`, etc.
+- **Env var keys** — `pm env get myproject <TAB>` → lists configured variable names
+- **Shell names** — `pm completions <TAB>` → `bash`, `zsh`, `fish`, `powershell`
 
 ---
 
@@ -1558,6 +1602,12 @@ pm rename <old> <new> --path <path>            # Both at once
 # === REFRESH ===
 pm refresh <name>                              # Re-detect type and update commands
 pm refresh --all                               # Refresh all projects
+
+# === SHELL AUTOCOMPLETION ===
+pm completions bash                            # Generate Bash completion script
+pm completions zsh                             # Generate Zsh completion script
+pm completions fish                            # Generate Fish completion script
+pm completions powershell                      # Generate PowerShell completion script
 
 # === DIAGNOSTICS ===
 pm doctor                                      # Check environment health

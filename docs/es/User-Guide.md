@@ -13,6 +13,7 @@
   - [Ejecución de Comandos](#-ejecución-de-comandos)
   - [Renombrar y Actualizar Ruta](#-renombrar-y-actualizar-ruta)
   - [Hooks Pre-/Post-Comando](#-hooks-prepost-comando)
+  - [Autocompletado en Shell](#-autocompletado-en-shell)
   - [Gestión de Variables de Entorno](#-gestión-de-variables-de-entorno)
   - [Diagnósticos](#-diagnósticos)
   - [Ayuda y Versión](#-ayuda-y-versión)
@@ -489,6 +490,49 @@ pm hooks mi-api remove pre-build "npm run lint"
 - Los hooks tienen un **timeout fijo de 60 segundos**.
 - Los hooks heredan las **variables de entorno** del proyecto.
 - Los hooks funcionan con todos los comandos: `build`, `run`, `test`, `clean`, `stop` y cualquier comando personalizado.
+
+---
+
+### 🔹 Autocompletado en Shell
+
+Habilita el completado con TAB para todos los comandos de `pm`, nombres de proyecto y subcomandos.
+
+#### Generar script de autocompletado
+```bash
+pm completions <shell>
+```
+
+#### Configuración
+
+**Bash** — añadir a `~/.bashrc`:
+```bash
+eval "$(pm completions bash)"
+```
+
+**Zsh** — añadir a `~/.zshrc`:
+```bash
+eval "$(pm completions zsh)"
+```
+
+**Fish** — guardar en directorio de completions:
+```bash
+pm completions fish > ~/.config/fish/completions/pm.fish
+```
+
+**PowerShell** — añadir a `$PROFILE`:
+```powershell
+pm completions powershell | Out-String | Invoke-Expression
+```
+
+#### ¿Qué se autocompleta?
+
+- **Comandos principales** — `pm b<TAB>` → `build`
+- **Nombres de proyecto** — `pm build <TAB>` → lista todos los proyectos registrados
+- **Subcomandos** — `pm env <TAB>` → `set`, `get`, `list`, `remove`, `clear`
+- **Flags** — `pm add miproyecto <TAB>` → `--path`, `--type`, `--env`
+- **Slots de hooks** — `pm hooks miproyecto add <TAB>` → `pre-build`, `post-run`, etc.
+- **Claves de variables** — `pm env get miproyecto <TAB>` → lista las variables configuradas
+- **Nombres de shell** — `pm completions <TAB>` → `bash`, `zsh`, `fish`, `powershell`
 
 ---
 
@@ -1558,6 +1602,12 @@ pm rename <viejo> <nuevo> --path <ruta>            # Ambos a la vez
 # === REFRESH ===
 pm refresh <nombre>                                # Re-detectar tipo y actualizar comandos
 pm refresh --all                                   # Refrescar todos los proyectos
+
+# === AUTOCOMPLETADO EN SHELL ===
+pm completions bash                                # Generar script para Bash
+pm completions zsh                                 # Generar script para Zsh
+pm completions fish                                # Generar script para Fish
+pm completions powershell                          # Generar script para PowerShell
 
 # === DIAGNÓSTICOS ===
 pm doctor                                          # Verificar salud del entorno

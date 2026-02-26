@@ -166,13 +166,20 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.6.0 — Shell Autocompletion
+## v1.6.0 — Shell Autocompletion ✅
 
 ### `pm completions` command
-- Generate completion scripts for bash, zsh, fish, and PowerShell
-- `pm completions <shell>` — output completion script for the specified shell
-- Autocomplete project names, commands, and flags
-- Zero dependencies — generates static shell scripts
+
+| Feature | Status |
+|---------|--------|
+| `pm completions bash` — generate Bash completion script | ✅ Done |
+| `pm completions zsh` — generate Zsh completion script | ✅ Done |
+| `pm completions fish` — generate Fish completion script | ✅ Done |
+| `pm completions powershell` — generate PowerShell completion script | ✅ Done |
+| Autocomplete top-level commands, project names, subcommands, and flags | ✅ Done |
+| Context-aware completions (hook slots, env var keys, project types) | ✅ Done |
+| Hidden `--complete` callback skips banner/update for performance | ✅ Done |
+| Zero dependencies — generates static shell scripts | ✅ Done |
 
 ---
 

@@ -1,7 +1,7 @@
 # ProjectManager - Installation Script for Windows
 # Works both from source (mvn clean package) and from GitHub Release download
 
-$jarName = "projectmanager-1.5.0.jar"
+$jarName = "projectmanager-1.6.0.jar"
 
 Write-Host "=== ProjectManager Installer ===" -ForegroundColor Cyan
 Write-Host ""
