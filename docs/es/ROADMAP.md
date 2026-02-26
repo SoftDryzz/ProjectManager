@@ -240,7 +240,7 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.6.0 — Detección de CI/CD
+## v1.6.5 — Detección de CI/CD
 
 ### Conciencia de CI/CD
 - Detectar GitHub Actions (`.github/workflows/`)
@@ -256,7 +256,7 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.6.1 — Linting y Formateo
+## v1.6.6 — Linting y Formateo
 
 ### Comandos `pm lint` / `pm fmt`
 - Detectar linters por tipo de proyecto:
@@ -270,7 +270,7 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.6.2 — Generación de Código y Flujos de Equipo
+## v1.6.7 — Generación de Código y Flujos de Equipo
 
 ### Detección de generación de código
 - Detectar build_runner (Flutter/Dart), protobuf, generadores OpenAPI
