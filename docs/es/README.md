@@ -450,10 +450,8 @@ Los proyectos se guardan en:
 
 > Última release: **v1.4.0** (soporte Docker) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
-### 🔨 Planeado (Orden de Prioridad)
-- [ ] Alias de comandos para nombres de proyecto largos
+### 🔨 Planeado
 - [ ] Hooks pre/post comandos
-- [ ] Comando `scan` para detectar anotaciones @Command
 
 ### 💡 Ideas Futuras
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos

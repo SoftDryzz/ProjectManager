@@ -450,10 +450,8 @@ Projects are saved in:
 
 > Latest release: **v1.4.0** (Docker support) — Full version history in [ROADMAP.md](ROADMAP.md)
 
-### 🔨 Planned (Priority Order)
-- [ ] Command aliases for long project names
+### 🔨 Planned
 - [ ] Pre- / post-command hooks
-- [ ] `scan` command to detect @Command annotations
 
 ### 💡 Future Ideas
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects

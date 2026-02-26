@@ -144,7 +144,24 @@ Detecta proyectos Docker Compose y configura comandos por defecto. Los tipos de 
 
 ---
 
-## v1.4.1 — Orquestación de Servicios
+## v1.5.0 — Hooks Pre/Post Comandos
+
+### Comando `pm hooks`
+Ejecuta scripts personalizados automáticamente antes o después de cualquier comando. Los hooks son por proyecto y los configura el usuario.
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| `pm hooks <proyecto> add pre-<cmd> "<script>"` — añadir un pre-hook | Planificado |
+| `pm hooks <proyecto> add post-<cmd> "<script>"` — añadir un post-hook | Planificado |
+| `pm hooks <proyecto>` — listar todos los hooks de un proyecto | Planificado |
+| `pm hooks <proyecto> remove pre-<cmd>` — eliminar un hook | Planificado |
+| Fallo en pre-hook aborta el comando principal | Planificado |
+| Los hooks se ejecutan en el directorio del proyecto | Planificado |
+| Los hooks heredan las variables de entorno del proyecto | Planificado |
+
+---
+
+## v1.5.1 — Orquestación de Servicios
 
 ### Servicios Docker Compose
 - Detectar Docker Compose multi-servicio y listar servicios
@@ -155,7 +172,7 @@ Detecta proyectos Docker Compose y configura comandos por defecto. Los tipos de 
 
 ---
 
-## v1.5.0 — Autocompletado en Shell
+## v1.6.0 — Autocompletado en Shell
 
 ### Comando `pm completions`
 - Generar scripts de autocompletado para bash, zsh, fish y PowerShell
@@ -165,7 +182,7 @@ Detecta proyectos Docker Compose y configura comandos por defecto. Los tipos de 
 
 ---
 
-## v1.5.1 — Puntuación de Salud del Doctor
+## v1.6.1 — Puntuación de Salud del Doctor
 
 ### `pm doctor` ampliado
 - Puntuación de salud: calificación **A/B/C/D/F** basada en buenas prácticas del proyecto
@@ -176,7 +193,7 @@ Detecta proyectos Docker Compose y configura comandos por defecto. Los tipos de 
 
 ---
 
-## v1.5.2 — Escaneo de Seguridad
+## v1.6.2 — Escaneo de Seguridad
 
 ### Comando `pm secure`
 - Escaneo de buenas prácticas de seguridad (solo patrones del sistema de archivos, sin gestión de secretos)
@@ -191,7 +208,7 @@ Detecta proyectos Docker Compose y configura comandos por defecto. Los tipos de 
 
 ---
 
-## v1.5.3 — Auditoría de Dependencias
+## v1.6.3 — Auditoría de Dependencias
 
 ### Comando `pm audit`
 - Verificar vulnerabilidades conocidas usando herramientas nativas del ecosistema:
@@ -208,7 +225,7 @@ Detecta proyectos Docker Compose y configura comandos por defecto. Los tipos de 
 
 ---
 
-## v1.5.4 — Exportar e Importar
+## v1.6.4 — Exportar e Importar
 
 ### Comandos `pm export` / `pm import`
 - `pm export` — exportar todos los proyectos registrados a un archivo JSON portable

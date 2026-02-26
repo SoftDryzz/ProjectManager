@@ -144,7 +144,24 @@ Detect Docker Compose projects and configure default commands. Language types al
 
 ---
 
-## v1.4.1 — Service Orchestration
+## v1.5.0 — Pre-/Post-Command Hooks
+
+### `pm hooks` command
+Run custom scripts automatically before or after any command. Hooks are per-project and user-configured.
+
+| Feature | Status |
+|---------|--------|
+| `pm hooks <project> add pre-<cmd> "<script>"` — add a pre-hook | Planned |
+| `pm hooks <project> add post-<cmd> "<script>"` — add a post-hook | Planned |
+| `pm hooks <project>` — list all hooks for a project | Planned |
+| `pm hooks <project> remove pre-<cmd>` — remove a hook | Planned |
+| Pre-hook failure aborts the main command | Planned |
+| Hooks execute in the project's working directory | Planned |
+| Hooks inherit project environment variables | Planned |
+
+---
+
+## v1.5.1 — Service Orchestration
 
 ### Docker Compose services
 - Detect multi-service Docker Compose and list services
@@ -155,7 +172,7 @@ Detect Docker Compose projects and configure default commands. Language types al
 
 ---
 
-## v1.5.0 — Shell Autocompletion
+## v1.6.0 — Shell Autocompletion
 
 ### `pm completions` command
 - Generate completion scripts for bash, zsh, fish, and PowerShell
@@ -165,7 +182,7 @@ Detect Docker Compose projects and configure default commands. Language types al
 
 ---
 
-## v1.5.1 — Doctor Health Score
+## v1.6.1 — Doctor Health Score
 
 ### `pm doctor` expanded
 - Health score: **A/B/C/D/F** rating based on project best practices
@@ -176,7 +193,7 @@ Detect Docker Compose projects and configure default commands. Language types al
 
 ---
 
-## v1.5.2 — Security Scan
+## v1.6.2 — Security Scan
 
 ### `pm secure` command
 - Best practices security scan (filesystem patterns only, no secret management)
@@ -191,7 +208,7 @@ Detect Docker Compose projects and configure default commands. Language types al
 
 ---
 
-## v1.5.3 — Dependency Audit
+## v1.6.3 — Dependency Audit
 
 ### `pm audit` command
 - Check for known vulnerabilities using native ecosystem tools:
@@ -208,7 +225,7 @@ Detect Docker Compose projects and configure default commands. Language types al
 
 ---
 
-## v1.5.4 — Export & Import
+## v1.6.4 — Export & Import
 
 ### `pm export` / `pm import` commands
 - `pm export` — export all registered projects to a portable JSON file
