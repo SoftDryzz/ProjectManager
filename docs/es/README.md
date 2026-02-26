@@ -181,6 +181,7 @@ pm run servicio-pedidos
 - 🛡️ **Auto-update robusto** - Validación de integridad de descarga, protección contra loops de redirección, mensajes de error de red descriptivos
 - 🐳 **Soporte Docker** - Detecta proyectos Docker Compose, comandos por defecto (build, up, down, clean)
 - 🪝 **Hooks pre-/post-comando** - Ejecuta scripts personalizados antes o después de cualquier comando con `pm hooks`
+- 🔤 **Autocompletado en shell** - Completado con TAB para bash, zsh, fish y PowerShell con `pm completions`
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -236,6 +237,7 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm hooks <nombre> add <slot> "<script>"` | Añadir un hook pre-/post-comando |
 | `pm hooks <nombre> remove <slot> "<script>"` | Eliminar un hook |
 | `pm hooks --all` | Listar hooks de todos los proyectos |
+| `pm completions <shell>` | Generar script de autocompletado (bash/zsh/fish/powershell) |
 | `pm rename <viejo> <nuevo>` | Renombrar un proyecto |
 | `pm rename <nombre> --path <ruta>` | Actualizar ruta del proyecto |
 | `pm refresh <nombre>` | Re-detectar tipo de proyecto y actualizar comandos |
@@ -451,9 +453,9 @@ Los proyectos se guardan en:
 - **CLI** — `pm doctor`, `pm env`, `pm refresh`, `pm rename`, `pm update`, `pm commands add/remove`
 - **Runtimes** — Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Flutter, Docker
 - **Integraciones** — Estado Git, TTY interactivo, instaladores multi-plataforma, GitHub Actions
-- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 357 tests
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 402 tests
 
-> Última release: **v1.5.0** (Hooks Pre-/Post-Comando) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v1.6.0** (Autocompletado en Shell) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos

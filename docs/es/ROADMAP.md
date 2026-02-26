@@ -166,13 +166,20 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.6.0 — Autocompletado en Shell
+## v1.6.0 — Autocompletado en Shell ✅
 
 ### Comando `pm completions`
-- Generar scripts de autocompletado para bash, zsh, fish y PowerShell
-- `pm completions <shell>` — generar script de autocompletado para el shell especificado
-- Autocompletar nombres de proyecto, comandos y flags
-- Sin dependencias — genera scripts de shell estáticos
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| `pm completions bash` — generar script de autocompletado para Bash | ✅ Hecho |
+| `pm completions zsh` — generar script de autocompletado para Zsh | ✅ Hecho |
+| `pm completions fish` — generar script de autocompletado para Fish | ✅ Hecho |
+| `pm completions powershell` — generar script de autocompletado para PowerShell | ✅ Hecho |
+| Autocompletar comandos, nombres de proyecto, subcomandos y flags | ✅ Hecho |
+| Completado contextual (slots de hooks, claves de env vars, tipos de proyecto) | ✅ Hecho |
+| Callback oculto `--complete` omite banner/update para rendimiento | ✅ Hecho |
+| Sin dependencias — genera scripts de shell estáticos | ✅ Hecho |
 
 ---
 
