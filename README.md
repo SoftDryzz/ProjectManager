@@ -180,6 +180,7 @@ pm run order-service
 - 🔒 **Safe execution** - Directory validation before running commands, metacharacter warnings
 - 🛡️ **Robust auto-update** - Download integrity validation, redirect loop protection, descriptive network error messages
 - 🐳 **Docker support** - Detect Docker Compose projects, default commands (build, up, down, clean)
+- 🪝 **Pre-/post-command hooks** - Run custom scripts before or after any command with `pm hooks`
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -231,6 +232,10 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm env list <name> [--show]` | List variables (sensitive values masked) |
 | `pm env remove <name> KEY` | Remove a variable |
 | `pm env clear <name>` | Remove all variables |
+| `pm hooks <name>` | List hooks for a project |
+| `pm hooks <name> add <slot> "<script>"` | Add a pre-/post-command hook |
+| `pm hooks <name> remove <slot> "<script>"` | Remove a hook |
+| `pm hooks --all` | List hooks for all projects |
 | `pm rename <old> <new>` | Rename a project |
 | `pm rename <name> --path <path>` | Update project path |
 | `pm refresh <name>` | Re-detect project type and update commands |
@@ -446,12 +451,9 @@ Projects are saved in:
 - **CLI** — `pm doctor`, `pm env`, `pm refresh`, `pm rename`, `pm update`, `pm commands add/remove`
 - **Runtimes** — Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Flutter, Docker
 - **Integrations** — Git status, interactive TTY, multi-platform installers, GitHub Actions
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 332 tests
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 357 tests
 
-> Latest release: **v1.4.0** (Docker support) — Full version history in [ROADMAP.md](ROADMAP.md)
-
-### 🔨 Planned
-- [ ] Pre- / post-command hooks
+> Latest release: **v1.5.0** (Pre-/Post-Command Hooks) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects

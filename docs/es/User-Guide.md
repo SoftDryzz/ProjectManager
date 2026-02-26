@@ -12,6 +12,7 @@
   - [Gestión de Proyectos](#-gestión-de-proyectos)
   - [Ejecución de Comandos](#-ejecución-de-comandos)
   - [Renombrar y Actualizar Ruta](#-renombrar-y-actualizar-ruta)
+  - [Hooks Pre-/Post-Comando](#-hooks-prepost-comando)
   - [Gestión de Variables de Entorno](#-gestión-de-variables-de-entorno)
   - [Diagnósticos](#-diagnósticos)
   - [Ayuda y Versión](#-ayuda-y-versión)
@@ -434,6 +435,60 @@ Esto sobreescribe el valor anterior.
 | Chequeo de tipos | `pm commands app add typecheck "npx tsc --noEmit"` |
 | Modo watch | `pm commands app add watch "npm run dev -- --watch"` |
 | Build de producción | `pm commands app add prod "npm run build:prod"` |
+
+---
+
+### 🔹 Hooks Pre-/Post-Comando
+
+Ejecuta scripts personalizados automáticamente antes o después de cualquier comando. Los hooks son por proyecto y los configura el usuario.
+
+#### Añadir un hook
+```bash
+pm hooks <nombre> add <slot> "<script>"
+```
+
+**Formato de slot:** `pre-<comando>` o `post-<comando>` (ej: `pre-build`, `post-test`).
+
+**Ejemplos:**
+```bash
+# Ejecutar linter antes de cada build
+pm hooks mi-api add pre-build "npm run lint"
+
+# Enviar notificación después del build
+pm hooks mi-api add post-build "echo Build completado!"
+
+# Ejecutar migraciones antes de ejecutar
+pm hooks mi-api add pre-run "npx prisma migrate deploy"
+
+# Múltiples hooks por slot (se ejecutan en orden)
+pm hooks mi-api add pre-build "npm run format"
+```
+
+#### Listar hooks
+```bash
+pm hooks <nombre>        # Listar hooks de un proyecto
+pm hooks --all           # Listar hooks de todos los proyectos
+```
+
+#### Eliminar un hook
+```bash
+pm hooks <nombre> remove <slot> "<script>"
+```
+
+El script debe coincidir exactamente. Usa `pm hooks <nombre>` para ver los hooks actuales.
+
+**Ejemplo:**
+```bash
+pm hooks mi-api remove pre-build "npm run lint"
+```
+
+#### Cómo funcionan los hooks
+
+- Los **pre-hooks** se ejecutan antes del comando principal. Si algún pre-hook falla (código de salida distinto de cero), el comando principal se **aborta**.
+- Los **post-hooks** se ejecutan después de que el comando principal tiene éxito. Si un post-hook falla, se muestra una **advertencia** pero el resultado del comando no se ve afectado.
+- Los hooks tienen un **timeout fijo de 60 segundos**.
+- Los hooks heredan las **variables de entorno** del proyecto.
+- Los hooks funcionan con todos los comandos: `build`, `run`, `test`, `clean`, `stop` y cualquier comando personalizado.
 
 ---
 
@@ -1487,6 +1542,13 @@ pm env list <nombre>                               # Listar (enmascaradas)
 pm env list <nombre> --show                        # Listar (reveladas)
 pm env remove <nombre> KEY                         # Eliminar una variable
 pm env clear <nombre>                              # Eliminar todas
+
+# === HOOKS ===
+pm hooks <nombre>                                  # Listar hooks
+pm hooks <nombre> add pre-build "npm run lint"     # Añadir pre-hook
+pm hooks <nombre> add post-test "echo listo"       # Añadir post-hook
+pm hooks <nombre> remove pre-build "npm run lint"  # Eliminar un hook
+pm hooks --all                                     # Listar todos los hooks
 
 # === RENOMBRAR ===
 pm rename <viejo> <nuevo>                          # Renombrar proyecto

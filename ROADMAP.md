@@ -144,20 +144,25 @@ Detect Docker Compose projects and configure default commands. Language types al
 
 ---
 
-## v1.5.0 — Pre-/Post-Command Hooks
+## v1.5.0 — Pre-/Post-Command Hooks ✅
 
 ### `pm hooks` command
 Run custom scripts automatically before or after any command. Hooks are per-project and user-configured.
 
 | Feature | Status |
 |---------|--------|
-| `pm hooks <project> add pre-<cmd> "<script>"` — add a pre-hook | Planned |
-| `pm hooks <project> add post-<cmd> "<script>"` — add a post-hook | Planned |
-| `pm hooks <project>` — list all hooks for a project | Planned |
-| `pm hooks <project> remove pre-<cmd>` — remove a hook | Planned |
-| Pre-hook failure aborts the main command | Planned |
-| Hooks execute in the project's working directory | Planned |
-| Hooks inherit project environment variables | Planned |
+| `pm hooks <project> add pre-<cmd> "<script>"` — add a pre-hook | ✅ Done |
+| `pm hooks <project> add post-<cmd> "<script>"` — add a post-hook | ✅ Done |
+| `pm hooks <project>` — list all hooks for a project | ✅ Done |
+| `pm hooks <project> remove <slot> "<script>"` — remove a hook by exact content | ✅ Done |
+| `pm hooks --all` — list hooks for all projects | ✅ Done |
+| Multiple hooks per slot (chained execution) | ✅ Done |
+| Pre-hook failure aborts the main command | ✅ Done |
+| Post-hook failure shows warning only | ✅ Done |
+| Hooks execute in the project's working directory | ✅ Done |
+| Hooks inherit project environment variables | ✅ Done |
+| Fixed 60s timeout for hook scripts | ✅ Done |
+| Generic command execution (`pm <cmd> <project>`) with hook support | ✅ Done |
 
 ---
 
