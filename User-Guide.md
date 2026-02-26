@@ -1349,6 +1349,33 @@ When adding custom commands with `pm commands add`, ProjectManager checks for sh
 
 This warning is informational — it does **not** block the command from being saved. Commands like `npm build && npm serve` are perfectly valid.
 
+### Robust Auto-Update
+
+When running `pm update`, ProjectManager validates the downloaded JAR against the expected file size reported by the GitHub API. If the sizes don't match, the update is rejected to prevent installing a corrupted file:
+
+```
+❌ Download size mismatch: got 1.2 MB but expected 5.0 MB. The file may be incomplete or corrupted.
+  The downloaded file may be incomplete or corrupted.
+  Try again, or download manually from:
+  https://github.com/SoftDryzz/ProjectManager/releases
+```
+
+Redirect loops are capped at 5 hops. If the download URL causes too many redirects, a clear error is shown instead of hanging indefinitely.
+
+Network errors are classified with specific advice:
+
+| Error | Message | Advice |
+|-------|---------|--------|
+| No internet | "No internet connection." | Check your connection and try again |
+| Timeout | "Connection timed out." | Server may be slow, try later |
+| Firewall | "Connection refused." | A firewall or proxy may be blocking |
+| SSL error | "Secure connection failed." | Network may be intercepting connections |
+
+At startup, if there's no internet connection, you'll see a brief non-blocking message instead of silent failure:
+```
+  Update check skipped (no internet connection)
+```
+
 ---
 
 ## 🆘 Troubleshooting

@@ -1349,6 +1349,33 @@ Al añadir comandos personalizados con `pm commands add`, ProjectManager verific
 
 Este aviso es informativo — **no** bloquea que el comando se guarde. Comandos como `npm build && npm serve` son perfectamente válidos.
 
+### Auto-Update Robusto
+
+Al ejecutar `pm update`, ProjectManager valida el JAR descargado contra el tamaño esperado reportado por la API de GitHub. Si los tamaños no coinciden, la actualización se rechaza para evitar instalar un archivo corrupto:
+
+```
+❌ Download size mismatch: got 1.2 MB but expected 5.0 MB. The file may be incomplete or corrupted.
+  The downloaded file may be incomplete or corrupted.
+  Try again, or download manually from:
+  https://github.com/SoftDryzz/ProjectManager/releases
+```
+
+Los loops de redirección se limitan a 5 saltos. Si la URL de descarga causa demasiadas redirecciones, se muestra un error claro en lugar de quedarse colgado indefinidamente.
+
+Los errores de red se clasifican con orientación específica:
+
+| Error | Mensaje | Consejo |
+|-------|---------|---------|
+| Sin internet | "No internet connection." | Verifica tu conexión e intenta de nuevo |
+| Timeout | "Connection timed out." | El servidor puede estar lento, intenta más tarde |
+| Firewall | "Connection refused." | Un firewall o proxy puede estar bloqueando |
+| Error SSL | "Secure connection failed." | La red puede estar interceptando conexiones |
+
+Al arrancar, si no hay conexión a internet, verás un mensaje breve no-bloqueante en lugar de un fallo silencioso:
+```
+  Update check skipped (no internet connection)
+```
+
 ---
 
 ## 🆘 Solución de Problemas

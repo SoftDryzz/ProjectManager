@@ -112,18 +112,18 @@ Previene que los comandos fallen cuando los directorios del proyecto no existen 
 
 ---
 
-## v1.3.9 — Auto-Update Robusto
+## v1.3.9 — Auto-Update Robusto ✅
 
 ### Integridad de descarga y resiliencia de red
 Asegurar que el auto-updater maneje casos límite con gracia: descargas parciales, loops de redirección y fallos de red con feedback claro.
 
 | Funcionalidad | Estado |
 |---------------|--------|
-| Validar integridad del JAR descargado (tamaño esperado desde la respuesta del API) | Planificado |
-| Detectar y cortar loops de redirección (máximo 5 redirecciones) | Planificado |
-| Distinguir errores de red: timeout vs fallo DNS vs firewall | Planificado |
-| Mensaje claro cuando no hay conexión: "Sin conexión a internet — verificación de actualización omitida" | Planificado |
-| Prevenir instalación de JAR parcial/corrupto | Planificado |
+| Validar integridad del JAR descargado (tamaño esperado desde la respuesta del API) | ✅ Hecho |
+| Detectar y cortar loops de redirección (máximo 5 redirecciones) | ✅ Hecho |
+| Distinguir errores de red: timeout vs fallo DNS vs firewall | ✅ Hecho |
+| Mensaje claro cuando no hay conexión: "Sin conexión a internet — verificación de actualización omitida" | ✅ Hecho |
+| Prevenir instalación de JAR parcial/corrupto | ✅ Hecho |
 
 ---
 
