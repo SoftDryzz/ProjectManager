@@ -12,7 +12,7 @@ class ProjectTypeTest {
     @DisplayName("All enum values exist")
     void allValuesExist() {
         ProjectType[] values = ProjectType.values();
-        assertEquals(12, values.length);
+        assertEquals(13, values.length);
 
         assertNotNull(ProjectType.GRADLE);
         assertNotNull(ProjectType.MAVEN);
@@ -25,6 +25,7 @@ class ProjectTypeTest {
         assertNotNull(ProjectType.BUN);
         assertNotNull(ProjectType.YARN);
         assertNotNull(ProjectType.FLUTTER);
+        assertNotNull(ProjectType.DOCKER);
         assertNotNull(ProjectType.UNKNOWN);
     }
 
@@ -42,6 +43,7 @@ class ProjectTypeTest {
         assertEquals("Bun", ProjectType.BUN.displayName());
         assertEquals("Yarn", ProjectType.YARN.displayName());
         assertEquals("Flutter", ProjectType.FLUTTER.displayName());
+        assertEquals("Docker", ProjectType.DOCKER.displayName());
         assertEquals("Unknown", ProjectType.UNKNOWN.displayName());
     }
 
@@ -59,6 +61,7 @@ class ProjectTypeTest {
         assertTrue(ProjectType.BUN.isKnown());
         assertTrue(ProjectType.YARN.isKnown());
         assertTrue(ProjectType.FLUTTER.isKnown());
+        assertTrue(ProjectType.DOCKER.isKnown());
     }
 
     @Test
@@ -81,6 +84,7 @@ class ProjectTypeTest {
         assertEquals(ProjectType.BUN, ProjectType.valueOf("BUN"));
         assertEquals(ProjectType.YARN, ProjectType.valueOf("YARN"));
         assertEquals(ProjectType.FLUTTER, ProjectType.valueOf("FLUTTER"));
+        assertEquals(ProjectType.DOCKER, ProjectType.valueOf("DOCKER"));
         assertEquals(ProjectType.UNKNOWN, ProjectType.valueOf("UNKNOWN"));
     }
 }

@@ -118,6 +118,15 @@ public enum ProjectType {
     FLUTTER("Flutter"),
 
     /**
+     * Docker Compose project.
+     *
+     * <p>Detection: Presence of docker-compose.yml or docker-compose.yaml
+     * (only when no language-specific type is detected)
+     * <p>Typical commands: docker compose build, docker compose up, docker compose down
+     */
+    DOCKER("Docker"),
+
+    /**
      * Unknown or unsupported project type.
      *
      * <p>Used when the type cannot be automatically determined.
