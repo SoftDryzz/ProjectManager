@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -327,6 +328,64 @@ class OutputFormatterTest {
         String output = getOutput();
 
         assertTrue(output.contains("not a repository"));
+    }
+
+    // ============================================================
+    // HOOKS
+    // ============================================================
+
+    @Test
+    @DisplayName("printHooks shows empty message when no hooks")
+    void printHooksEmpty() {
+        OutputFormatter.printHooks("my-app", Map.of());
+        String output = getOutput();
+
+        assertTrue(output.contains("No hooks configured"));
+    }
+
+    @Test
+    @DisplayName("printHooks shows hooks grouped by slot")
+    void printHooksWithHooks() {
+        Map<String, List<String>> hooks = new HashMap<>();
+        hooks.put("pre-build", List.of("npm run lint", "npm run format"));
+        hooks.put("post-build", List.of("echo done"));
+
+        OutputFormatter.printHooks("my-app", hooks);
+        String output = getOutput();
+
+        assertTrue(output.contains("Hooks for"));
+        assertTrue(output.contains("my-app"));
+        assertTrue(output.contains("pre-build"));
+        assertTrue(output.contains("npm run lint"));
+        assertTrue(output.contains("npm run format"));
+        assertTrue(output.contains("post-build"));
+        assertTrue(output.contains("echo done"));
+    }
+
+    @Test
+    @DisplayName("printHooks shows numbered scripts")
+    void printHooksNumbered() {
+        Map<String, List<String>> hooks = Map.of(
+                "pre-build", List.of("first", "second")
+        );
+
+        OutputFormatter.printHooks("app", hooks);
+        String output = getOutput();
+
+        assertTrue(output.contains("1."));
+        assertTrue(output.contains("2."));
+    }
+
+    @Test
+    @DisplayName("printProject shows hook count")
+    void printProjectShowsHookCount() {
+        Project project = new Project("test", Paths.get(System.getProperty("java.io.tmpdir")), ProjectType.NODEJS);
+        project.addHook("pre-build", "echo test");
+
+        OutputFormatter.printProject(project);
+        String output = getOutput();
+
+        assertTrue(output.contains("Hooks: 1"));
     }
 
     // ============================================================

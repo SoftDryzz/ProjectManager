@@ -158,6 +158,12 @@ class ConstantsTest {
     }
 
     @Test
+    @DisplayName("HOOK_TIMEOUT is positive")
+    void hookTimeoutIsPositive() {
+        assertTrue(Constants.HOOK_TIMEOUT > 0);
+    }
+
+    @Test
     @DisplayName("Cannot be instantiated")
     void cannotInstantiate() throws NoSuchMethodException {
         Constructor<Constants> constructor = Constants.class.getDeclaredConstructor();
