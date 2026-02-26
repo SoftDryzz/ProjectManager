@@ -29,7 +29,7 @@ public final class CompletionHandler {
             "add", "list", "ls", "build", "run", "test", "scan",
             "commands", "cmd", "remove", "rm", "rename", "info",
             "env", "hooks", "refresh", "update", "doctor", "secure",
-            "audit", "help", "version", "completions"
+            "audit", "export", "import", "help", "version", "completions"
     );
 
     /** Commands that take a project name as their next argument. */
@@ -168,6 +168,11 @@ public final class CompletionHandler {
             result.add("--all");
             return result;
         }
+        if ("export".equals(cmd)) {
+            List<String> result = new ArrayList<>(getProjectNames());
+            result.add("--file");
+            return result;
+        }
         return switch (cmd) {
             case "env" -> new ArrayList<>(ENV_SUBCOMMANDS);
             case "completions" -> new ArrayList<>(SHELL_NAMES);
@@ -189,6 +194,12 @@ public final class CompletionHandler {
         // pm hooks <project> <TAB> → add, remove
         if ("hooks".equals(cmd)) {
             return new ArrayList<>(MANAGEMENT_SUBCOMMANDS);
+        }
+        // pm export <name> <TAB> → more project names + --file
+        if ("export".equals(cmd)) {
+            List<String> result = new ArrayList<>(getProjectNames());
+            result.add("--file");
+            return result;
         }
         // pm add <name> <TAB> → flags
         if ("add".equals(cmd)) {

@@ -18,6 +18,7 @@
   - [Diagnostics](#-diagnostics)
   - [Security Scan](#-security-scan)
   - [Dependency Audit](#-dependency-audit)
+  - [Export & Import](#-export--import)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -765,6 +766,52 @@ Runs native ecosystem vulnerability tools on each registered project and display
   data-service (Maven)
     ℹ No native audit tool for Maven
       Consider: OWASP dependency-check plugin
+```
+
+---
+
+### 🔹 Export & Import
+
+Export your project configurations to a portable JSON file and import them on another machine.
+
+#### Export all projects
+```bash
+pm export
+```
+
+Saves all registered projects to `pm-export.json` in the current directory.
+
+#### Export selected projects
+```bash
+pm export backend-api web-server
+```
+
+#### Export to a custom file
+```bash
+pm export --file ~/backup/my-setup.json
+pm export backend-api --file team-config.json
+```
+
+#### Import projects
+```bash
+pm import pm-export.json
+pm import ~/backup/my-setup.json
+```
+
+**Behavior on import:**
+- Projects that already exist are **skipped** (never overwritten)
+- Projects with paths that don't exist on disk are imported with a **warning** — fix later with `pm rename <name> --path <new-path>`
+- Invalid project types default to `UNKNOWN`
+
+**Example output:**
+```
+Import
+──────
+
+  ✓ Imported 3 projects
+  ⚠ Skipped 'backend' — already exists
+  ⚠ 'api-server' path does not exist: /old/machine/path
+    Update with: pm rename api-server --path <new-path>
 ```
 
 ---
@@ -1722,6 +1769,12 @@ pm secure --fix                                # Auto-fix .gitignore issues
 
 # === AUDIT ===
 pm audit                                       # Audit dependencies for known vulnerabilities
+
+# === EXPORT & IMPORT ===
+pm export                                      # Export all projects to pm-export.json
+pm export backend web-server                   # Export selected projects
+pm export --file backup.json                   # Export to custom file
+pm import pm-export.json                       # Import projects from file
 
 # === UPDATES ===
 pm update                                      # Update to latest version

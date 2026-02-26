@@ -243,13 +243,22 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.6.4 — Exportar e Importar
+## v1.6.4 — Exportar e Importar ✅
 
 ### Comandos `pm export` / `pm import`
-- `pm export` — exportar todos los proyectos registrados a un archivo JSON portable
-- `pm import <archivo>` — importar proyectos desde un archivo exportado
-- Útil para migrar entre máquinas o compartir configuraciones de equipo
-- Valida rutas al importar y avisa sobre directorios faltantes
+Exporta todos o proyectos seleccionados a un archivo JSON portable e impórtalos en otra máquina.
+
+| Característica | Estado |
+|----------------|--------|
+| `pm export` — exportar todos los proyectos registrados a JSON | ✅ Hecho |
+| `pm export nombre1 nombre2` — exportar proyectos específicos | ✅ Hecho |
+| `pm export --file <ruta>` — archivo de salida personalizado (por defecto: `pm-export.json`) | ✅ Hecho |
+| `pm import <archivo>` — importar proyectos desde un archivo exportado | ✅ Hecho |
+| Formato JSON auto-descriptivo con metadatos de versión | ✅ Hecho |
+| Omitir proyectos existentes al importar (nunca sobrescribe) | ✅ Hecho |
+| Avisar sobre rutas faltantes al importar con sugerencia `pm rename` | ✅ Hecho |
+| Tipo inválido por defecto a UNKNOWN con aviso | ✅ Hecho |
+| Autocompletado en shell para comandos export/import | ✅ Hecho |
 
 ---
 

@@ -243,13 +243,22 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.6.4 — Export & Import
+## v1.6.4 — Export & Import ✅
 
 ### `pm export` / `pm import` commands
-- `pm export` — export all registered projects to a portable JSON file
-- `pm import <file>` — import projects from an exported file
-- Useful for migrating between machines or sharing team setups
-- Validates paths on import and warns about missing directories
+Export all or selected projects to a portable JSON file and import them back on another machine.
+
+| Feature | Status |
+|---------|--------|
+| `pm export` — export all registered projects to JSON | ✅ Done |
+| `pm export name1 name2` — export specific projects | ✅ Done |
+| `pm export --file <path>` — custom output file (default: `pm-export.json`) | ✅ Done |
+| `pm import <file>` — import projects from an exported file | ✅ Done |
+| Self-describing JSON format with version metadata | ✅ Done |
+| Skip existing projects on import (never overwrite) | ✅ Done |
+| Warn about missing paths on import with `pm rename` hint | ✅ Done |
+| Invalid type defaults to UNKNOWN with warning | ✅ Done |
+| Shell autocompletion for export/import commands | ✅ Done |
 
 ---
 
