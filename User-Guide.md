@@ -662,7 +662,32 @@ Run 'pm refresh my-project' to update
 pm doctor
 ```
 
-Verifies installed runtimes (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Cargo, Go, pnpm, Bun, Yarn, Flutter) and validates all registered project paths.
+Verifies installed runtimes (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Cargo, Go, pnpm, Bun, Yarn, Flutter), validates all registered project paths, and shows a **health report** for each project.
+
+#### Health checks performed (per project)
+
+| Check | Pass condition | Recommendation if failed |
+|-------|---------------|--------------------------|
+| `.gitignore` | File exists in project root | Create a .gitignore to exclude build artifacts |
+| README | `README.md` or `README` exists (case-insensitive) | Add a README.md to document your project |
+| Tests | Project has a `test` command configured | Configure tests with `pm commands add` |
+| CI/CD | GitHub Actions, GitLab CI, or Jenkinsfile detected | Set up CI/CD for automated testing |
+| Lockfile | Dependency lockfile exists for project type | Commit your lockfile for reproducible builds |
+
+Each project receives a **letter grade** based on how many checks pass:
+- **A** = 5/5 — **B** = 4/5 — **C** = 3/5 — **D** = 2/5 — **F** = 0–1/5
+
+#### Show only health grades (compact)
+```bash
+pm doctor --score
+```
+
+Shows just the letter grade per project without details:
+```
+  A  backend
+  B  frontend
+  F  legacy-api
+```
 
 ---
 
@@ -1610,7 +1635,8 @@ pm completions fish                            # Generate Fish completion script
 pm completions powershell                      # Generate PowerShell completion script
 
 # === DIAGNOSTICS ===
-pm doctor                                      # Check environment health
+pm doctor                                      # Full report: runtimes + project health (A-F)
+pm doctor --score                              # Compact: only health grades per project
 
 # === UPDATES ===
 pm update                                      # Update to latest version

@@ -171,7 +171,8 @@ pm run servicio-pedidos
 - 🌿 **Integración Git** - Ve branch, status y commits sin pushear en `pm info`
 - 🔧 **Variables de entorno** - Configura variables por proyecto (PORT, DEBUG, API_KEY, etc)
 - 🩺 **Runtime checker** - Detecta runtimes faltantes antes de ejecutar, muestra instrucciones de instalación
-- 🏥 **pm doctor** - Diagnostica tu entorno: verifica herramientas instaladas y valida rutas de proyectos
+- 🏥 **pm doctor** - Diagnostica tu entorno: verifica herramientas instaladas, valida rutas de proyectos y muestra puntuaciones de salud A–F
+- 📊 **Puntuación de salud** - Calificación de salud del proyecto (A/B/C/D/F) basada en buenas prácticas (.gitignore, README, tests, CI, lockfile)
 - 🔄 **Auto-actualización** - Comprueba actualizaciones al arrancar, actualiza con `pm update`
 - 🔃 **Refrescar proyectos** - Re-detecta tipos y actualiza comandos con `pm refresh`, avisa cuando los proyectos están desactualizados
 - ✏️ **Renombrar y actualizar ruta** - Renombra proyectos o actualiza rutas con `pm rename`, preservando todos los datos
@@ -243,7 +244,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm refresh <nombre>` | Re-detectar tipo de proyecto y actualizar comandos |
 | `pm refresh --all` | Refrescar todos los proyectos registrados |
 | `pm update` | Actualizar a la última versión |
-| `pm doctor` | Diagnosticar entorno (runtimes, rutas) |
+| `pm doctor` | Diagnosticar entorno (runtimes, rutas, puntuación de salud) |
+| `pm doctor --score` | Mostrar solo calificaciones de salud (A/B/C/D/F) por proyecto |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
 
@@ -453,9 +455,9 @@ Los proyectos se guardan en:
 - **CLI** — `pm doctor`, `pm env`, `pm refresh`, `pm rename`, `pm update`, `pm commands add/remove`
 - **Runtimes** — Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Flutter, Docker
 - **Integraciones** — Estado Git, TTY interactivo, instaladores multi-plataforma, GitHub Actions
-- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 402 tests
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 441 tests
 
-> Última release: **v1.6.0** (Autocompletado en Shell) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v1.6.1** (Puntuación de Salud del Doctor) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos
