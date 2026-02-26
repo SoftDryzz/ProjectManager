@@ -186,6 +186,7 @@ pm run servicio-pedidos
 - 🔐 **Escaneo de seguridad** - Detecta misconfiguraciones (Dockerfile root, secretos expuestos, URLs inseguras) con `pm secure`, auto-corrige con `--fix`
 - 🔍 **Auditoría de dependencias** - Escanea dependencias en busca de vulnerabilidades conocidas con `pm audit` usando herramientas nativas (npm audit, cargo audit, govulncheck, pip-audit, dotnet)
 - 📤 **Exportar e Importar** - Migra configuraciones entre máquinas con `pm export` y `pm import`, soporta exportación selectiva y validación de rutas
+- 🔄 **Detección CI/CD** - Detecta GitHub Actions, GitLab CI, Jenkins, Travis CI, CircleCI con `pm ci` y en `pm info`
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -252,6 +253,7 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm secure` | Escanear proyectos buscando misconfiguraciones de seguridad |
 | `pm secure --fix` | Auto-corregir problemas de .gitignore (añadir .env, *.pem, *.key) |
 | `pm audit` | Auditar dependencias en busca de vulnerabilidades conocidas |
+| `pm ci [nombre]` | Mostrar pipelines CI/CD y URLs de dashboard |
 | `pm export` | Exportar todos los proyectos a un archivo JSON portátil |
 | `pm export <nombres...> [--file <ruta>]` | Exportar proyectos seleccionados a un archivo personalizado |
 | `pm import <archivo>` | Importar proyectos desde un archivo JSON exportado |
@@ -467,9 +469,10 @@ Los proyectos se guardan en:
 - **Seguridad** — `pm secure` escanea misconfiguraciones, `--fix` auto-corrige problemas de .gitignore
 - **Auditoría** — `pm audit` verifica dependencias en busca de vulnerabilidades usando herramientas nativas del ecosistema
 - **Portabilidad** — `pm export` / `pm import` para migrar configuraciones entre máquinas o compartir setups de equipo
-- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 582 tests
+- **CI/CD** — `pm ci` detecta GitHub Actions, GitLab CI, Jenkins, Travis CI, CircleCI y muestra URLs de dashboard
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 609 tests
 
-> Última release: **v1.6.4** (Exportar e Importar) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v1.6.5** (Detección CI/CD) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos

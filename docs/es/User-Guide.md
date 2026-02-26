@@ -19,6 +19,7 @@
   - [Escaneo de Seguridad](#-escaneo-de-seguridad)
   - [Auditoría de Dependencias](#-auditoría-de-dependencias)
   - [Exportar e Importar](#-exportar-e-importar)
+  - [Detección CI/CD](#-detección-cicd)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -812,6 +813,51 @@ Import
   ⚠ Skipped 'backend' — already exists
   ⚠ 'api-server' path does not exist: /old/machine/path
     Update with: pm rename api-server --path <new-path>
+```
+
+---
+
+### 🔹 Detección CI/CD
+
+Ve los pipelines CI/CD detectados y sus URLs de dashboard para tus proyectos.
+
+#### Mostrar CI/CD de un proyecto específico
+```bash
+pm ci backend
+```
+
+#### Mostrar CI/CD de todos los proyectos
+```bash
+pm ci
+```
+
+**Proveedores soportados:**
+
+| Proveedor | Detección | URL de Dashboard |
+|-----------|-----------|------------------|
+| GitHub Actions | Directorio `.github/workflows/` | `https://github.com/{owner}/{repo}/actions` |
+| GitLab CI | Archivo `.gitlab-ci.yml` | `https://gitlab.com/{owner}/{repo}/-/pipelines` |
+| Jenkins | `Jenkinsfile` | Sin URL estándar |
+| Travis CI | Archivo `.travis.yml` | `https://app.travis-ci.com/github/{owner}/{repo}` |
+| CircleCI | Archivo `.circleci/config.yml` | `https://app.circleci.com/pipelines/github/{owner}/{repo}` |
+
+**Ejemplo de salida:**
+```
+CI/CD — backend
+─────
+
+  GitHub Actions (3 workflows)
+    https://github.com/user/backend/actions
+
+  GitLab CI
+    https://gitlab.com/user/backend/-/pipelines
+```
+
+La información de CI/CD también se muestra automáticamente en `pm info`:
+```
+  CI/CD:
+    ✓ GitHub Actions (2 workflows)
+    ✓ Jenkins
 ```
 
 ---
@@ -1775,6 +1821,10 @@ pm export                                          # Exportar todos los proyecto
 pm export backend web-server                       # Exportar proyectos seleccionados
 pm export --file backup.json                       # Exportar a archivo personalizado
 pm import pm-export.json                           # Importar proyectos desde archivo
+
+# === CI/CD ===
+pm ci                                              # Mostrar CI/CD de todos los proyectos
+pm ci <nombre>                                     # Mostrar CI/CD de un proyecto específico
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

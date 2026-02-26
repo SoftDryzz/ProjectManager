@@ -262,19 +262,23 @@ Exporta todos o proyectos seleccionados a un archivo JSON portable e impórtalos
 
 ---
 
-## v1.6.5 — Detección de CI/CD
+## v1.6.5 — Detección de CI/CD ✅
 
 ### Conciencia de CI/CD
-- Detectar GitHub Actions (`.github/workflows/`)
-- Detectar GitLab CI (`.gitlab-ci.yml`)
-- Detectar Jenkins (`Jenkinsfile`)
-- Mostrar estado de CI en `pm info`
-- `pm ci` — abrir dashboard de CI en el navegador o mostrar estado de la última ejecución
 
-### Conciencia de despliegue
-- Detectar configs de despliegue: `fly.toml`, `vercel.json`, `netlify.toml`, `railway.json`
-- `pm deploy` — lanzar despliegue a la plataforma detectada
-- `pm deploy status` — mostrar estado del despliegue
+| Funcionalidad | Estado |
+|---------------|--------|
+| Detectar GitHub Actions (`.github/workflows/`) | ✅ Hecho |
+| Detectar GitLab CI (`.gitlab-ci.yml`) | ✅ Hecho |
+| Detectar Jenkins (`Jenkinsfile`) | ✅ Hecho |
+| Detectar Travis CI (`.travis.yml`) | ✅ Hecho |
+| Detectar CircleCI (`.circleci/config.yml`) | ✅ Hecho |
+| Mostrar proveedores CI/CD en `pm info` con conteo de workflows | ✅ Hecho |
+| `pm ci [nombre]` — mostrar URLs de dashboard CI para proyectos | ✅ Hecho |
+| Parsear URLs remotas SSH y HTTPS de git para enlaces de dashboard | ✅ Hecho |
+| Autocompletado en shell para comando `pm ci` | ✅ Hecho |
+
+> **Nota:** La conciencia de despliegue (fly.toml, vercel.json, etc.) se difiere a una versión posterior.
 
 ---
 

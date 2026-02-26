@@ -19,6 +19,7 @@
   - [Security Scan](#-security-scan)
   - [Dependency Audit](#-dependency-audit)
   - [Export & Import](#-export--import)
+  - [CI/CD Detection](#-cicd-detection)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -812,6 +813,51 @@ Import
   ⚠ Skipped 'backend' — already exists
   ⚠ 'api-server' path does not exist: /old/machine/path
     Update with: pm rename api-server --path <new-path>
+```
+
+---
+
+### 🔹 CI/CD Detection
+
+View detected CI/CD pipelines and their dashboard URLs for your projects.
+
+#### Show CI/CD for a specific project
+```bash
+pm ci backend
+```
+
+#### Show CI/CD for all projects
+```bash
+pm ci
+```
+
+**Supported providers:**
+
+| Provider | Detection | Dashboard URL |
+|----------|-----------|---------------|
+| GitHub Actions | `.github/workflows/` directory | `https://github.com/{owner}/{repo}/actions` |
+| GitLab CI | `.gitlab-ci.yml` file | `https://gitlab.com/{owner}/{repo}/-/pipelines` |
+| Jenkins | `Jenkinsfile` | No standard URL |
+| Travis CI | `.travis.yml` file | `https://app.travis-ci.com/github/{owner}/{repo}` |
+| CircleCI | `.circleci/config.yml` file | `https://app.circleci.com/pipelines/github/{owner}/{repo}` |
+
+**Example output:**
+```
+CI/CD — backend
+─────
+
+  GitHub Actions (3 workflows)
+    https://github.com/user/backend/actions
+
+  GitLab CI
+    https://gitlab.com/user/backend/-/pipelines
+```
+
+CI/CD information is also shown automatically in `pm info`:
+```
+  CI/CD:
+    ✓ GitHub Actions (2 workflows)
+    ✓ Jenkins
 ```
 
 ---
@@ -1775,6 +1821,10 @@ pm export                                      # Export all projects to pm-expor
 pm export backend web-server                   # Export selected projects
 pm export --file backup.json                   # Export to custom file
 pm import pm-export.json                       # Import projects from file
+
+# === CI/CD ===
+pm ci                                          # Show CI/CD for all projects
+pm ci <name>                                   # Show CI/CD for a specific project
 
 # === UPDATES ===
 pm update                                      # Update to latest version

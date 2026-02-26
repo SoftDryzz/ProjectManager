@@ -1,5 +1,7 @@
 package pm.cli;
 
+import pm.ci.CIDetector;
+import pm.ci.CIProvider;
 import pm.core.Project;
 import pm.util.GitIntegration;
 
@@ -135,6 +137,9 @@ public class OutputFormatter {
         // Show Git information (if it's a repo)
         printGitInfo(project.path());
 
+        // Show CI/CD information
+        printCIInfo(project.path());
+
         System.out.println();
     }
 
@@ -183,6 +188,34 @@ public class OutputFormatter {
             System.out.println("    Unpushed: " + GREEN + "✓ Up to date" + RESET);
         } else {
             System.out.println("    Unpushed: " + GRAY + "no remote tracking branch" + RESET);
+        }
+    }
+
+    /**
+     * Displays CI/CD information for a project.
+     *
+     * @param projectPath project path
+     */
+    private static void printCIInfo(Path projectPath) {
+        java.util.List<CIProvider> providers = CIDetector.detect(projectPath);
+
+        if (providers.isEmpty()) {
+            System.out.println();
+            System.out.println("  " + GRAY + "CI/CD: not configured" + RESET);
+            return;
+        }
+
+        System.out.println();
+        System.out.println("  " + BOLD + "CI/CD:" + RESET);
+        for (CIProvider provider : providers) {
+            String detail = "";
+            if (provider == CIProvider.GITHUB_ACTIONS) {
+                int count = CIDetector.workflowCount(projectPath);
+                if (count > 0) {
+                    detail = " (" + count + " workflow" + (count > 1 ? "s" : "") + ")";
+                }
+            }
+            System.out.println("    " + GREEN + "✓" + RESET + " " + provider.displayName() + detail);
         }
     }
 

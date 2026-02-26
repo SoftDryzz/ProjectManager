@@ -119,6 +119,17 @@ public class GitIntegration {
     }
 
     /**
+     * Gets the remote URL of the origin remote.
+     *
+     * @param projectPath project path
+     * @return the remote URL or null if not available
+     */
+    public static String getRemoteUrl(Path projectPath) {
+        String url = executeGitCommand(projectPath, "git", "remote", "get-url", "origin");
+        return url != null ? url.trim() : null;
+    }
+
+    /**
      * Executes a Git command and returns the output.
      *
      * @param workingDir directory where to execute
