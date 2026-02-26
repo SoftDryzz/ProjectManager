@@ -1327,6 +1327,28 @@ When viewing project info (`pm info`), git information now shows clear feedback 
 | Git not installed | `Branch: could not read (is git installed?)` |
 | No remote tracking branch | `Unpushed: no remote tracking branch` |
 
+### Safe Command Execution
+
+When running `pm build`, `pm run`, or `pm test`, ProjectManager validates that the project directory exists **before** executing any command. If the directory is missing:
+
+```
+❌ Project directory not found: /home/user/old-project
+The directory may have been moved, renamed, or deleted.
+To update the path, run:
+  pm rename my-project --path /new/path
+```
+
+When adding custom commands with `pm commands add`, ProjectManager checks for shell metacharacters (`&`, `|`, `;`, `$`, etc.) and shows a non-blocking warning:
+
+```
+⚠️  Command contains shell special characters: '&', '|'
+  This is fine if intentional (e.g., chaining commands with '&&').
+  If your command includes file paths with special characters,
+  make sure they are properly quoted.
+```
+
+This warning is informational — it does **not** block the command from being saved. Commands like `npm build && npm serve` are perfectly valid.
+
 ---
 
 ## 🆘 Troubleshooting

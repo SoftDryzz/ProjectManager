@@ -106,4 +106,71 @@ class ProjectManagerErrorHandlingTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
+
+    // ============================================================
+    // containsShellMetacharacters — detects shell special chars (v1.3.8)
+    // ============================================================
+
+    private boolean callContainsShellMetacharacters(String command) throws Exception {
+        Method method = ProjectManager.class.getDeclaredMethod("containsShellMetacharacters", String.class);
+        method.setAccessible(true);
+        return (boolean) method.invoke(null, command);
+    }
+
+    private String callGetFoundMetacharacters(String command) throws Exception {
+        Method method = ProjectManager.class.getDeclaredMethod("getFoundMetacharacters", String.class);
+        method.setAccessible(true);
+        return (String) method.invoke(null, command);
+    }
+
+    @Test
+    @DisplayName("detects ampersand in command")
+    void detectsAmpersand() throws Exception {
+        assertTrue(callContainsShellMetacharacters("npm build && npm serve"));
+    }
+
+    @Test
+    @DisplayName("detects pipe in command")
+    void detectsPipe() throws Exception {
+        assertTrue(callContainsShellMetacharacters("cat log.txt | grep error"));
+    }
+
+    @Test
+    @DisplayName("detects semicolon in command")
+    void detectsSemicolon() throws Exception {
+        assertTrue(callContainsShellMetacharacters("echo hello; echo world"));
+    }
+
+    @Test
+    @DisplayName("detects dollar sign in command")
+    void detectsDollarSign() throws Exception {
+        assertTrue(callContainsShellMetacharacters("echo $HOME"));
+    }
+
+    @Test
+    @DisplayName("returns false for safe command")
+    void returnsFalseForSafeCommand() throws Exception {
+        assertFalse(callContainsShellMetacharacters("gradle build"));
+    }
+
+    @Test
+    @DisplayName("returns false for command with spaces and flags")
+    void returnsFalseForFlagsAndSpaces() throws Exception {
+        assertFalse(callContainsShellMetacharacters("npm run build --production"));
+    }
+
+    @Test
+    @DisplayName("getFoundMetacharacters lists found characters")
+    void listsFoundMetacharacters() throws Exception {
+        String found = callGetFoundMetacharacters("echo $HOME && rm -rf /tmp");
+        assertTrue(found.contains("'&'"));
+        assertTrue(found.contains("'$'"));
+    }
+
+    @Test
+    @DisplayName("getFoundMetacharacters returns empty for safe command")
+    void emptyForSafeCommand() throws Exception {
+        String found = callGetFoundMetacharacters("gradle build");
+        assertEquals("", found);
+    }
 }

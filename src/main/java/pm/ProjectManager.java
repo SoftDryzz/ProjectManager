@@ -300,6 +300,7 @@ public class ProjectManager {
             }
 
             checkTypeOutdated(project);
+            validateProjectPath(project);
 
             // Get build command
             String buildCommand = project.getCommand("build");
@@ -387,6 +388,7 @@ public class ProjectManager {
             }
 
             checkTypeOutdated(project);
+            validateProjectPath(project);
 
             String runCommand = project.getCommand("run");
             if (runCommand == null) {
@@ -469,6 +471,7 @@ public class ProjectManager {
             }
 
             checkTypeOutdated(project);
+            validateProjectPath(project);
 
             String testCommand = project.getCommand("test");
             if (testCommand == null) {
@@ -642,6 +645,16 @@ public class ProjectManager {
             }
             System.out.println("  " + OutputFormatter.GREEN + commandName + OutputFormatter.RESET
                     + " → " + OutputFormatter.CYAN + commandLine + OutputFormatter.RESET);
+
+            // Warn about shell metacharacters (informational, does not block)
+            if (containsShellMetacharacters(commandLine)) {
+                System.out.println();
+                OutputFormatter.warning("Command contains shell special characters: " +
+                        getFoundMetacharacters(commandLine));
+                System.out.println("  This is fine if intentional (e.g., chaining commands with '&&').");
+                System.out.println("  If your command includes file paths with special characters,");
+                System.out.println("  make sure they are properly quoted.");
+            }
 
         } catch (IOException e) {
             OutputFormatter.error("Failed to update project: " + e.getMessage());
@@ -1583,6 +1596,66 @@ public class ProjectManager {
     private static void printVersion() {
         System.out.println("ProjectManager " + Constants.VERSION);
         System.out.println("Java " + System.getProperty("java.version"));
+    }
+
+    // Characters that have special meaning in both sh and cmd.exe
+    private static final String SHELL_METACHARACTERS = "&|;<>`$(){}";
+
+    /**
+     * Validates that a project's directory exists before command execution.
+     * Prints a descriptive error and exits if the directory is missing.
+     *
+     * @param project the project to validate
+     */
+    private static void validateProjectPath(Project project) {
+        if (!Files.exists(project.path())) {
+            OutputFormatter.error("Project directory not found: " + project.path());
+            System.out.println("The directory may have been moved, renamed, or deleted.");
+            System.out.println("To update the path, run:");
+            System.out.println("  pm rename " + project.name() + " --path <new-path>");
+            System.exit(1);
+        }
+        if (!Files.isDirectory(project.path())) {
+            OutputFormatter.error("Project path is not a directory: " + project.path());
+            System.out.println("The registered path points to a file, not a directory.");
+            System.out.println("To update the path, run:");
+            System.out.println("  pm rename " + project.name() + " --path <new-path>");
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Checks if a command string contains shell metacharacters that could
+     * cause unexpected behavior if not intentional.
+     *
+     * @param command the command string to check
+     * @return true if metacharacters are found
+     */
+    private static boolean containsShellMetacharacters(String command) {
+        for (int i = 0; i < SHELL_METACHARACTERS.length(); i++) {
+            if (command.indexOf(SHELL_METACHARACTERS.charAt(i)) >= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns a readable list of which shell metacharacters were found.
+     *
+     * @param command the command string to scan
+     * @return comma-separated list of found characters, e.g. "'|', ';'"
+     */
+    private static String getFoundMetacharacters(String command) {
+        StringBuilder found = new StringBuilder();
+        for (int i = 0; i < SHELL_METACHARACTERS.length(); i++) {
+            char c = SHELL_METACHARACTERS.charAt(i);
+            if (command.indexOf(c) >= 0) {
+                if (found.length() > 0) found.append(", ");
+                found.append("'").append(c).append("'");
+            }
+        }
+        return found.toString();
     }
 
     /**

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -206,5 +207,70 @@ class CommandExecutorTest {
 
         assertTrue(result.success());
         assertEquals(0, result.exitCode());
+    }
+
+    // ============================================================
+    // WORKING DIRECTORY VALIDATION (v1.3.8)
+    // ============================================================
+
+    @Test
+    @DisplayName("execute throws IOException for non-existent working directory")
+    void throwsOnNonExistentDirectory() {
+        Path nonExistent = tempDir.resolve("does-not-exist");
+        IOException ex = assertThrows(IOException.class,
+                () -> executor.execute("echo test", nonExistent, 10));
+        assertTrue(ex.getMessage().contains("does not exist"),
+                "Message should mention 'does not exist' but was: " + ex.getMessage());
+        assertTrue(ex.getMessage().contains("pm rename"),
+                "Message should suggest 'pm rename' but was: " + ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("execute throws IOException when path is a file, not a directory")
+    void throwsOnFileAsDirectory() throws IOException {
+        Path file = tempDir.resolve("not-a-dir.txt");
+        Files.writeString(file, "content");
+        IOException ex = assertThrows(IOException.class,
+                () -> executor.execute("echo test", file, 10));
+        assertTrue(ex.getMessage().contains("not a directory"),
+                "Message should mention 'not a directory' but was: " + ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("executeWithInheritedIO throws IOException for non-existent directory")
+    void inheritedIOThrowsOnNonExistentDirectory() {
+        Path nonExistent = tempDir.resolve("gone");
+        IOException ex = assertThrows(IOException.class,
+                () -> executor.executeWithInheritedIO("echo test", nonExistent, 10));
+        assertTrue(ex.getMessage().contains("does not exist"),
+                "Message should mention 'does not exist' but was: " + ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("execute with env vars throws IOException for non-existent directory")
+    void executeWithEnvVarsThrowsOnNonExistentDirectory() {
+        Path nonExistent = tempDir.resolve("nope");
+        IOException ex = assertThrows(IOException.class,
+                () -> executor.execute("echo test", nonExistent, 10, Map.of("K", "V")));
+        assertTrue(ex.getMessage().contains("does not exist"),
+                "Message should mention 'does not exist' but was: " + ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Succeeds with directory containing spaces in name")
+    void succeedsWithSpacesInPath() throws Exception {
+        Path spacePath = tempDir.resolve("my project dir");
+        Files.createDirectories(spacePath);
+        CommandExecutor.ExecutionResult result = executor.execute("echo hello", spacePath, 10);
+        assertTrue(result.success(), "Command should succeed in directory with spaces");
+    }
+
+    @Test
+    @DisplayName("Succeeds with directory containing parentheses in name")
+    void succeedsWithSpecialCharsInPath() throws Exception {
+        Path specialPath = tempDir.resolve("project (v2)");
+        Files.createDirectories(specialPath);
+        CommandExecutor.ExecutionResult result = executor.execute("echo hello", specialPath, 10);
+        assertTrue(result.success(), "Command should succeed in directory with parentheses");
     }
 }

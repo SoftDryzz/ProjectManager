@@ -20,7 +20,7 @@ import java.util.Map;
  * </ul>
  *
  * @author SoftDryzz
- * @version 1.3.5
+ * @version 1.3.8
  * @since 1.0.0
  */
 public class CommandExecutor {
@@ -46,6 +46,8 @@ public class CommandExecutor {
         if (workingDirectory == null) {
             throw new IllegalArgumentException("Working directory cannot be null");
         }
+
+        validateWorkingDirectory(workingDirectory);
 
         // Detect operating system to use the correct shell
         String[] shellCommand = getShellCommand(command);
@@ -185,6 +187,8 @@ public class CommandExecutor {
             throw new IllegalArgumentException("Working directory cannot be null");
         }
 
+        validateWorkingDirectory(workingDirectory);
+
         // Detect operating system to use the correct shell
         String[] shellCommand = getShellCommand(command);
 
@@ -243,6 +247,24 @@ public class CommandExecutor {
     }
 
     /**
+     * Validates that the working directory exists and is a directory.
+     *
+     * @param workingDirectory the directory to validate
+     * @throws IOException if the directory does not exist or is not a directory
+     */
+    private void validateWorkingDirectory(Path workingDirectory) throws IOException {
+        java.io.File dir = workingDirectory.toFile();
+        if (!dir.exists()) {
+            throw new IOException(
+                    "Project directory does not exist: " + workingDirectory +
+                    "\nIt may have been moved or deleted. Use 'pm rename <name> --path <new-path>' to update.");
+        }
+        if (!dir.isDirectory()) {
+            throw new IOException("Path is not a directory: " + workingDirectory);
+        }
+    }
+
+    /**
      * Gets the shell command based on the operating system.
      *
      * <p>Uses cmd.exe on Windows, sh on Unix.
@@ -283,6 +305,8 @@ public class CommandExecutor {
         if (workingDirectory == null) {
             throw new IllegalArgumentException("Working directory cannot be null");
         }
+
+        validateWorkingDirectory(workingDirectory);
 
         // Detect operating system to use the correct shell
         String[] shellCommand = getShellCommand(command);
