@@ -201,18 +201,21 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.6.2 — Escaneo de Seguridad
+## v1.6.2 — Escaneo de Seguridad ✅
 
 ### Comando `pm secure`
-- Escaneo de buenas prácticas de seguridad (solo patrones del sistema de archivos, sin gestión de secretos)
-- Verificaciones:
-  - Dockerfile ejecuta como usuario no-root
-  - Archivos `.env` están en `.gitignore`
-  - No hay URLs `http://` hardcodeadas en archivos de configuración (deberían ser `https://`)
-  - Archivos sensibles (`.pem`, `.key`) están en `.gitignore`
-  - Existe lockfile de dependencias
-- `pm secure` — ejecutar todas las verificaciones y mostrar reporte
-- `pm secure --fix` — auto-corregir lo que se pueda (ej. añadir entradas a `.gitignore`)
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| Escaneo de buenas prácticas de seguridad (solo patrones del sistema de archivos) | ✅ Hecho |
+| Verificación: Dockerfile ejecuta como usuario no-root | ✅ Hecho |
+| Verificación: Archivos `.env` están en `.gitignore` | ✅ Hecho |
+| Verificación: No hay URLs `http://` hardcodeadas en config (deberían ser `https://`) | ✅ Hecho |
+| Verificación: Archivos sensibles (`.pem`, `.key`) están en `.gitignore` | ✅ Hecho |
+| Verificación: Existe lockfile de dependencias | ✅ Hecho |
+| `pm secure` — ejecutar todas las verificaciones y mostrar reporte | ✅ Hecho |
+| `pm secure --fix` — auto-corregir problemas de `.gitignore` | ✅ Hecho |
+| Auto-fix crea `.gitignore` si no existe | ✅ Hecho |
 
 ---
 

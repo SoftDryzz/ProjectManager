@@ -16,6 +16,7 @@
   - [Shell Autocompletion](#-shell-autocompletion)
   - [Environment Variable Management](#-environment-variable-management)
   - [Diagnostics](#-diagnostics)
+  - [Security Scan](#-security-scan)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -688,6 +689,38 @@ Shows just the letter grade per project without details:
   B  frontend
   F  legacy-api
 ```
+
+---
+
+### 🔹 Security Scan
+
+#### Scan all projects for security issues
+```bash
+pm secure
+```
+
+Runs 5 filesystem-only security checks on each registered project:
+
+| Check | Pass condition | Recommendation if failed |
+|-------|---------------|--------------------------|
+| Dockerfile non-root | No Dockerfile, or Dockerfile contains `USER` (not root) | Add a USER directive to avoid running as root |
+| Env protection | `.gitignore` contains `.env` patterns | Add .env to .gitignore to prevent leaking secrets |
+| HTTPS only | No `http://` URLs in config files (excluding localhost) | Replace http:// with https:// in config files |
+| Sensitive files | `.gitignore` contains `*.pem` and `*.key` patterns | Add *.pem and *.key to .gitignore to protect keys |
+| Lockfile | Dependency lockfile exists for project type | Commit your lockfile to prevent supply-chain attacks |
+
+Result coloring: **5/5** = green, **3–4/5** = yellow, **0–2/5** = red
+
+#### Auto-fix .gitignore issues
+```bash
+pm secure --fix
+```
+
+Automatically adds missing entries to `.gitignore`:
+- `.env` and `.env.*` (environment files)
+- `*.pem`, `*.key`, `*.p12`, `*.pfx` (private keys and certificates)
+
+Creates `.gitignore` if it doesn't exist. Does **not** duplicate entries that are already present.
 
 ---
 
@@ -1637,6 +1670,10 @@ pm completions powershell                      # Generate PowerShell completion 
 # === DIAGNOSTICS ===
 pm doctor                                      # Full report: runtimes + project health (A-F)
 pm doctor --score                              # Compact: only health grades per project
+
+# === SECURITY ===
+pm secure                                      # Scan all projects for security issues
+pm secure --fix                                # Auto-fix .gitignore issues
 
 # === UPDATES ===
 pm update                                      # Update to latest version

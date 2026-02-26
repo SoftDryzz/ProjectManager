@@ -183,6 +183,7 @@ pm run servicio-pedidos
 - 🐳 **Soporte Docker** - Detecta proyectos Docker Compose, comandos por defecto (build, up, down, clean)
 - 🪝 **Hooks pre-/post-comando** - Ejecuta scripts personalizados antes o después de cualquier comando con `pm hooks`
 - 🔤 **Autocompletado en shell** - Completado con TAB para bash, zsh, fish y PowerShell con `pm completions`
+- 🔐 **Escaneo de seguridad** - Detecta misconfiguraciones (Dockerfile root, secretos expuestos, URLs inseguras) con `pm secure`, auto-corrige con `--fix`
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -246,6 +247,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm update` | Actualizar a la última versión |
 | `pm doctor` | Diagnosticar entorno (runtimes, rutas, puntuación de salud) |
 | `pm doctor --score` | Mostrar solo calificaciones de salud (A/B/C/D/F) por proyecto |
+| `pm secure` | Escanear proyectos buscando misconfiguraciones de seguridad |
+| `pm secure --fix` | Auto-corregir problemas de .gitignore (añadir .env, *.pem, *.key) |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
 
@@ -455,9 +458,10 @@ Los proyectos se guardan en:
 - **CLI** — `pm doctor`, `pm env`, `pm refresh`, `pm rename`, `pm update`, `pm commands add/remove`
 - **Runtimes** — Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Flutter, Docker
 - **Integraciones** — Estado Git, TTY interactivo, instaladores multi-plataforma, GitHub Actions
-- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 441 tests
+- **Seguridad** — `pm secure` escanea misconfiguraciones, `--fix` auto-corrige problemas de .gitignore
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 498 tests
 
-> Última release: **v1.6.1** (Puntuación de Salud del Doctor) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v1.6.2** (Escaneo de Seguridad) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos

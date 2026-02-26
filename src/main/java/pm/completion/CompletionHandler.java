@@ -28,7 +28,7 @@ public final class CompletionHandler {
     static final List<String> TOP_LEVEL_COMMANDS = List.of(
             "add", "list", "ls", "build", "run", "test", "scan",
             "commands", "cmd", "remove", "rm", "rename", "info",
-            "env", "hooks", "refresh", "update", "doctor",
+            "env", "hooks", "refresh", "update", "doctor", "secure",
             "help", "version", "completions"
     );
 
@@ -172,6 +172,7 @@ public final class CompletionHandler {
             case "env" -> new ArrayList<>(ENV_SUBCOMMANDS);
             case "completions" -> new ArrayList<>(SHELL_NAMES);
             case "doctor" -> new ArrayList<>(List.of("--score"));
+            case "secure" -> new ArrayList<>(List.of("--fix"));
             default -> List.of();
         };
     }

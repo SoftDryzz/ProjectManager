@@ -8,6 +8,8 @@ import pm.detector.ProjectType;
 import pm.detector.ProjectTypeDetector;
 import pm.doctor.HealthCheck;
 import pm.doctor.HealthScorer;
+import pm.security.SecurityCheck;
+import pm.security.SecurityScorer;
 import pm.executor.CommandExecutor;
 import pm.storage.ProjectStore;
 import pm.util.ArgsParser;
@@ -108,6 +110,7 @@ public class ProjectManager {
                 case "completions" -> handleCompletions(args);
                 case "update" -> UpdateChecker.performUpdate();
                 case "doctor" -> handleDoctor(args);
+                case "secure" -> handleSecure(args);
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
@@ -1945,6 +1948,118 @@ public class ProjectManager {
         System.out.println();
     }
 
+    // ============================================================
+    // COMMAND: SECURE (Security scan)
+    // ============================================================
+
+    /**
+     * Handler for the "secure" command.
+     * Scans projects for common security misconfigurations.
+     *
+     * <p>Usage:
+     * <ul>
+     *   <li>{@code pm secure} — full security report</li>
+     *   <li>{@code pm secure --fix} — auto-fix .gitignore issues</li>
+     * </ul>
+     */
+    private static void handleSecure(String[] args) {
+        boolean fix = Arrays.asList(args).contains("--fix");
+
+        OutputFormatter.section("Security Scan");
+
+        try {
+            Map<String, Project> projects = store.load();
+
+            if (projects.isEmpty()) {
+                System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                return;
+            }
+
+            for (Project project : projects.values()) {
+                boolean pathExists = Files.exists(project.path()) && Files.isDirectory(project.path());
+
+                System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                        " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+
+                if (!pathExists) {
+                    System.out.println("    " + OutputFormatter.RED + "Cannot evaluate — path not found" + OutputFormatter.RESET);
+                    System.out.println();
+                    continue;
+                }
+
+                List<SecurityCheck> checks = SecurityScorer.evaluate(project);
+                List<String> fixActions = fix ? SecurityScorer.fix(project) : List.of();
+
+                long passed = checks.stream().filter(SecurityCheck::passed).count();
+
+                for (SecurityCheck check : checks) {
+                    if (check.passed()) {
+                        System.out.println("    " + OutputFormatter.GREEN + "\u2713" + OutputFormatter.RESET +
+                                " " + padRight(check.description(), 18) +
+                                OutputFormatter.GRAY + passedMessage(check) + OutputFormatter.RESET);
+                    } else {
+                        String fixNote = "";
+                        if (fix && check.fixable()) {
+                            String action = fixActions.stream()
+                                    .filter(a -> a.toLowerCase().contains(check.name().contains("env") ? ".env" : "*.pem"))
+                                    .findFirst().orElse("");
+                            if (!action.isEmpty() && !action.startsWith("Failed")) {
+                                fixNote = " " + OutputFormatter.GREEN + "\u2713 Fixed: " + action + OutputFormatter.RESET;
+                            }
+                        }
+
+                        if (!fixNote.isEmpty()) {
+                            System.out.println("    " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                                    " " + padRight(check.description(), 18) + fixNote);
+                        } else {
+                            System.out.println("    " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                                    " " + padRight(check.description(), 18) +
+                                    OutputFormatter.GRAY + "— " + check.recommendation() + OutputFormatter.RESET);
+                        }
+                    }
+                }
+
+                String resultColor;
+                if (passed == checks.size()) {
+                    resultColor = OutputFormatter.GREEN;
+                } else if (passed >= 3) {
+                    resultColor = OutputFormatter.YELLOW;
+                } else {
+                    resultColor = OutputFormatter.RED;
+                }
+
+                long fixedCount = fix ? fixActions.stream()
+                        .filter(a -> !a.startsWith("Failed")).count() : 0;
+                String fixSuffix = fixedCount > 0
+                        ? " (" + fixedCount + " auto-fixed)"
+                        : "";
+
+                System.out.println("    Result: " + resultColor + passed + "/" + checks.size() +
+                        " checks passed" + OutputFormatter.RESET + fixSuffix);
+                System.out.println();
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    /**
+     * Returns a short message for a passing security check.
+     */
+    private static String passedMessage(SecurityCheck check) {
+        return switch (check.name()) {
+            case "dockerfile-root" -> "Non-root or N/A";
+            case "env-gitignore" -> ".env covered in .gitignore";
+            case "https-only" -> "No insecure HTTP URLs detected";
+            case "sensitive-files" -> "Private keys covered in .gitignore";
+            case "lockfile" -> "Dependencies lockfile present";
+            default -> "OK";
+        };
+    }
+
     /**
      * Right-pads a string to the specified length.
      */
@@ -2019,6 +2134,7 @@ public class ProjectManager {
           completions <shell>                       Generate completion script (bash/zsh/fish/powershell)
           update                                    Update to the latest version
           doctor [--score]                            Check environment, runtimes, and project health (A/B/C/D/F)
+          secure [--fix]                              Scan projects for security misconfigurations
           help                                      Show this help
           version                                   Show version
 
