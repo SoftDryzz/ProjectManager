@@ -98,22 +98,17 @@ Prevenir pérdida de datos y eliminar mensajes de error crípticos. El usuario n
 
 ---
 
-## v1.3.8 — Ejecución Segura de Comandos
+## v1.3.8 — Ejecución Segura de Comandos ✅
 
 ### Seguridad de rutas en comandos shell
-Corregir que comandos fallen cuando las rutas del proyecto contienen espacios o caracteres especiales. También previene posible inyección de shell desde rutas crafteadas.
-
-**Escenarios afectados:**
-- `C:\Users\Mi Usuario\proyectos` — espacios en rutas de Windows
-- `/home/user/mi&proyecto` — `&` interpretado como operador shell
-- Rutas con `(`, `)`, `|`, `;` — rompen el parsing del shell
+Previene que los comandos fallen cuando los directorios del proyecto no existen o fueron movidos. Avisa sobre metacaracteres shell en comandos personalizados.
 
 | Funcionalidad | Estado |
 |---------------|--------|
-| Escapar/entrecomillar correctamente rutas pasadas a comandos shell | Planificado |
-| Validar que el directorio de trabajo existe antes de ejecutar | Planificado |
-| Prevenir inyección de metacaracteres shell desde rutas de proyecto | Planificado |
-| Mensaje de error claro cuando el directorio del proyecto falta o fue movido | Planificado |
+| Validar que el directorio de trabajo existe antes de ejecutar | ✅ Hecho |
+| Mensaje de error claro cuando el directorio del proyecto falta o fue movido | ✅ Hecho |
+| Validación de directorio de defensa en profundidad en CommandExecutor | ✅ Hecho |
+| Aviso de metacaracteres shell en `pm commands add` | ✅ Hecho |
 
 ---
 

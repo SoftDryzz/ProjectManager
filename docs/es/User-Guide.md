@@ -1327,6 +1327,28 @@ Al ver información del proyecto (`pm info`), la información de Git ahora muest
 | Git no instalado | `Branch: could not read (is git installed?)` |
 | Sin rama de seguimiento remota | `Unpushed: no remote tracking branch` |
 
+### Ejecución Segura de Comandos
+
+Al ejecutar `pm build`, `pm run` o `pm test`, ProjectManager valida que el directorio del proyecto existe **antes** de ejecutar cualquier comando. Si el directorio no existe:
+
+```
+❌ Project directory not found: /home/user/old-project
+The directory may have been moved, renamed, or deleted.
+To update the path, run:
+  pm rename mi-proyecto --path /nueva/ruta
+```
+
+Al añadir comandos personalizados con `pm commands add`, ProjectManager verifica metacaracteres shell (`&`, `|`, `;`, `$`, etc.) y muestra un aviso informativo:
+
+```
+⚠️  Command contains shell special characters: '&', '|'
+  This is fine if intentional (e.g., chaining commands with '&&').
+  If your command includes file paths with special characters,
+  make sure they are properly quoted.
+```
+
+Este aviso es informativo — **no** bloquea que el comando se guarde. Comandos como `npm build && npm serve` son perfectamente válidos.
+
 ---
 
 ## 🆘 Solución de Problemas

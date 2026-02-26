@@ -98,22 +98,17 @@ Prevent data loss and eliminate cryptic error messages. The user should never se
 
 ---
 
-## v1.3.8 — Safe Command Execution
+## v1.3.8 — Safe Command Execution ✅
 
 ### Path safety in shell commands
-Fix commands failing when project paths contain spaces or special characters. Also prevents potential shell injection from crafted project paths.
-
-**Affected scenarios:**
-- `C:\Users\Mi Usuario\proyectos` — spaces in Windows paths
-- `/home/user/my&project` — `&` interpreted as shell operator
-- Paths with `(`, `)`, `|`, `;` — break shell parsing
+Prevent commands from failing when project directories are missing or moved. Warn about shell metacharacters in custom commands.
 
 | Feature | Status |
 |---------|--------|
-| Properly escape/quote paths passed to shell commands | Planned |
-| Validate working directory exists before execution | Planned |
-| Prevent shell metacharacter injection from project paths | Planned |
-| Clear error message when project directory is missing or moved | Planned |
+| Validate working directory exists before execution | ✅ Done |
+| Clear error message when project directory is missing or moved | ✅ Done |
+| Defense-in-depth directory validation in CommandExecutor | ✅ Done |
+| Shell metacharacter warning on `pm commands add` | ✅ Done |
 
 ---
 

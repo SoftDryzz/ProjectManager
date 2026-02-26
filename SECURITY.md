@@ -45,8 +45,10 @@ ProjectManager is a **local CLI tool** that manages project metadata and execute
 
 ProjectManager executes shell commands configured by the user. These commands run with the **same permissions as the user** who invokes `pm`.
 
-**Current limitations (being addressed in v1.3.8):**
-- Project paths are not escaped before being passed to shell commands. Paths containing shell metacharacters (`&`, `|`, `;`, etc.) could lead to unintended command execution. Avoid registering projects with special characters in their paths until v1.3.8.
+**Safety measures (since v1.3.8):**
+- Default commands are static strings (`gradle build`, `npm start`, etc.) that never embed project paths. The working directory is set via Java's `ProcessBuilder.directory()` API, not interpolated into shell strings.
+- The working directory is validated before every execution — if the project directory is missing, a clear error with guidance is shown instead of a confusing shell failure.
+- When adding custom commands, PM warns if shell metacharacters are detected, reminding the user to quote paths if needed.
 
 ### Network access
 
@@ -81,9 +83,10 @@ No runtime dependencies are pulled from the network. The application is fully se
 ## Known Security Considerations
 
 ### Shell command injection via project paths
-- **Status:** Known, fix planned for v1.3.8
-- **Risk:** Low — requires the user to manually register a project with a malicious path
-- **Mitigation:** Do not register projects whose paths contain shell metacharacters (`&`, `|`, `;`, `` ` ``, `$`, etc.)
+- **Status:** Addressed in v1.3.8
+- **Risk:** Low — default commands are static strings that never embed paths. The working directory is set via `ProcessBuilder.directory()` (File API), not interpolated into shell strings.
+- **v1.3.8 improvements:** Directory validation before execution; metacharacter warning when adding custom commands; clear error messages for missing directories.
+- **Remaining consideration:** Custom commands added by users are stored and executed as-is. If a user embeds a path with special characters in a custom command, they should quote it. PM now warns about this at add time.
 
 ### Update mechanism integrity
 - **Status:** Known, improvements planned for v1.3.9
@@ -103,7 +106,7 @@ No runtime dependencies are pulled from the network. The application is fully se
 | Version | Security Improvement |
 |---------|---------------------|
 | v1.3.7 ✅ | Atomic file writes, automatic backup, corrupted data recovery, field validation on load, user-friendly error messages (no stack traces) |
-| v1.3.8  | Escape shell metacharacters in project paths; validate directories before execution |
+| v1.3.8 ✅ | Directory validation before execution; metacharacter warnings for custom commands; clear error for missing directories |
 | v1.3.9  | Validate download integrity; cap redirect loops; distinguish network error types |
 | v1.5.2  | `pm secure` command — filesystem security scan for project best practices |
 
@@ -114,6 +117,6 @@ No runtime dependencies are pulled from the network. The application is fully se
 1. **Keep ProjectManager updated** — Run `pm update` regularly
 2. **Follow the installation guide** — See [INSTALL.md](scripts/INSTALL.md) for complete setup instructions and troubleshooting
 3. **Use descriptive project names** — Avoid names that match PM commands (`build`, `run`, `list`)
-4. **Avoid special characters in project paths** — Until v1.3.8, paths with `&`, `|`, `;` may cause issues
+4. **Quote paths in custom commands** — If your custom command includes a file path with spaces or special characters, wrap it in quotes
 5. **Review custom commands** — Commands set with `pm commands set` execute as your user. Review them before running.
 6. **Protect your home directory** — On shared systems, ensure `~/.projectmanager/` is not world-readable

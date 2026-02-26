@@ -45,8 +45,10 @@ ProjectManager es una **herramienta CLI local** que gestiona metadatos de proyec
 
 ProjectManager ejecuta comandos shell configurados por el usuario. Estos comandos se ejecutan con los **mismos permisos que el usuario** que invoca `pm`.
 
-**Limitaciones actuales (se abordarán en v1.3.8):**
-- Las rutas de los proyectos no se escapan antes de pasarlas a comandos shell. Rutas que contengan metacaracteres shell (`&`, `|`, `;`, etc.) podrían llevar a ejecución de comandos no deseada. Evita registrar proyectos con caracteres especiales en sus rutas hasta la v1.3.8.
+**Medidas de seguridad (desde v1.3.8):**
+- Los comandos por defecto son cadenas estáticas (`gradle build`, `npm start`, etc.) que nunca incluyen rutas del proyecto. El directorio de trabajo se establece mediante la API `ProcessBuilder.directory()` de Java, sin interpolación en cadenas shell.
+- El directorio de trabajo se valida antes de cada ejecución — si el directorio del proyecto no existe, se muestra un error claro con orientación en lugar de un fallo shell confuso.
+- Al añadir comandos personalizados, PM avisa si se detectan metacaracteres shell, recordando al usuario que entrecomille rutas si es necesario.
 
 ### Acceso a red
 
@@ -81,9 +83,10 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 ## Consideraciones de Seguridad Conocidas
 
 ### Inyección de comandos shell vía rutas de proyecto
-- **Estado:** Conocido, corrección planificada para v1.3.8
-- **Riesgo:** Bajo — requiere que el usuario registre manualmente un proyecto con una ruta maliciosa
-- **Mitigación:** No registrar proyectos cuyas rutas contengan metacaracteres shell (`&`, `|`, `;`, `` ` ``, `$`, etc.)
+- **Estado:** Abordado en v1.3.8
+- **Riesgo:** Bajo — los comandos por defecto son cadenas estáticas que nunca incluyen rutas. El directorio de trabajo se establece vía `ProcessBuilder.directory()` (API de File), sin interpolación en cadenas shell.
+- **Mejoras en v1.3.8:** Validación de directorio antes de la ejecución; aviso de metacaracteres al añadir comandos personalizados; mensajes de error claros para directorios que faltan.
+- **Consideración restante:** Los comandos personalizados añadidos por usuarios se almacenan y ejecutan tal cual. Si un usuario incluye una ruta con caracteres especiales en un comando personalizado, debe entrecomillarla. PM ahora avisa de esto al añadir el comando.
 
 ### Integridad del mecanismo de actualización
 - **Estado:** Conocido, mejoras planificadas para v1.3.9
@@ -103,7 +106,7 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 | Versión | Mejora de Seguridad |
 |---------|---------------------|
 | v1.3.7 ✅ | Escritura atómica, backup automático, recuperación de datos corruptos, validación de campos al cargar, mensajes de error amigables (sin stack traces) |
-| v1.3.8  | Escapar metacaracteres shell en rutas de proyecto; validar directorios antes de la ejecución |
+| v1.3.8 ✅ | Validación de directorio antes de ejecución; avisos de metacaracteres en comandos personalizados; error claro para directorios ausentes |
 | v1.3.9  | Validar integridad de descarga; limitar loops de redirección; distinguir tipos de error de red |
 | v1.5.2  | Comando `pm secure` — escaneo de seguridad del sistema de archivos para buenas prácticas del proyecto |
 
@@ -114,6 +117,6 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 1. **Mantén ProjectManager actualizado** — Ejecuta `pm update` regularmente
 2. **Sigue la guía de instalación** — Consulta [INSTALL.md](scripts/INSTALL.md) para instrucciones completas de configuración y solución de problemas
 3. **Usa nombres de proyecto descriptivos** — Evita nombres que coincidan con comandos de PM (`build`, `run`, `list`)
-4. **Evita caracteres especiales en rutas de proyecto** — Hasta la v1.3.8, rutas con `&`, `|`, `;` pueden causar problemas
+4. **Entrecomilla rutas en comandos personalizados** — Si tu comando personalizado incluye una ruta con espacios o caracteres especiales, envuélvela en comillas
 5. **Revisa los comandos personalizados** — Los comandos configurados con `pm commands set` se ejecutan con tus permisos. Revísalos antes de ejecutarlos.
 6. **Protege tu directorio home** — En sistemas compartidos, asegura que `~/.projectmanager/` no sea legible por todos
