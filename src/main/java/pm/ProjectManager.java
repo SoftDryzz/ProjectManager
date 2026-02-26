@@ -1,5 +1,7 @@
 package pm;
 
+import pm.ci.CIDetector;
+import pm.ci.CIProvider;
 import pm.cli.OutputFormatter;
 import pm.completion.CompletionHandler;
 import pm.completion.CompletionScripts;
@@ -21,6 +23,7 @@ import pm.storage.ProjectStore;
 import pm.util.ArgsParser;
 import pm.util.CommandConfigurator;
 import pm.util.Constants;
+import pm.util.GitIntegration;
 import pm.util.RuntimeChecker;
 import pm.util.UpdateChecker;
 
@@ -118,6 +121,7 @@ public class ProjectManager {
                 case "doctor" -> handleDoctor(args);
                 case "secure" -> handleSecure(args);
                 case "audit" -> handleAudit(args);
+                case "ci" -> handleCI(args);
                 case "export" -> handleExport(args);
                 case "import" -> handleImport(args);
                 case "help", "-h", "--help" -> printHelp();
@@ -2189,6 +2193,119 @@ public class ProjectManager {
     }
 
     // ============================================================
+    // COMMAND: CI (Show CI/CD pipelines and dashboard URLs)
+    // ============================================================
+
+    /**
+     * Handler for the {@code ci} command.
+     *
+     * <p>Shows detected CI/CD pipelines and dashboard URLs.
+     * If a project name is given, shows CI for that project only.
+     * If no name, shows CI for all projects.
+     *
+     * <p>Usage: {@code pm ci [name]}
+     */
+    private static void handleCI(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+        String projectName = parser.getPositional(1);
+
+        try {
+            if (projectName != null && !projectName.isBlank()) {
+                // Single project
+                Project project = store.findProject(projectName);
+                if (project == null) {
+                    OutputFormatter.error("Project '" + projectName + "' not found");
+                    System.exit(1);
+                }
+
+                OutputFormatter.section("CI/CD — " + project.name());
+                printCIForProject(project);
+            } else {
+                // All projects
+                Map<String, Project> projects = store.load();
+                if (projects.isEmpty()) {
+                    OutputFormatter.section("CI/CD");
+                    System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                    System.out.println();
+                    return;
+                }
+
+                OutputFormatter.section("CI/CD");
+                for (Project project : projects.values()) {
+                    System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                            " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+
+                    if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+                        System.out.println("    " + OutputFormatter.RED + "Path not found" + OutputFormatter.RESET);
+                        System.out.println();
+                        continue;
+                    }
+
+                    List<CIProvider> providers = CIDetector.detect(project.path());
+                    if (providers.isEmpty()) {
+                        System.out.println("    " + OutputFormatter.GRAY + "No CI/CD configured" + OutputFormatter.RESET);
+                    } else {
+                        String remoteUrl = GitIntegration.getRemoteUrl(project.path());
+                        for (CIProvider provider : providers) {
+                            String url = CIDetector.dashboardUrl(provider, remoteUrl);
+                            String urlSuffix = url != null ? " — " + OutputFormatter.CYAN + url + OutputFormatter.RESET : "";
+                            System.out.println("    " + OutputFormatter.GREEN + "✓" + OutputFormatter.RESET +
+                                    " " + provider.displayName() + urlSuffix);
+                        }
+                    }
+                    System.out.println();
+                }
+            }
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    /**
+     * Prints CI/CD details for a single project including dashboard URLs.
+     */
+    private static void printCIForProject(Project project) {
+        if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+            System.out.println("  " + OutputFormatter.RED + "Path not found: " + project.path() + OutputFormatter.RESET);
+            System.out.println();
+            return;
+        }
+
+        List<CIProvider> providers = CIDetector.detect(project.path());
+        if (providers.isEmpty()) {
+            System.out.println("  " + OutputFormatter.GRAY + "No CI/CD configured" + OutputFormatter.RESET);
+            System.out.println();
+            return;
+        }
+
+        String remoteUrl = GitIntegration.getRemoteUrl(project.path());
+
+        for (CIProvider provider : providers) {
+            String detail = "";
+            if (provider == CIProvider.GITHUB_ACTIONS) {
+                int count = CIDetector.workflowCount(project.path());
+                if (count > 0) {
+                    detail = " (" + count + " workflow" + (count > 1 ? "s" : "") + ")";
+                }
+            }
+            System.out.println("  " + OutputFormatter.GREEN + "✓" + OutputFormatter.RESET +
+                    " " + provider.displayName() + detail);
+
+            String url = CIDetector.dashboardUrl(provider, remoteUrl);
+            if (url != null) {
+                System.out.println("    " + OutputFormatter.CYAN + url + OutputFormatter.RESET);
+            } else if (provider == CIProvider.JENKINS) {
+                System.out.println("    " + OutputFormatter.GRAY + "Open your Jenkins server to view pipelines" + OutputFormatter.RESET);
+            } else if (remoteUrl == null) {
+                System.out.println("    " + OutputFormatter.GRAY + "No git remote — URL unavailable" + OutputFormatter.RESET);
+            }
+        }
+        System.out.println();
+    }
+
+    // ============================================================
     // COMMAND: EXPORT (Export projects to JSON file)
     // ============================================================
 
@@ -2360,6 +2477,7 @@ public class ProjectManager {
           doctor [--score]                            Check environment, runtimes, and project health (A/B/C/D/F)
           secure [--fix]                              Scan projects for security misconfigurations
           audit                                     Audit dependencies for known vulnerabilities
+          ci [name]                                   Show CI/CD pipelines and dashboard URLs
           export [names...] [--file <path>]           Export projects to JSON file
           import <file>                               Import projects from JSON file
           help                                      Show this help
