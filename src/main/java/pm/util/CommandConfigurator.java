@@ -69,6 +69,7 @@ public class CommandConfigurator {
             case BUN -> configureBun(project);
             case YARN -> configureYarn(project);
             case FLUTTER -> configureFlutter(project);
+            case DOCKER -> configureDocker(project);
             case UNKNOWN -> {
                 // Do not configure commands for unknown projects
                 // The user will have to add them manually
@@ -170,6 +171,18 @@ public class CommandConfigurator {
         addIfAbsent(project, "run", Constants.RUN_FLUTTER);
         addIfAbsent(project, "test", Constants.TEST_FLUTTER);
         addIfAbsent(project, "clean", Constants.CLEAN_FLUTTER);
+    }
+
+    /**
+     * Configures commands for Docker Compose projects.
+     *
+     * @param project Docker Compose project
+     */
+    private static void configureDocker(Project project) {
+        addIfAbsent(project, "build", Constants.BUILD_DOCKER);
+        addIfAbsent(project, "run", Constants.RUN_DOCKER);
+        addIfAbsent(project, "stop", Constants.STOP_DOCKER);
+        addIfAbsent(project, "clean", Constants.CLEAN_DOCKER);
     }
 
     /**

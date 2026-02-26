@@ -197,6 +197,35 @@ class CommandConfiguratorTest {
     }
 
     // ============================================================
+    // DOCKER
+    // ============================================================
+
+    @Test
+    @DisplayName("Configures Docker default commands")
+    void configuresDocker() {
+        Project project = createProject(ProjectType.DOCKER);
+        CommandConfigurator.configureDefaultCommands(project);
+
+        assertEquals(Constants.BUILD_DOCKER, project.getCommand("build"));
+        assertEquals(Constants.RUN_DOCKER, project.getCommand("run"));
+        assertEquals(Constants.STOP_DOCKER, project.getCommand("stop"));
+        assertEquals(Constants.CLEAN_DOCKER, project.getCommand("clean"));
+        assertEquals(4, project.commandCount());
+    }
+
+    @Test
+    @DisplayName("Docker does not overwrite existing stop command")
+    void dockerDoesNotOverwriteStop() {
+        Project project = createProject(ProjectType.DOCKER);
+        project.addCommand("stop", "custom stop");
+
+        CommandConfigurator.configureDefaultCommands(project);
+
+        assertEquals("custom stop", project.getCommand("stop"));
+        assertEquals(Constants.BUILD_DOCKER, project.getCommand("build"));
+    }
+
+    // ============================================================
     // UNKNOWN
     // ============================================================
 
