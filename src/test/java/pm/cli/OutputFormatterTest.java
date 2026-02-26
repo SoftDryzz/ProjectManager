@@ -142,7 +142,7 @@ class OutputFormatterTest {
         OutputFormatter.printCommands(project);
         String output = getOutput();
 
-        assertTrue(output.contains("Available Commands"));
+        assertTrue(output.contains("Commands for"));
         assertTrue(output.contains("build"));
         assertTrue(output.contains("gradle build"));
     }
@@ -202,6 +202,63 @@ class OutputFormatterTest {
 
         assertTrue(output.contains("rust-app"));
         assertTrue(output.contains("Rust"));
+    }
+
+    // ============================================================
+    // DEFAULT / CUSTOM COMMAND SECTIONS
+    // ============================================================
+
+    @Test
+    @DisplayName("printCommands separates default and custom commands")
+    void printCommandsSeparatesDefaultAndCustom() {
+        Project project = new Project("myapp", Paths.get("/tmp/myapp"), ProjectType.GRADLE);
+        project.addCommand("build", "gradle build");
+        project.addCommand("run", "gradle run");
+        project.addCommand("tunnel", "npx expo start --tunnel");
+        project.addCommand("lint", "npm run lint");
+
+        OutputFormatter.printCommands(project);
+        String output = getOutput();
+
+        assertTrue(output.contains("Default"), "Should have a 'Default' section header");
+        assertTrue(output.contains("Custom"), "Should have a 'Custom' section header");
+        // Default commands appear under Default header, custom under Custom
+        int defaultIdx = output.indexOf("Default");
+        int customIdx = output.indexOf("Custom");
+        int buildIdx = output.indexOf("build");
+        int tunnelIdx = output.indexOf("tunnel");
+        assertTrue(buildIdx > defaultIdx && buildIdx < customIdx,
+                "build should appear between Default and Custom headers");
+        assertTrue(tunnelIdx > customIdx,
+                "tunnel should appear after Custom header");
+    }
+
+    @Test
+    @DisplayName("printCommands shows only Default section when no custom commands")
+    void printCommandsOnlyDefault() {
+        Project project = new Project("myapp", Paths.get("/tmp/myapp"), ProjectType.MAVEN);
+        project.addCommand("build", "mvn package");
+        project.addCommand("test", "mvn test");
+
+        OutputFormatter.printCommands(project);
+        String output = getOutput();
+
+        assertTrue(output.contains("Default"), "Should have Default section");
+        assertFalse(output.contains("Custom"), "Should NOT have Custom section");
+    }
+
+    @Test
+    @DisplayName("printCommands shows only Custom section when no default commands")
+    void printCommandsOnlyCustom() {
+        Project project = new Project("myapp", Paths.get("/tmp/myapp"), ProjectType.UNKNOWN);
+        project.addCommand("deploy", "docker compose up");
+        project.addCommand("lint", "eslint .");
+
+        OutputFormatter.printCommands(project);
+        String output = getOutput();
+
+        assertFalse(output.contains("Default"), "Should NOT have Default section");
+        assertTrue(output.contains("Custom"), "Should have Custom section");
     }
 
     // ============================================================

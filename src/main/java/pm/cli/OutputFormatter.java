@@ -6,7 +6,9 @@ import pm.util.GitIntegration;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Output formatter with ANSI colors for the CLI interface.
@@ -46,6 +48,9 @@ public class OutputFormatter {
     public static final String GRAY = "\u001B[90m";
     public static final String BOLD = "\u001B[1m";
     public static final String RESET = "\u001B[0m";
+
+    /** Command names that are considered "default" (auto-configured by CommandConfigurator). */
+    private static final Set<String> DEFAULT_COMMANDS = Set.of("build", "run", "test", "clean");
 
     /**
      * Displays a success message (green, with ✓).
@@ -211,21 +216,11 @@ public class OutputFormatter {
         }
 
         System.out.println();
-        System.out.println("Available Commands for " + BOLD + project.name() + RESET);
-        System.out.println("─".repeat(Math.max(40, "Available Commands for ".length() + project.name().length())));
-        System.out.println();
+        System.out.println("Commands for " + BOLD + project.name() + RESET +
+                " " + GRAY + "(" + project.type().displayName() + ")" + RESET);
+        System.out.println("─".repeat(Math.max(40, "Commands for ".length() + project.name().length())));
 
-        // Calculate padding to align the arrows
-        int maxCommandLength = project.commands().keySet().stream()
-                .mapToInt(String::length)
-                .max()
-                .orElse(0);
-
-        // Show each command
-        project.commands().forEach((name, command) -> {
-            String padding = " ".repeat(maxCommandLength - name.length());
-            System.out.println("  " + GREEN + name + RESET + padding + " → " + CYAN + command + RESET);
-        });
+        printCommandSections(project.commands());
 
         // Show environment variables if they exist
         printEnvVars(project);
@@ -251,18 +246,55 @@ public class OutputFormatter {
                 continue;
             }
 
-            int maxLen = project.commands().keySet().stream()
-                    .mapToInt(String::length)
-                    .max()
-                    .orElse(0);
-
-            project.commands().forEach((name, command) -> {
-                String padding = " ".repeat(maxLen - name.length());
-                System.out.println("  " + GREEN + name + RESET + padding + " → " + CYAN + command + RESET);
-            });
+            printCommandSections(project.commands());
         }
 
         System.out.println();
+    }
+
+    /**
+     * Prints commands split into "Default" and "Custom" sections.
+     *
+     * <p>Default commands are: build, run, test, clean (auto-configured).
+     * Everything else is considered a custom command added by the user.
+     *
+     * @param commands map of command name → command line
+     */
+    private static void printCommandSections(Map<String, String> commands) {
+        Map<String, String> defaults = new LinkedHashMap<>();
+        Map<String, String> custom = new LinkedHashMap<>();
+
+        commands.forEach((name, cmd) -> {
+            if (DEFAULT_COMMANDS.contains(name)) {
+                defaults.put(name, cmd);
+            } else {
+                custom.put(name, cmd);
+            }
+        });
+
+        // Global padding across both sections for alignment
+        int maxLen = commands.keySet().stream()
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
+
+        if (!defaults.isEmpty()) {
+            System.out.println();
+            System.out.println("  " + BOLD + "Default" + RESET);
+            defaults.forEach((name, cmd) -> {
+                String padding = " ".repeat(maxLen - name.length());
+                System.out.println("  " + GREEN + name + RESET + padding + " → " + CYAN + cmd + RESET);
+            });
+        }
+
+        if (!custom.isEmpty()) {
+            System.out.println();
+            System.out.println("  " + BOLD + "Custom" + RESET);
+            custom.forEach((name, cmd) -> {
+                String padding = " ".repeat(maxLen - name.length());
+                System.out.println("  " + GREEN + name + RESET + padding + " → " + CYAN + cmd + RESET);
+            });
+        }
     }
 
     /**
