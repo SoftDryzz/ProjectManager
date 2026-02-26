@@ -442,30 +442,13 @@ Los proyectos se guardan en:
 ## 🚧 Roadmap
 
 ### ✅ Completado
-- [x] Sistema de registro de proyectos
-- [x] Detección automática de tipo
-- [x] Comandos: add, list, build, run, test, info, remove
-- [x] Persistencia JSON
-- [x] Instaladores multi-plataforma
-- [x] Guía de usuario completa (Inglés + Español)
-- [x] Integración Git (branch, status, commits pendientes)
-- [x] GitHub Actions (CI/CD)
-- [x] Variables de entorno por proyecto
-- [x] Tests unitarios (332 tests en 19 clases de test)
-- [x] Runtime checker (detecta runtimes faltantes con instrucciones de instalación)
-- [x] Comando `pm doctor` (diagnóstico del entorno)
-- [x] Comando `pm env` para gestionar variables desde CLI (set, get, list, remove, clear)
-- [x] Soporte para Rust, Go, pnpm, Bun, Yarn (detección automática, comandos, runtime checks)
-- [x] Comando `pm update` (auto-actualización desde GitHub Releases)
-- [x] Soporte para Flutter/Dart (detección automática, comandos, runtime checks)
-- [x] Comando `pm refresh` (re-detectar tipos, actualizar comandos, avisos de desactualización)
-- [x] Comando `pm rename` (renombrar proyectos, actualizar rutas, preservar datos)
-- [x] Soporte CLI interactivo (auto-detección TTY para `pm run`, `pm build`, `pm test`)
-- [x] Comandos personalizados (`pm commands add/remove`, `pm commands --all`)
-- [x] Manejo de errores y seguridad de datos (escritura atómica, backup, recuperación, errores amigables)
-- [x] Ejecución segura de comandos (validación de directorio, avisos de metacaracteres)
-- [x] Auto-update robusto (integridad de descarga, protección contra loops de redirección, clasificación de errores de red)
-- [x] Soporte Docker (detectar Docker Compose, comandos por defecto, prioridad de tipo de lenguaje) — **v1.4.0**
+- **Core** — Registro de proyectos, auto-detección (12 tipos), comandos unificados, persistencia JSON
+- **CLI** — `pm doctor`, `pm env`, `pm refresh`, `pm rename`, `pm update`, `pm commands add/remove`
+- **Runtimes** — Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Flutter, Docker
+- **Integraciones** — Estado Git, TTY interactivo, instaladores multi-plataforma, GitHub Actions
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 332 tests
+
+> Última release: **v1.4.0** (soporte Docker) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 🔨 Planeado (Orden de Prioridad)
 - [ ] Alias de comandos para nombres de proyecto largos

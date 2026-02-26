@@ -442,30 +442,13 @@ Projects are saved in:
 ## 🚧 Roadmap
 
 ### ✅ Completed
-- [x] Project registration system
-- [x] Automatic type detection
-- [x] Commands: add, list, build, run, test, info, remove
-- [x] JSON persistence
-- [x] Multi-platform installers
-- [x] Complete user guide (English + Spanish)
-- [x] Git integration (branch, status, pending commits)
-- [x] GitHub Actions (CI/CD)
-- [x] Environment variables per project
-- [x] Unit tests (332 tests across 19 test classes)
-- [x] Runtime checker (detects missing runtimes with install instructions)
-- [x] `pm doctor` command (environment diagnostics)
-- [x] `pm env` command to manage variables from CLI (set, get, list, remove, clear)
-- [x] Support for Rust, Go, pnpm, Bun, Yarn (auto-detection, commands, runtime checks)
-- [x] `pm update` command (auto-update from GitHub Releases)
-- [x] Flutter/Dart support (auto-detection, commands, runtime checks)
-- [x] `pm refresh` command (re-detect types, update commands, outdated hints)
-- [x] `pm rename` command (rename projects, update paths, preserve all data)
-- [x] Interactive CLI support (auto TTY detection for `pm run`, `pm build`, `pm test`)
-- [x] Custom commands (`pm commands add/remove`, `pm commands --all`)
-- [x] Error handling & data safety (atomic writes, backup, recovery, friendly errors)
-- [x] Safe command execution (directory validation, metacharacter warnings)
-- [x] Robust auto-update (download integrity, redirect loop protection, network error classification)
-- [x] Docker support (detect Docker Compose, default commands, language-type priority) — **v1.4.0**
+- **Core** — Project registration, auto-detection (12 types), unified commands, JSON persistence
+- **CLI** — `pm doctor`, `pm env`, `pm refresh`, `pm rename`, `pm update`, `pm commands add/remove`
+- **Runtimes** — Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Flutter, Docker
+- **Integrations** — Git status, interactive TTY, multi-platform installers, GitHub Actions
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 332 tests
+
+> Latest release: **v1.4.0** (Docker support) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 🔨 Planned (Priority Order)
 - [ ] Command aliases for long project names
