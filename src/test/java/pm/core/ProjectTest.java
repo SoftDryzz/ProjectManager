@@ -7,6 +7,7 @@ import pm.detector.ProjectType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +38,8 @@ class ProjectTest {
         assertNotNull(project.lastModified());
         assertEquals(0, project.commandCount());
         assertEquals(0, project.envVarCount());
+        assertEquals(0, project.hookCount());
+        assertFalse(project.hasHooks());
     }
 
     @Test
@@ -236,6 +239,179 @@ class ProjectTest {
         assertEquals(0, project.envVarCount());
         assertFalse(project.hasEnvVar("PORT"));
         assertFalse(project.hasEnvVar("DEBUG"));
+    }
+
+    // ============================================================
+    // HOOK MANAGEMENT TESTS
+    // ============================================================
+
+    @Test
+    @DisplayName("addHook adds and retrieves hook")
+    void addHookWorks() {
+        Project project = createProject();
+        project.addHook("pre-build", "npm run lint");
+
+        List<String> hooks = project.getHooks("pre-build");
+        assertEquals(1, hooks.size());
+        assertEquals("npm run lint", hooks.get(0));
+        assertTrue(project.hasHooks());
+        assertEquals(1, project.hookCount());
+    }
+
+    @Test
+    @DisplayName("addHook supports multiple hooks per slot")
+    void addHookMultiplePerSlot() {
+        Project project = createProject();
+        project.addHook("pre-build", "npm run lint");
+        project.addHook("pre-build", "npm run format");
+
+        List<String> hooks = project.getHooks("pre-build");
+        assertEquals(2, hooks.size());
+        assertEquals("npm run lint", hooks.get(0));
+        assertEquals("npm run format", hooks.get(1));
+        assertEquals(2, project.hookCount());
+    }
+
+    @Test
+    @DisplayName("addHook supports multiple slots")
+    void addHookMultipleSlots() {
+        Project project = createProject();
+        project.addHook("pre-build", "npm run lint");
+        project.addHook("post-build", "echo done");
+
+        assertEquals(1, project.getHooks("pre-build").size());
+        assertEquals(1, project.getHooks("post-build").size());
+        assertEquals(2, project.hookCount());
+    }
+
+    @Test
+    @DisplayName("addHook throws on null slot")
+    void addHookThrowsOnNullSlot() {
+        Project project = createProject();
+        assertThrows(NullPointerException.class,
+                () -> project.addHook(null, "echo test"));
+    }
+
+    @Test
+    @DisplayName("addHook throws on null script")
+    void addHookThrowsOnNullScript() {
+        Project project = createProject();
+        assertThrows(NullPointerException.class,
+                () -> project.addHook("pre-build", null));
+    }
+
+    @Test
+    @DisplayName("addHook throws on blank slot")
+    void addHookThrowsOnBlankSlot() {
+        Project project = createProject();
+        assertThrows(IllegalArgumentException.class,
+                () -> project.addHook("  ", "echo test"));
+    }
+
+    @Test
+    @DisplayName("addHook throws on blank script")
+    void addHookThrowsOnBlankScript() {
+        Project project = createProject();
+        assertThrows(IllegalArgumentException.class,
+                () -> project.addHook("pre-build", "  "));
+    }
+
+    @Test
+    @DisplayName("addHook updates lastModified")
+    void addHookUpdatesTimestamp() throws InterruptedException {
+        Project project = createProject();
+        Instant before = project.lastModified();
+        Thread.sleep(10);
+        project.addHook("pre-build", "echo test");
+
+        assertTrue(project.lastModified().isAfter(before));
+    }
+
+    @Test
+    @DisplayName("removeHook removes by exact content")
+    void removeHookWorks() {
+        Project project = createProject();
+        project.addHook("pre-build", "npm run lint");
+        project.addHook("pre-build", "npm run format");
+
+        boolean removed = project.removeHook("pre-build", "npm run lint");
+
+        assertTrue(removed);
+        assertEquals(1, project.getHooks("pre-build").size());
+        assertEquals("npm run format", project.getHooks("pre-build").get(0));
+    }
+
+    @Test
+    @DisplayName("removeHook cleans up empty slot")
+    void removeHookCleansUpSlot() {
+        Project project = createProject();
+        project.addHook("pre-build", "npm run lint");
+
+        project.removeHook("pre-build", "npm run lint");
+
+        assertFalse(project.hasHooks());
+        assertEquals(0, project.hookCount());
+        assertTrue(project.getHooks("pre-build").isEmpty());
+    }
+
+    @Test
+    @DisplayName("removeHook returns false for non-existent hook")
+    void removeHookReturnsFalse() {
+        Project project = createProject();
+        assertFalse(project.removeHook("pre-build", "nonexistent"));
+    }
+
+    @Test
+    @DisplayName("removeHook returns false for non-existent slot")
+    void removeHookReturnsFalseForMissingSlot() {
+        Project project = createProject();
+        project.addHook("pre-build", "echo test");
+        assertFalse(project.removeHook("post-build", "echo test"));
+    }
+
+    @Test
+    @DisplayName("getHooks returns empty list for non-existent slot")
+    void getHooksReturnsEmpty() {
+        Project project = createProject();
+        List<String> hooks = project.getHooks("pre-build");
+        assertNotNull(hooks);
+        assertTrue(hooks.isEmpty());
+    }
+
+    @Test
+    @DisplayName("getHooks returns unmodifiable list")
+    void getHooksReturnsUnmodifiable() {
+        Project project = createProject();
+        project.addHook("pre-build", "echo test");
+
+        List<String> hooks = project.getHooks("pre-build");
+        assertThrows(UnsupportedOperationException.class,
+                () -> hooks.add("another"));
+    }
+
+    @Test
+    @DisplayName("hooks() returns unmodifiable copy")
+    void hooksReturnsUnmodifiableCopy() {
+        Project project = createProject();
+        project.addHook("pre-build", "echo test");
+
+        Map<String, List<String>> hooks = project.hooks();
+        assertThrows(UnsupportedOperationException.class,
+                () -> hooks.put("post-build", List.of("echo done")));
+    }
+
+    @Test
+    @DisplayName("clearHooks removes all hooks")
+    void clearHooksRemovesAll() {
+        Project project = createProject();
+        project.addHook("pre-build", "echo 1");
+        project.addHook("post-build", "echo 2");
+        assertEquals(2, project.hookCount());
+
+        project.clearHooks();
+
+        assertEquals(0, project.hookCount());
+        assertFalse(project.hasHooks());
     }
 
     // ============================================================

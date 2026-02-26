@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -124,6 +125,11 @@ public class OutputFormatter {
         // Show environment variables
         if (project.envVarCount() > 0) {
             System.out.println("  Environment Variables: " + project.envVarCount());
+        }
+
+        // Show hooks
+        if (project.hookCount() > 0) {
+            System.out.println("  Hooks: " + project.hookCount());
         }
 
         // Show Git information (if it's a repo)
@@ -323,6 +329,35 @@ public class OutputFormatter {
             String padding = " ".repeat(maxKeyLength - key.length());
             System.out.println("  " + GREEN + key + RESET + padding + " = " + CYAN + value + RESET);
         });
+    }
+
+    /**
+     * Displays hooks for a project grouped by slot.
+     *
+     * @param projectName project name for the header
+     * @param hooks map of slot → list of scripts
+     */
+    public static void printHooks(String projectName, Map<String, List<String>> hooks) {
+        if (hooks.isEmpty()) {
+            System.out.println();
+            info("No hooks configured for '" + projectName + "'");
+            return;
+        }
+
+        System.out.println();
+        System.out.println("Hooks for " + BOLD + projectName + RESET);
+        System.out.println("─".repeat(Math.max(40, "Hooks for ".length() + projectName.length())));
+
+        hooks.forEach((slot, scripts) -> {
+            System.out.println();
+            System.out.println("  " + BOLD + slot + RESET);
+            for (int i = 0; i < scripts.size(); i++) {
+                System.out.println("  " + GRAY + (i + 1) + "." + RESET + " " +
+                        CYAN + scripts.get(i) + RESET);
+            }
+        });
+
+        System.out.println();
     }
 
     /**

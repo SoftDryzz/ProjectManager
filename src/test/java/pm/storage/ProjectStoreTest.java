@@ -10,7 +10,9 @@ import pm.detector.ProjectType;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -162,5 +164,108 @@ class ProjectStoreTest {
         Path deserialized = Paths.get(serialized);
 
         assertEquals(original, deserialized);
+    }
+
+    // ============================================================
+    // HOOKS SERIALIZATION TESTS
+    // ============================================================
+
+    @Test
+    @DisplayName("Project with hooks serializes to JSON with hooks field")
+    void projectWithHooksSerializesToJson() {
+        Project project = createTestProject("api", "/home/user/api", ProjectType.GRADLE);
+        project.addHook("pre-build", "npm run lint");
+        project.addHook("post-build", "echo done");
+
+        // Use ProjectDTO.fromProject
+        ProjectStore.ProjectDTO dto = ProjectStore.ProjectDTO.fromProject(project);
+
+        assertNotNull(dto.hooks);
+        assertEquals(2, dto.hooks.size());
+        assertTrue(dto.hooks.containsKey("pre-build"));
+        assertTrue(dto.hooks.containsKey("post-build"));
+        assertEquals(List.of("npm run lint"), dto.hooks.get("pre-build"));
+        assertEquals(List.of("echo done"), dto.hooks.get("post-build"));
+    }
+
+    @Test
+    @DisplayName("ProjectDTO with hooks deserializes back to Project correctly")
+    void projectDtoWithHooksRoundtrip() {
+        Project original = createTestProject("api", "/home/user/api", ProjectType.GRADLE);
+        original.addHook("pre-build", "npm run lint");
+        original.addHook("pre-build", "npm run format");
+        original.addHook("post-test", "echo tests done");
+
+        // Project → DTO → JSON → DTO → Project
+        ProjectStore.ProjectDTO dto = ProjectStore.ProjectDTO.fromProject(original);
+        String json = gson.toJson(Map.of("api", dto));
+
+        TypeToken<Map<String, ProjectStore.ProjectDTO>> typeToken = new TypeToken<>() {};
+        Map<String, ProjectStore.ProjectDTO> deserialized = gson.fromJson(json, typeToken.getType());
+
+        ProjectStore.ProjectDTO restoredDto = deserialized.get("api");
+        List<String> warnings = new ArrayList<>();
+        Project restored = restoredDto.toProjectSafe("api", warnings);
+
+        assertNotNull(restored);
+        assertTrue(warnings.isEmpty());
+        assertEquals(2, restored.getHooks("pre-build").size());
+        assertEquals("npm run lint", restored.getHooks("pre-build").get(0));
+        assertEquals("npm run format", restored.getHooks("pre-build").get(1));
+        assertEquals(1, restored.getHooks("post-test").size());
+        assertEquals(3, restored.hookCount());
+    }
+
+    @Test
+    @DisplayName("ProjectDTO without hooks field deserializes safely")
+    void projectDtoWithoutHooksDeserializesSafely() {
+        // Simulates loading a projects.json from before hooks were added
+        String json = """
+                {
+                  "old-project": {
+                    "name": "old-project",
+                    "path": "/home/user/old",
+                    "type": "MAVEN",
+                    "commands": {"build": "mvn package"},
+                    "envVars": {},
+                    "lastModified": "2025-01-01T00:00:00Z"
+                  }
+                }
+                """;
+
+        TypeToken<Map<String, ProjectStore.ProjectDTO>> typeToken = new TypeToken<>() {};
+        Map<String, ProjectStore.ProjectDTO> deserialized = gson.fromJson(json, typeToken.getType());
+
+        List<String> warnings = new ArrayList<>();
+        Project project = deserialized.get("old-project").toProjectSafe("old-project", warnings);
+
+        assertNotNull(project);
+        assertTrue(warnings.isEmpty());
+        assertEquals(0, project.hookCount());
+        assertFalse(project.hasHooks());
+    }
+
+    @Test
+    @DisplayName("Project with multiple hooks per slot preserves order")
+    void hooksPreserveOrder() {
+        Project project = createTestProject("api", "/home/user/api", ProjectType.GRADLE);
+        project.addHook("pre-build", "first");
+        project.addHook("pre-build", "second");
+        project.addHook("pre-build", "third");
+
+        ProjectStore.ProjectDTO dto = ProjectStore.ProjectDTO.fromProject(project);
+        String json = gson.toJson(Map.of("api", dto));
+
+        TypeToken<Map<String, ProjectStore.ProjectDTO>> typeToken = new TypeToken<>() {};
+        Map<String, ProjectStore.ProjectDTO> deserialized = gson.fromJson(json, typeToken.getType());
+
+        List<String> warnings = new ArrayList<>();
+        Project restored = deserialized.get("api").toProjectSafe("api", warnings);
+
+        List<String> hooks = restored.getHooks("pre-build");
+        assertEquals(3, hooks.size());
+        assertEquals("first", hooks.get(0));
+        assertEquals("second", hooks.get(1));
+        assertEquals("third", hooks.get(2));
     }
 }

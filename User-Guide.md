@@ -12,6 +12,7 @@
   - [Project Management](#-project-management)
   - [Command Execution](#-command-execution)
   - [Rename & Path Update](#-rename--path-update)
+  - [Pre-/Post-Command Hooks](#-prepost-command-hooks)
   - [Environment Variable Management](#-environment-variable-management)
   - [Diagnostics](#-diagnostics)
   - [Help and Version](#-help-and-version)
@@ -434,6 +435,60 @@ This overwrites the previous value.
 | Type checking | `pm commands app add typecheck "npx tsc --noEmit"` |
 | Watch mode | `pm commands app add watch "npm run dev -- --watch"` |
 | Production build | `pm commands app add prod "npm run build:prod"` |
+
+---
+
+### 🔹 Pre-/Post-Command Hooks
+
+Run custom scripts automatically before or after any command. Hooks are per-project and user-configured.
+
+#### Add a hook
+```bash
+pm hooks <name> add <slot> "<script>"
+```
+
+**Slot format:** `pre-<command>` or `post-<command>` (e.g., `pre-build`, `post-test`).
+
+**Examples:**
+```bash
+# Run linter before every build
+pm hooks my-api add pre-build "npm run lint"
+
+# Send notification after build
+pm hooks my-api add post-build "echo Build completed!"
+
+# Run migrations before running
+pm hooks my-api add pre-run "npx prisma migrate deploy"
+
+# Multiple hooks per slot (executed in order)
+pm hooks my-api add pre-build "npm run format"
+```
+
+#### List hooks
+```bash
+pm hooks <name>          # List hooks for one project
+pm hooks --all           # List hooks for all projects
+```
+
+#### Remove a hook
+```bash
+pm hooks <name> remove <slot> "<script>"
+```
+
+The script must match exactly. Use `pm hooks <name>` to see current hooks.
+
+**Example:**
+```bash
+pm hooks my-api remove pre-build "npm run lint"
+```
+
+#### How hooks work
+
+- **Pre-hooks** run before the main command. If any pre-hook fails (non-zero exit code), the main command is **aborted**.
+- **Post-hooks** run after the main command succeeds. If a post-hook fails, a **warning** is shown but the command result is not affected.
+- Hooks have a fixed **60-second timeout**.
+- Hooks inherit the project's **environment variables**.
+- Hooks work with all commands: `build`, `run`, `test`, `clean`, `stop`, and any custom command.
 
 ---
 
@@ -1487,6 +1542,13 @@ pm env list <name>                             # List (masked)
 pm env list <name> --show                      # List (revealed)
 pm env remove <name> KEY                       # Remove a variable
 pm env clear <name>                            # Remove all variables
+
+# === HOOKS ===
+pm hooks <name>                                # List hooks
+pm hooks <name> add pre-build "npm run lint"   # Add a pre-hook
+pm hooks <name> add post-test "echo done"      # Add a post-hook
+pm hooks <name> remove pre-build "npm run lint" # Remove a hook
+pm hooks --all                                 # List all hooks
 
 # === RENAME ===
 pm rename <old> <new>                          # Rename project

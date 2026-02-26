@@ -144,20 +144,25 @@ Detecta proyectos Docker Compose y configura comandos por defecto. Los tipos de 
 
 ---
 
-## v1.5.0 — Hooks Pre/Post Comandos
+## v1.5.0 — Hooks Pre/Post Comandos ✅
 
 ### Comando `pm hooks`
 Ejecuta scripts personalizados automáticamente antes o después de cualquier comando. Los hooks son por proyecto y los configura el usuario.
 
 | Funcionalidad | Estado |
 |---------------|--------|
-| `pm hooks <proyecto> add pre-<cmd> "<script>"` — añadir un pre-hook | Planificado |
-| `pm hooks <proyecto> add post-<cmd> "<script>"` — añadir un post-hook | Planificado |
-| `pm hooks <proyecto>` — listar todos los hooks de un proyecto | Planificado |
-| `pm hooks <proyecto> remove pre-<cmd>` — eliminar un hook | Planificado |
-| Fallo en pre-hook aborta el comando principal | Planificado |
-| Los hooks se ejecutan en el directorio del proyecto | Planificado |
-| Los hooks heredan las variables de entorno del proyecto | Planificado |
+| `pm hooks <proyecto> add pre-<cmd> "<script>"` — añadir un pre-hook | ✅ Hecho |
+| `pm hooks <proyecto> add post-<cmd> "<script>"` — añadir un post-hook | ✅ Hecho |
+| `pm hooks <proyecto>` — listar todos los hooks de un proyecto | ✅ Hecho |
+| `pm hooks <proyecto> remove <slot> "<script>"` — eliminar un hook por contenido exacto | ✅ Hecho |
+| `pm hooks --all` — listar hooks de todos los proyectos | ✅ Hecho |
+| Múltiples hooks por slot (ejecución encadenada) | ✅ Hecho |
+| Fallo en pre-hook aborta el comando principal | ✅ Hecho |
+| Fallo en post-hook solo muestra advertencia | ✅ Hecho |
+| Los hooks se ejecutan en el directorio del proyecto | ✅ Hecho |
+| Los hooks heredan las variables de entorno del proyecto | ✅ Hecho |
+| Timeout fijo de 60s para scripts de hooks | ✅ Hecho |
+| Ejecución genérica de comandos (`pm <cmd> <proyecto>`) con soporte de hooks | ✅ Hecho |
 
 ---
 
