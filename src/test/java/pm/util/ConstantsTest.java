@@ -121,6 +121,24 @@ class ConstantsTest {
     }
 
     @Test
+    @DisplayName("Flutter commands are not blank")
+    void flutterCommandsExist() {
+        assertFalse(Constants.BUILD_FLUTTER.isBlank());
+        assertFalse(Constants.RUN_FLUTTER.isBlank());
+        assertFalse(Constants.TEST_FLUTTER.isBlank());
+        assertFalse(Constants.CLEAN_FLUTTER.isBlank());
+    }
+
+    @Test
+    @DisplayName("Docker commands are not blank")
+    void dockerCommandsExist() {
+        assertFalse(Constants.BUILD_DOCKER.isBlank());
+        assertFalse(Constants.RUN_DOCKER.isBlank());
+        assertFalse(Constants.STOP_DOCKER.isBlank());
+        assertFalse(Constants.CLEAN_DOCKER.isBlank());
+    }
+
+    @Test
     @DisplayName("Detection file names are not blank")
     void detectionFilesExist() {
         assertFalse(Constants.FILE_BUILD_GRADLE.isBlank());
@@ -135,6 +153,8 @@ class ConstantsTest {
         assertFalse(Constants.FILE_BUN_LOCKB.isBlank());
         assertFalse(Constants.FILE_BUN_LOCK.isBlank());
         assertFalse(Constants.FILE_YARN_LOCK.isBlank());
+        assertFalse(Constants.FILE_DOCKER_COMPOSE_YML.isBlank());
+        assertFalse(Constants.FILE_DOCKER_COMPOSE_YAML.isBlank());
     }
 
     @Test

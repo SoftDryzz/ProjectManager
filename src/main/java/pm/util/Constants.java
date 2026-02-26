@@ -284,6 +284,22 @@ public final class Constants {
     public static final String CLEAN_FLUTTER = "flutter clean";
 
     // ============================================================
+    // DEFAULT COMMANDS - DOCKER
+    // ============================================================
+
+    /** Default command to build Docker Compose projects. */
+    public static final String BUILD_DOCKER = "docker compose build";
+
+    /** Default command to run Docker Compose projects. */
+    public static final String RUN_DOCKER = "docker compose up";
+
+    /** Default command to stop Docker Compose projects. */
+    public static final String STOP_DOCKER = "docker compose down";
+
+    /** Default command to clean Docker Compose projects (removes volumes and images). */
+    public static final String CLEAN_DOCKER = "docker compose down -v --rmi all";
+
+    // ============================================================
     // PROJECT TYPE DETECTION FILES
     // ============================================================
 
@@ -343,4 +359,10 @@ public final class Constants {
 
     /** Flutter/Dart project manifest file. */
     public static final String FILE_PUBSPEC_YAML = "pubspec.yaml";
+
+    /** Docker Compose configuration file (YAML extension). */
+    public static final String FILE_DOCKER_COMPOSE_YML = "docker-compose.yml";
+
+    /** Docker Compose configuration file (YAML full extension). */
+    public static final String FILE_DOCKER_COMPOSE_YAML = "docker-compose.yaml";
 }
