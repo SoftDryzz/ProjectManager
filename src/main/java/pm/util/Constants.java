@@ -15,7 +15,7 @@ import java.nio.file.Paths;
  * (utility class pattern).
  *
  * @author SoftDryzz
- * @version 1.6.3
+ * @version 1.6.4
  * @since 1.0.0
  */
 public final class Constants {
@@ -38,7 +38,7 @@ public final class Constants {
      * Current version of ProjectManager.
      * Follows Semantic Versioning (MAJOR.MINOR.PATCH).
      */
-    public static final String VERSION = "1.6.3";
+    public static final String VERSION = "1.6.4";
 
     // ============================================================
     // SYSTEM DIRECTORIES AND FILES
