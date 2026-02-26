@@ -262,19 +262,23 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
-## v1.6.5 — CI/CD Detection
+## v1.6.5 — CI/CD Detection ✅
 
 ### CI/CD awareness
-- Detect GitHub Actions (`.github/workflows/`)
-- Detect GitLab CI (`.gitlab-ci.yml`)
-- Detect Jenkins (`Jenkinsfile`)
-- Show CI status in `pm info`
-- `pm ci` — open CI dashboard in browser or show last run status
 
-### Deployment awareness
-- Detect deployment configs: `fly.toml`, `vercel.json`, `netlify.toml`, `railway.json`
-- `pm deploy` — trigger deployment to detected platform
-- `pm deploy status` — show deployment state
+| Feature | Status |
+|---------|--------|
+| Detect GitHub Actions (`.github/workflows/`) | ✅ Done |
+| Detect GitLab CI (`.gitlab-ci.yml`) | ✅ Done |
+| Detect Jenkins (`Jenkinsfile`) | ✅ Done |
+| Detect Travis CI (`.travis.yml`) | ✅ Done |
+| Detect CircleCI (`.circleci/config.yml`) | ✅ Done |
+| Show CI/CD providers in `pm info` with workflow count | ✅ Done |
+| `pm ci [name]` — show CI dashboard URLs for projects | ✅ Done |
+| Parse SSH and HTTPS git remote URLs for dashboard links | ✅ Done |
+| Shell autocompletion for `pm ci` command | ✅ Done |
+
+> **Note:** Deployment awareness (fly.toml, vercel.json, etc.) deferred to a later version.
 
 ---
 

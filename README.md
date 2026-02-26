@@ -186,6 +186,7 @@ pm run order-service
 - 🔐 **Security scan** - Detect misconfigurations (Dockerfile root, exposed secrets, insecure URLs) with `pm secure`, auto-fix with `--fix`
 - 🔍 **Dependency audit** - Scan dependencies for known vulnerabilities with `pm audit` using native tools (npm audit, cargo audit, govulncheck, pip-audit, dotnet)
 - 📤 **Export & Import** - Migrate setups between machines with `pm export` and `pm import`, supports selective export and path validation
+- 🔄 **CI/CD detection** - Detect GitHub Actions, GitLab CI, Jenkins, Travis CI, CircleCI with `pm ci` and in `pm info`
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -252,6 +253,7 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm secure` | Scan projects for security misconfigurations |
 | `pm secure --fix` | Auto-fix .gitignore issues (add .env, *.pem, *.key entries) |
 | `pm audit` | Audit dependencies for known vulnerabilities |
+| `pm ci [name]` | Show CI/CD pipelines and dashboard URLs |
 | `pm export` | Export all projects to a portable JSON file |
 | `pm export <names...> [--file <path>]` | Export selected projects to a custom file |
 | `pm import <file>` | Import projects from an exported JSON file |
@@ -467,9 +469,10 @@ Projects are saved in:
 - **Security** — `pm secure` scans for misconfigurations, `--fix` auto-remediates .gitignore issues
 - **Audit** — `pm audit` checks dependencies for known vulnerabilities using native ecosystem tools
 - **Portability** — `pm export` / `pm import` for migrating setups between machines or sharing team configs
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 582 tests
+- **CI/CD** — `pm ci` detects pipelines (GitHub Actions, GitLab CI, Jenkins, Travis, CircleCI) and shows dashboard URLs
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 609 tests
 
-> Latest release: **v1.6.4** (Export & Import) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v1.6.5** (CI/CD Detection) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects
