@@ -194,75 +194,17 @@ pm run order-service
 
 ## 🚀 Installation
 
-### Option A: Download from Release (Recommended)
+**Quick start** — download the latest release and run the installer:
 
-No need to compile. Just download and run.
-
-**Step 1.** Go to [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
-
-**Step 2.** Download **two things**:
-   - `Source code (zip)` — contains the install scripts
-   - `projectmanager-X.Y.Z.jar` — the pre-built application (e.g., `projectmanager-1.3.4.jar`)
-
-**Step 3.** Extract the ZIP. You will get a folder like `ProjectManager-X.Y.Z/`. Copy the downloaded JAR inside it:
-
-```
-ProjectManager-X.Y.Z/          ← extracted folder
-├── projectmanager-X.Y.Z.jar   ← place the JAR here
-├── scripts/
-│   ├── install.ps1
-│   └── install.sh
-├── README.md
-└── ...
-```
-
-**Step 4.** Open a terminal **inside the extracted folder** and run the installer:
-
-**Windows (PowerShell):** Right-click the folder → "Open in Terminal", then:
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
-```
-
-> ⚠️ The `-ExecutionPolicy Bypass` flag is required because Windows blocks scripts downloaded from the internet. This is safe — the script only copies the JAR to `%USERPROFILE%\.projectmanager\` and creates a `pm.bat` wrapper in `%USERPROFILE%\bin\`.
-
-**Linux/Mac:**
 ```bash
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+
+# Linux/Mac
 chmod +x scripts/install.sh && ./scripts/install.sh
 ```
 
-**Step 5.** Close and **reopen your terminal**, then verify:
-```bash
-pm version
-```
-
-> After installation, you can delete the downloaded ZIP and extracted folder. The JAR is copied to a permanent location during install.
-
----
-
-### Option B: Build from Source
-
-Requires Java 17+ and Maven 3.6+.
-
-```bash
-# 1. Clone repository
-git clone https://github.com/SoftDryzz/ProjectManager.git
-cd ProjectManager
-
-# 2. Compile
-mvn clean package
-
-# 3. Install (Windows)
-powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
-
-# 3. Install (Linux/Mac)
-chmod +x scripts/install.sh && ./scripts/install.sh
-
-# 4. Verify
-pm version
-```
-
-**Setup time:** 5 minutes
-**Benefits:** Forever  
+📖 **Full installation guide** (step-by-step, build from source, troubleshooting, uninstall): **[INSTALL.md](scripts/INSTALL.md)**
 
 ---
 
@@ -327,7 +269,7 @@ Project Information
 my-api (Maven)
   Path: /home/user/projects/my-api
   Modified: 5 minutes ago
-  Commands: 4
+  Commands: 5
   Environment Variables: 3
 
   Git:
@@ -335,11 +277,16 @@ my-api (Maven)
     Status: 2 modified, 1 untracked
     Unpushed: 3 commits
 
-Available Commands
+Commands for my-api (Maven)
+
+  Default
   build  →  mvn package
   run    →  mvn exec:java
   test   →  mvn test
   clean  →  mvn clean
+
+  Custom
+  lint   →  mvn checkstyle:check
 
 Environment Variables
   PORT    = 8080
@@ -504,7 +451,7 @@ Projects are saved in:
 - [x] Git integration (branch, status, pending commits)
 - [x] GitHub Actions (CI/CD)
 - [x] Environment variables per project
-- [x] Unit tests (219 tests across 16 test classes)
+- [x] Unit tests (332 tests across 19 test classes)
 - [x] Runtime checker (detects missing runtimes with install instructions)
 - [x] `pm doctor` command (environment diagnostics)
 - [x] `pm env` command to manage variables from CLI (set, get, list, remove, clear)
@@ -518,6 +465,7 @@ Projects are saved in:
 - [x] Error handling & data safety (atomic writes, backup, recovery, friendly errors)
 - [x] Safe command execution (directory validation, metacharacter warnings)
 - [x] Robust auto-update (download integrity, redirect loop protection, network error classification)
+- [x] Docker support (detect Docker Compose, default commands, language-type priority) — **v1.4.0**
 
 ### 🔨 Planned (Priority Order)
 - [ ] Command aliases for long project names
@@ -528,7 +476,6 @@ Projects are saved in:
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)
 - [ ] Shell autocompletion (bash/zsh/PowerShell tab completion)
-- [x] Docker support (detect docker-compose, default commands) — **v1.4.0**
 - [ ] Multi-ecosystem installers (npm, Cargo, Homebrew, Scoop, etc.)
 
 > See [ROADMAP.md](ROADMAP.md) for the full roadmap with detailed plans.

@@ -194,75 +194,17 @@ pm run servicio-pedidos
 
 ## 🚀 Instalación
 
-### Opción A: Descargar desde Release (Recomendado)
+**Inicio rápido** — descarga la última release y ejecuta el instalador:
 
-No necesitas compilar. Solo descarga y ejecuta.
-
-**Paso 1.** Ve a [GitHub Releases](https://github.com/SoftDryzz/ProjectManager/releases/latest)
-
-**Paso 2.** Descarga **dos cosas**:
-   - `Source code (zip)` — contiene los scripts de instalación
-   - `projectmanager-X.Y.Z.jar` — la aplicación pre-compilada (ej: `projectmanager-1.3.4.jar`)
-
-**Paso 3.** Extrae el ZIP. Obtendrás una carpeta como `ProjectManager-X.Y.Z/`. Copia el JAR descargado dentro:
-
-```
-ProjectManager-X.Y.Z/          ← carpeta extraída
-├── projectmanager-X.Y.Z.jar   ← coloca el JAR aquí
-├── scripts/
-│   ├── install.ps1
-│   └── install.sh
-├── README.md
-└── ...
-```
-
-**Paso 4.** Abre una terminal **dentro de la carpeta extraída** y ejecuta el instalador:
-
-**Windows (PowerShell):** Clic derecho en la carpeta → "Abrir en Terminal", luego:
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
-```
-
-> ⚠️ El flag `-ExecutionPolicy Bypass` es necesario porque Windows bloquea scripts descargados de internet. Es seguro — el script solo copia el JAR a `%USERPROFILE%\.projectmanager\` y crea un wrapper `pm.bat` en `%USERPROFILE%\bin\`.
-
-**Linux/Mac:**
 ```bash
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+
+# Linux/Mac
 chmod +x scripts/install.sh && ./scripts/install.sh
 ```
 
-**Paso 5.** Cierra y **vuelve a abrir tu terminal**, luego verifica:
-```bash
-pm version
-```
-
-> Tras la instalación, puedes eliminar el ZIP y la carpeta extraída. El JAR se copia a una ubicación permanente durante la instalación.
-
----
-
-### Opción B: Compilar desde Código Fuente
-
-Requiere Java 17+ y Maven 3.6+.
-
-```bash
-# 1. Clonar repositorio
-git clone https://github.com/SoftDryzz/ProjectManager.git
-cd ProjectManager
-
-# 2. Compilar
-mvn clean package
-
-# 3. Instalar (Windows)
-powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
-
-# 3. Instalar (Linux/Mac)
-chmod +x scripts/install.sh && ./scripts/install.sh
-
-# 4. Verificar
-pm version
-```
-
-**Tiempo de configuración:** 5 minutos
-**Beneficios:** Para siempre  
+📖 **Guía de instalación completa** (paso a paso, compilar desde código fuente, solución de problemas, desinstalar): **[INSTALL.md](scripts/INSTALL.md)**
 
 ---
 
@@ -327,7 +269,7 @@ Project Information
 mi-api (Maven)
   Path: /home/user/projects/mi-api
   Modified: hace 5 minutos
-  Commands: 4
+  Commands: 5
   Environment Variables: 3
 
   Git:
@@ -335,11 +277,16 @@ mi-api (Maven)
     Status: 2 modificados, 1 sin seguimiento
     Unpushed: 3 commits
 
-Available Commands
+Commands for mi-api (Maven)
+
+  Default
   build  →  mvn package
   run    →  mvn exec:java
   test   →  mvn test
   clean  →  mvn clean
+
+  Custom
+  lint   →  mvn checkstyle:check
 
 Environment Variables
   PORT    = 8080
@@ -504,7 +451,7 @@ Los proyectos se guardan en:
 - [x] Integración Git (branch, status, commits pendientes)
 - [x] GitHub Actions (CI/CD)
 - [x] Variables de entorno por proyecto
-- [x] Tests unitarios (219 tests en 16 clases de test)
+- [x] Tests unitarios (332 tests en 19 clases de test)
 - [x] Runtime checker (detecta runtimes faltantes con instrucciones de instalación)
 - [x] Comando `pm doctor` (diagnóstico del entorno)
 - [x] Comando `pm env` para gestionar variables desde CLI (set, get, list, remove, clear)
@@ -518,6 +465,7 @@ Los proyectos se guardan en:
 - [x] Manejo de errores y seguridad de datos (escritura atómica, backup, recuperación, errores amigables)
 - [x] Ejecución segura de comandos (validación de directorio, avisos de metacaracteres)
 - [x] Auto-update robusto (integridad de descarga, protección contra loops de redirección, clasificación de errores de red)
+- [x] Soporte Docker (detectar Docker Compose, comandos por defecto, prioridad de tipo de lenguaje) — **v1.4.0**
 
 ### 🔨 Planeado (Orden de Prioridad)
 - [ ] Alias de comandos para nombres de proyecto largos
@@ -528,7 +476,6 @@ Los proyectos se guardan en:
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos
 - [ ] Grupos de proyectos (`pm group create backend api-users product-service`, `pm run-group backend`)
 - [ ] Autocompletado de shell (tab completion para bash/zsh/PowerShell)
-- [x] Soporte Docker (detectar docker-compose, comandos por defecto) — **v1.4.0**
 - [ ] Instaladores multi-ecosistema (npm, Cargo, Homebrew, Scoop, etc.)
 
 > Ver [ROADMAP.md](ROADMAP.md) para el roadmap completo con planes detallados.
