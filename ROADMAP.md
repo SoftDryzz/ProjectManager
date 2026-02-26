@@ -240,7 +240,7 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.6.0 — CI/CD Detection
+## v1.6.5 — CI/CD Detection
 
 ### CI/CD awareness
 - Detect GitHub Actions (`.github/workflows/`)
@@ -256,7 +256,7 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.6.1 — Linting & Formatting
+## v1.6.6 — Linting & Formatting
 
 ### `pm lint` / `pm fmt` commands
 - Detect linters per project type:
@@ -270,7 +270,7 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.6.2 — Code Generation & Team Workflows
+## v1.6.7 — Code Generation & Team Workflows
 
 ### Code generation detection
 - Detect build_runner (Flutter/Dart), protobuf, OpenAPI generators
