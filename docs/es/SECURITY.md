@@ -59,9 +59,11 @@ ProjectManager solo se conecta a internet para **dos propósitos**:
 
 Ambas conexiones usan HTTPS. No se transmiten tokens de autenticación ni datos personales.
 
-**Limitaciones actuales (se abordarán en v1.3.9):**
-- La integridad del JAR descargado se valida solo con un check de tamaño mínimo (> 1KB). Se planea una validación más robusta (tamaño esperado desde la respuesta del API).
-- Los loops de redirección del API de GitHub no están limitados, lo que podría causar un cuelgue.
+**Medidas de seguridad de descarga (desde v1.3.9):**
+- La integridad del JAR descargado se valida contra el tamaño esperado desde la respuesta del API de GitHub.
+- Los loops de redirección se limitan a 5 saltos para prevenir cadenas de redirección infinitas.
+- Los errores de red se clasifican con mensajes específicos (sin conexión, timeout, firewall, SSL) en lugar de fallos genéricos.
+- Las descargas parciales o corruptas se detectan y rechazan antes de la instalación.
 
 ### Acceso al sistema de archivos
 
@@ -89,9 +91,10 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 - **Consideración restante:** Los comandos personalizados añadidos por usuarios se almacenan y ejecutan tal cual. Si un usuario incluye una ruta con caracteres especiales en un comando personalizado, debe entrecomillarla. PM ahora avisa de esto al añadir el comando.
 
 ### Integridad del mecanismo de actualización
-- **Estado:** Conocido, mejoras planificadas para v1.3.9
+- **Estado:** Abordado en v1.3.9
 - **Riesgo:** Bajo — solo descarga desde GitHub Releases por HTTPS
-- **Mitigación:** Verificar el JAR descargado manualmente si hay dudas (comparación con `sha256sum` de la página de releases)
+- **Mejoras en v1.3.9:** Tamaño del JAR descargado validado contra el tamaño esperado desde la respuesta del API; loops de redirección limitados a 5; errores de red clasificados (sin conexión, timeout, firewall, SSL); descargas parciales detectadas y rechazadas.
+- **Consideración restante:** Sin verificación de hash criptográfico (SHA-256). La validación de tamaño detecta descargas parciales pero no manipulación dirigida. Para máxima seguridad, verificar el JAR manualmente (comparación con `sha256sum` de la página de releases).
 - **Instalación:** Para instrucciones detalladas de instalación y verificación, consulta la [Guía de Instalación](scripts/INSTALL.md)
 
 ### Permisos de archivos locales
@@ -107,7 +110,7 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 |---------|---------------------|
 | v1.3.7 ✅ | Escritura atómica, backup automático, recuperación de datos corruptos, validación de campos al cargar, mensajes de error amigables (sin stack traces) |
 | v1.3.8 ✅ | Validación de directorio antes de ejecución; avisos de metacaracteres en comandos personalizados; error claro para directorios ausentes |
-| v1.3.9  | Validar integridad de descarga; limitar loops de redirección; distinguir tipos de error de red |
+| v1.3.9 ✅ | Validación de integridad de descarga (tamaño esperado del API); límite de loops de redirección (máx 5); clasificación de errores de red (sin conexión, timeout, firewall, SSL) |
 | v1.5.2  | Comando `pm secure` — escaneo de seguridad del sistema de archivos para buenas prácticas del proyecto |
 
 ---

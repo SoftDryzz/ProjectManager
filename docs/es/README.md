@@ -178,6 +178,7 @@ pm run servicio-pedidos
 - 🎨 **Comandos personalizados** - Añade tus propios comandos con `pm commands add` (tunnel, lint, deploy, etc.)
 - 🛡️ **Seguridad de datos** - Escritura atómica, backup automático y recuperación de JSON corrupto
 - 🔒 **Ejecución segura** - Validación de directorio antes de ejecutar comandos, avisos de metacaracteres
+- 🛡️ **Auto-update robusto** - Validación de integridad de descarga, protección contra loops de redirección, mensajes de error de red descriptivos
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -514,6 +515,7 @@ Los proyectos se guardan en:
 - [x] Comandos personalizados (`pm commands add/remove`, `pm commands --all`)
 - [x] Manejo de errores y seguridad de datos (escritura atómica, backup, recuperación, errores amigables)
 - [x] Ejecución segura de comandos (validación de directorio, avisos de metacaracteres)
+- [x] Auto-update robusto (integridad de descarga, protección contra loops de redirección, clasificación de errores de red)
 
 ### 🔨 Planeado (Orden de Prioridad)
 - [ ] Alias de comandos para nombres de proyecto largos

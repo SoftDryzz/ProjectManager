@@ -59,9 +59,11 @@ ProjectManager only connects to the internet for **two purposes**:
 
 Both connections use HTTPS. No authentication tokens or personal data are transmitted.
 
-**Current limitations (being addressed in v1.3.9):**
-- Downloaded JAR integrity is validated only by a minimum size check (> 1KB). A more robust validation (expected file size from API response) is planned.
-- Redirect loops from the GitHub API are not capped, which could cause a hang.
+**Download safety measures (since v1.3.9):**
+- Downloaded JAR integrity is validated against the expected file size from the GitHub API response.
+- Redirect loops are capped at 5 hops to prevent infinite redirect chains.
+- Network errors are classified with specific messages (offline, timeout, firewall, SSL) instead of generic failures.
+- Partial or corrupted downloads are detected and rejected before installation.
 
 ### File system access
 
@@ -89,9 +91,10 @@ No runtime dependencies are pulled from the network. The application is fully se
 - **Remaining consideration:** Custom commands added by users are stored and executed as-is. If a user embeds a path with special characters in a custom command, they should quote it. PM now warns about this at add time.
 
 ### Update mechanism integrity
-- **Status:** Known, improvements planned for v1.3.9
+- **Status:** Addressed in v1.3.9
 - **Risk:** Low — downloads only from GitHub Releases over HTTPS
-- **Mitigation:** Verify the downloaded JAR manually if concerned (`sha256sum` comparison with the release page)
+- **v1.3.9 improvements:** Downloaded JAR size validated against expected size from API response; redirect loops capped at 5; network errors classified (offline, timeout, firewall, SSL); partial downloads detected and rejected.
+- **Remaining consideration:** No cryptographic hash verification (SHA-256). Size validation catches partial downloads but not targeted tampering. For maximum assurance, verify the JAR manually (`sha256sum` comparison with the release page).
 - **Installation:** For detailed installation and verification steps, see the [Installation Guide](scripts/INSTALL.md)
 
 ### Local file permissions
@@ -107,7 +110,7 @@ No runtime dependencies are pulled from the network. The application is fully se
 |---------|---------------------|
 | v1.3.7 ✅ | Atomic file writes, automatic backup, corrupted data recovery, field validation on load, user-friendly error messages (no stack traces) |
 | v1.3.8 ✅ | Directory validation before execution; metacharacter warnings for custom commands; clear error for missing directories |
-| v1.3.9  | Validate download integrity; cap redirect loops; distinguish network error types |
+| v1.3.9 ✅ | Download integrity validation (expected size from API); redirect loop cap (max 5); network error classification (offline, timeout, firewall, SSL) |
 | v1.5.2  | `pm secure` command — filesystem security scan for project best practices |
 
 ---

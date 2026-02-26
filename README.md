@@ -178,6 +178,7 @@ pm run order-service
 - 🎨 **Custom commands** - Add your own commands with `pm commands add` (tunnel, lint, deploy, etc.)
 - 🛡️ **Data safety** - Atomic writes, automatic backup, and recovery from corrupted JSON
 - 🔒 **Safe execution** - Directory validation before running commands, metacharacter warnings
+- 🛡️ **Robust auto-update** - Download integrity validation, redirect loop protection, descriptive network error messages
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -514,6 +515,7 @@ Projects are saved in:
 - [x] Custom commands (`pm commands add/remove`, `pm commands --all`)
 - [x] Error handling & data safety (atomic writes, backup, recovery, friendly errors)
 - [x] Safe command execution (directory validation, metacharacter warnings)
+- [x] Robust auto-update (download integrity, redirect loop protection, network error classification)
 
 ### 🔨 Planned (Priority Order)
 - [ ] Command aliases for long project names

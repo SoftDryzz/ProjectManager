@@ -112,18 +112,18 @@ Prevent commands from failing when project directories are missing or moved. War
 
 ---
 
-## v1.3.9 — Robust Auto-Update
+## v1.3.9 — Robust Auto-Update ✅
 
 ### Download integrity and network resilience
 Ensure the auto-updater handles edge cases gracefully: partial downloads, redirect loops, and network failures with clear feedback.
 
 | Feature | Status |
 |---------|--------|
-| Validate downloaded JAR integrity (expected size from API response) | Planned |
-| Detect and break redirect loops (max 5 redirects) | Planned |
-| Distinguish network errors: timeout vs DNS failure vs firewall | Planned |
-| Clear message when offline: "No internet connection — update check skipped" | Planned |
-| Prevent partial/corrupted JAR from being installed | Planned |
+| Validate downloaded JAR integrity (expected size from API response) | ✅ Done |
+| Detect and break redirect loops (max 5 redirects) | ✅ Done |
+| Distinguish network errors: timeout vs DNS failure vs firewall | ✅ Done |
+| Clear message when offline: "No internet connection — update check skipped" | ✅ Done |
+| Prevent partial/corrupted JAR from being installed | ✅ Done |
 
 ---
 
