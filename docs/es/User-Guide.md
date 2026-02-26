@@ -16,6 +16,7 @@
   - [Autocompletado en Shell](#-autocompletado-en-shell)
   - [Gestión de Variables de Entorno](#-gestión-de-variables-de-entorno)
   - [Diagnósticos](#-diagnósticos)
+  - [Escaneo de Seguridad](#-escaneo-de-seguridad)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -688,6 +689,38 @@ Muestra solo la nota por proyecto sin detalles:
   B  frontend
   F  legacy-api
 ```
+
+---
+
+### 🔹 Escaneo de Seguridad
+
+#### Escanear todos los proyectos
+```bash
+pm secure
+```
+
+Ejecuta 5 verificaciones de seguridad basadas en el sistema de archivos en cada proyecto:
+
+| Verificación | Condición para pasar | Recomendación si falla |
+|-------------|---------------------|----------------------|
+| Dockerfile no-root | No hay Dockerfile, o contiene directiva `USER` (no root) | Añade USER para no ejecutar como root |
+| Protección .env | `.gitignore` contiene patrones `.env` | Añade .env a .gitignore para evitar filtrar secretos |
+| Solo HTTPS | No hay URLs `http://` en archivos de configuración (excluyendo localhost) | Reemplaza http:// con https:// |
+| Archivos sensibles | `.gitignore` contiene `*.pem` y `*.key` | Añade *.pem y *.key a .gitignore |
+| Lockfile | Lockfile de dependencias existe para el tipo de proyecto | Commitea tu lockfile contra ataques de supply-chain |
+
+Coloreado: **5/5** = verde, **3–4/5** = amarillo, **0–2/5** = rojo
+
+#### Auto-corregir problemas de .gitignore
+```bash
+pm secure --fix
+```
+
+Añade automáticamente entradas faltantes a `.gitignore`:
+- `.env` y `.env.*` (archivos de entorno)
+- `*.pem`, `*.key`, `*.p12`, `*.pfx` (claves privadas y certificados)
+
+Crea `.gitignore` si no existe. **No** duplica entradas existentes.
 
 ---
 
@@ -1637,6 +1670,10 @@ pm completions powershell                          # Generar script para PowerSh
 # === DIAGNÓSTICOS ===
 pm doctor                                          # Reporte completo: runtimes + salud (A-F)
 pm doctor --score                                  # Compacto: solo calificaciones por proyecto
+
+# === SEGURIDAD ===
+pm secure                                          # Escanear proyectos buscando problemas de seguridad
+pm secure --fix                                    # Auto-corregir problemas de .gitignore
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

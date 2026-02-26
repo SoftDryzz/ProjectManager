@@ -183,6 +183,7 @@ pm run order-service
 - 🐳 **Docker support** - Detect Docker Compose projects, default commands (build, up, down, clean)
 - 🪝 **Pre-/post-command hooks** - Run custom scripts before or after any command with `pm hooks`
 - 🔤 **Shell autocompletion** - TAB completion for bash, zsh, fish, and PowerShell with `pm completions`
+- 🔐 **Security scan** - Detect misconfigurations (Dockerfile root, exposed secrets, insecure URLs) with `pm secure`, auto-fix with `--fix`
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -246,6 +247,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm update` | Update to the latest version |
 | `pm doctor` | Diagnose environment (runtimes, paths, health scores) |
 | `pm doctor --score` | Show only health grades (A/B/C/D/F) per project |
+| `pm secure` | Scan projects for security misconfigurations |
+| `pm secure --fix` | Auto-fix .gitignore issues (add .env, *.pem, *.key entries) |
 | `pm help` | Show help |
 | `pm version` | Show version |
 
@@ -455,9 +458,10 @@ Projects are saved in:
 - **CLI** — `pm doctor`, `pm env`, `pm refresh`, `pm rename`, `pm update`, `pm commands add/remove`
 - **Runtimes** — Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Flutter, Docker
 - **Integrations** — Git status, interactive TTY, multi-platform installers, GitHub Actions
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 441 tests
+- **Security** — `pm secure` scans for misconfigurations, `--fix` auto-remediates .gitignore issues
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 498 tests
 
-> Latest release: **v1.6.1** (Doctor Health Score) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v1.6.2** (Security Scan) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects

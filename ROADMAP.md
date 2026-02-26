@@ -201,18 +201,21 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.6.2 — Security Scan
+## v1.6.2 — Security Scan ✅
 
 ### `pm secure` command
-- Best practices security scan (filesystem patterns only, no secret management)
-- Checks:
-  - Dockerfile runs as non-root user
-  - `.env` files are in `.gitignore`
-  - No hardcoded `http://` URLs in config files (should be `https://`)
-  - Sensitive files (`.pem`, `.key`) are in `.gitignore`
-  - Dependencies lockfile exists
-- `pm secure` — run all checks and show report
-- `pm secure --fix` — auto-fix what can be fixed (e.g., add entries to `.gitignore`)
+
+| Feature | Status |
+|---------|--------|
+| Best practices security scan (filesystem patterns only, no secret management) | ✅ Done |
+| Check: Dockerfile runs as non-root user | ✅ Done |
+| Check: `.env` files are in `.gitignore` | ✅ Done |
+| Check: No hardcoded `http://` URLs in config files (should be `https://`) | ✅ Done |
+| Check: Sensitive files (`.pem`, `.key`) are in `.gitignore` | ✅ Done |
+| Check: Dependencies lockfile exists | ✅ Done |
+| `pm secure` — run all checks and show report | ✅ Done |
+| `pm secure --fix` — auto-fix what can be fixed (add entries to `.gitignore`) | ✅ Done |
+| Auto-fix creates `.gitignore` if not present | ✅ Done |
 
 ---
 
