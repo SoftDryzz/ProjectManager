@@ -8,6 +8,9 @@ import pm.detector.ProjectType;
 import pm.detector.ProjectTypeDetector;
 import pm.doctor.HealthCheck;
 import pm.doctor.HealthScorer;
+import pm.audit.AuditReport;
+import pm.audit.DependencyAuditor;
+import pm.audit.Severity;
 import pm.security.SecurityCheck;
 import pm.security.SecurityScorer;
 import pm.executor.CommandExecutor;
@@ -111,6 +114,7 @@ public class ProjectManager {
                 case "update" -> UpdateChecker.performUpdate();
                 case "doctor" -> handleDoctor(args);
                 case "secure" -> handleSecure(args);
+                case "audit" -> handleAudit(args);
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
@@ -2060,6 +2064,125 @@ public class ProjectManager {
         };
     }
 
+    // ============================================================
+    // COMMAND: AUDIT (Dependency vulnerability audit)
+    // ============================================================
+
+    /**
+     * Handler for the {@code audit} command.
+     *
+     * <p>Runs native dependency audit tools on all registered projects
+     * and displays a unified summary with severity breakdown.
+     *
+     * <p>Usage: {@code pm audit}
+     */
+    private static void handleAudit(String[] args) {
+        OutputFormatter.section("Dependency Audit");
+
+        try {
+            Map<String, Project> projects = store.load();
+
+            if (projects.isEmpty()) {
+                System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                return;
+            }
+
+            DependencyAuditor auditor = new DependencyAuditor(executor);
+
+            for (Project project : projects.values()) {
+                boolean pathExists = Files.exists(project.path()) && Files.isDirectory(project.path());
+
+                System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                        " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+
+                if (!pathExists) {
+                    System.out.println("    " + OutputFormatter.RED + "Cannot audit \u2014 path not found" + OutputFormatter.RESET);
+                    System.out.println();
+                    continue;
+                }
+
+                String toolName = DependencyAuditor.toolDisplayName(project.type());
+                if (toolName != null) {
+                    System.out.print("    " + OutputFormatter.GRAY + "Running " + toolName + "..." + OutputFormatter.RESET);
+                    System.out.flush();
+                }
+
+                AuditReport report = auditor.audit(project.type(), project.path());
+
+                if (toolName != null) {
+                    // Clear the "Running..." line
+                    System.out.print("\r" + " ".repeat(60) + "\r");
+                }
+
+                printAuditReport(report, project.type());
+                System.out.println();
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    /**
+     * Prints the audit report for a single project.
+     */
+    private static void printAuditReport(AuditReport report, ProjectType type) {
+        switch (report.status()) {
+            case CLEAN -> System.out.println("    " + OutputFormatter.GREEN + "\u2713" + OutputFormatter.RESET +
+                    " No known vulnerabilities");
+
+            case VULNERABLE -> {
+                int total = report.totalVulnerabilities();
+                System.out.println("    " + OutputFormatter.YELLOW + "\u26A0 " + total +
+                        " vulnerabilit" + (total == 1 ? "y" : "ies") + " found" + OutputFormatter.RESET);
+
+                // Severity breakdown
+                java.util.Map<Severity, Long> counts = report.severityCounts();
+                StringBuilder breakdown = new StringBuilder("      ");
+                boolean first = true;
+                for (Severity sev : Severity.values()) {
+                    long count = counts.getOrDefault(sev, 0L);
+                    if (count > 0) {
+                        if (!first) breakdown.append(", ");
+                        breakdown.append(count).append(" ").append(sev.name().toLowerCase());
+                        first = false;
+                    }
+                }
+                System.out.println(OutputFormatter.GRAY + breakdown + OutputFormatter.RESET);
+
+                if (!report.suggestion().isEmpty()) {
+                    System.out.println("    Suggestion: " + OutputFormatter.CYAN +
+                            report.suggestion() + OutputFormatter.RESET);
+                }
+            }
+
+            case TOOL_NOT_INSTALLED -> {
+                System.out.println("    " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                        " " + report.message());
+                if (!report.suggestion().isEmpty()) {
+                    System.out.println("      Install: " + OutputFormatter.CYAN +
+                            report.suggestion() + OutputFormatter.RESET);
+                }
+            }
+
+            case NO_TOOL -> {
+                System.out.println("    " + OutputFormatter.BLUE + "\u2139" + OutputFormatter.RESET +
+                        " No native audit tool for " + type.displayName());
+                if (!report.message().isEmpty()) {
+                    System.out.println("      " + OutputFormatter.GRAY + report.message() + OutputFormatter.RESET);
+                }
+            }
+
+            case SKIPPED -> System.out.println("    " + OutputFormatter.GRAY +
+                    "Skipped \u2014 no audit tool available" + OutputFormatter.RESET);
+
+            case ERROR -> System.out.println("    " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                    " Audit failed: " + report.message());
+        }
+    }
+
     /**
      * Right-pads a string to the specified length.
      */
@@ -2135,6 +2258,7 @@ public class ProjectManager {
           update                                    Update to the latest version
           doctor [--score]                            Check environment, runtimes, and project health (A/B/C/D/F)
           secure [--fix]                              Scan projects for security misconfigurations
+          audit                                     Audit dependencies for known vulnerabilities
           help                                      Show this help
           version                                   Show version
 

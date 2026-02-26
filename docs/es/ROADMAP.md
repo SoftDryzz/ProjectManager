@@ -219,20 +219,27 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.6.3 — Auditoría de Dependencias
+## v1.6.3 — Auditoría de Dependencias ✅
 
 ### Comando `pm audit`
-- Verificar vulnerabilidades conocidas usando herramientas nativas del ecosistema:
-  - npm: `npm audit`
-  - Cargo: `cargo audit`
-  - Go: `govulncheck`
-  - Python: `pip-audit`
-  - Maven: OWASP dependency-check
-- Mostrar resumen con niveles de severidad
-- **Sugerir** correcciones cuando estén disponibles — nunca auto-actualizar dependencias
-- El desarrollador decide si actualizar; PM solo informa
 
-> **Importante:** `pm audit` es solo lectura. Reporta vulnerabilidades y sugiere qué *podría* actualizarse, pero nunca modifica `package.json`, `Cargo.toml`, ni ningún archivo de dependencias. El desarrollador puede estar usando versiones específicas intencionalmente.
+| Característica | Estado |
+|---------------|--------|
+| Ejecutar herramientas de auditoría nativas y mostrar resumen unificado | ✅ Hecho |
+| npm: `npm audit --json` | ✅ Hecho |
+| pnpm: `pnpm audit --json` | ✅ Hecho |
+| Yarn: `yarn audit --json` | ✅ Hecho |
+| Cargo: `cargo audit --json` | ✅ Hecho |
+| Go: `govulncheck -json ./...` | ✅ Hecho |
+| Python: `pip-audit --format=json` | ✅ Hecho |
+| .NET: `dotnet list package --vulnerable --format json` | ✅ Hecho |
+| Maven/Gradle: mensaje informativo (recomendar plugin OWASP) | ✅ Hecho |
+| Niveles de severidad unificados (CRITICAL/HIGH/MEDIUM/LOW) | ✅ Hecho |
+| Manejo elegante de herramientas no instaladas con instrucciones | ✅ Hecho |
+| Nuevo `captureOutput()` en CommandExecutor para captura silenciosa de JSON | ✅ Hecho |
+| Solo lectura — nunca modifica archivos de dependencias | ✅ Hecho |
+
+> **Importante:** `pm audit` es solo lectura. Reporta vulnerabilidades y sugiere qué *podría* actualizarse, pero nunca modifica archivos de dependencias.
 
 ---
 

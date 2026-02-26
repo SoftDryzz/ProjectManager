@@ -17,6 +17,7 @@
   - [Environment Variable Management](#-environment-variable-management)
   - [Diagnostics](#-diagnostics)
   - [Security Scan](#-security-scan)
+  - [Dependency Audit](#-dependency-audit)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -721,6 +722,50 @@ Automatically adds missing entries to `.gitignore`:
 - `*.pem`, `*.key`, `*.p12`, `*.pfx` (private keys and certificates)
 
 Creates `.gitignore` if it doesn't exist. Does **not** duplicate entries that are already present.
+
+---
+
+### 🔹 Dependency Audit
+
+#### Audit all projects for known vulnerabilities
+```bash
+pm audit
+```
+
+Runs native ecosystem vulnerability tools on each registered project and displays a unified summary with severity levels.
+
+| Project Type | Audit Tool | Requires Separate Install? |
+|-------------|-----------|---------------------------|
+| Node.js | `npm audit --json` | No (bundled with npm) |
+| pnpm | `pnpm audit --json` | No (bundled) |
+| Yarn | `yarn audit --json` | No (bundled) |
+| Rust | `cargo audit --json` | Yes (`cargo install cargo-audit`) |
+| Go | `govulncheck -json ./...` | Yes (`go install golang.org/x/vuln/cmd/govulncheck@latest`) |
+| Python | `pip-audit --format=json` | Yes (`pip install pip-audit`) |
+| .NET | `dotnet list package --vulnerable` | No (bundled with .NET SDK) |
+| Maven/Gradle | N/A | Shows recommendation for OWASP plugin |
+| Bun/Flutter/Docker | N/A | Skipped (no native tool) |
+
+**Severity levels:** CRITICAL, HIGH, MEDIUM, LOW — mapped from each ecosystem's native levels.
+
+**Read-only:** `pm audit` never modifies dependency files. It suggests fixes but the developer decides whether to update.
+
+**Example output:**
+```
+=== Dependency Audit ===
+
+  backend (Node.js)
+    ⚠ 3 vulnerabilities found
+      2 moderate, 1 high
+    Suggestion: Run 'npm audit fix' to resolve
+
+  api-server (Rust)
+    ✓ No known vulnerabilities
+
+  data-service (Maven)
+    ℹ No native audit tool for Maven
+      Consider: OWASP dependency-check plugin
+```
 
 ---
 
@@ -1674,6 +1719,9 @@ pm doctor --score                              # Compact: only health grades per
 # === SECURITY ===
 pm secure                                      # Scan all projects for security issues
 pm secure --fix                                # Auto-fix .gitignore issues
+
+# === AUDIT ===
+pm audit                                       # Audit dependencies for known vulnerabilities
 
 # === UPDATES ===
 pm update                                      # Update to latest version

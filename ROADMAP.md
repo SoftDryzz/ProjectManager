@@ -219,20 +219,27 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.6.3 — Dependency Audit
+## v1.6.3 — Dependency Audit ✅
 
 ### `pm audit` command
-- Check for known vulnerabilities using native ecosystem tools:
-  - npm: `npm audit`
-  - Cargo: `cargo audit`
-  - Go: `govulncheck`
-  - Python: `pip-audit`
-  - Maven: OWASP dependency-check
-- Show summary with severity levels
-- **Suggest** fixes where available — never auto-update dependencies
-- The developer decides whether to update; PM only informs
 
-> **Important:** `pm audit` is read-only. It reports vulnerabilities and suggests what *could* be updated, but never modifies `package.json`, `Cargo.toml`, or any dependency file. The developer may be using specific versions intentionally.
+| Feature | Status |
+|---------|--------|
+| Run native ecosystem audit tools and show unified summary | ✅ Done |
+| npm: `npm audit --json` | ✅ Done |
+| pnpm: `pnpm audit --json` | ✅ Done |
+| Yarn: `yarn audit --json` | ✅ Done |
+| Cargo: `cargo audit --json` | ✅ Done |
+| Go: `govulncheck -json ./...` | ✅ Done |
+| Python: `pip-audit --format=json` | ✅ Done |
+| .NET: `dotnet list package --vulnerable --format json` | ✅ Done |
+| Maven/Gradle: informative message (recommend OWASP plugin) | ✅ Done |
+| Unified severity levels (CRITICAL/HIGH/MEDIUM/LOW) | ✅ Done |
+| Graceful handling of missing audit tools with install instructions | ✅ Done |
+| New `captureOutput()` in CommandExecutor for silent JSON capture | ✅ Done |
+| Read-only — never modifies dependency files | ✅ Done |
+
+> **Important:** `pm audit` is read-only. It reports vulnerabilities and suggests what *could* be updated, but never modifies `package.json`, `Cargo.toml`, or any dependency file.
 
 ---
 
