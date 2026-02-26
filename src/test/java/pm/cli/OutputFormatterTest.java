@@ -261,6 +261,30 @@ class OutputFormatterTest {
         assertTrue(output.contains("Custom"), "Should have Custom section");
     }
 
+    @Test
+    @DisplayName("printCommands classifies 'stop' as a default command")
+    void printCommandsStopIsDefault() {
+        Project project = new Project("docker-app", Paths.get("/tmp/docker"), ProjectType.DOCKER);
+        project.addCommand("build", "docker compose build");
+        project.addCommand("run", "docker compose up");
+        project.addCommand("stop", "docker compose down");
+        project.addCommand("deploy", "kubectl apply -f k8s/");
+
+        OutputFormatter.printCommands(project);
+        String output = getOutput();
+
+        assertTrue(output.contains("Default"), "Should have Default section");
+        assertTrue(output.contains("Custom"), "Should have Custom section");
+        int defaultIdx = output.indexOf("Default");
+        int customIdx = output.indexOf("Custom");
+        int stopIdx = output.indexOf("stop");
+        int deployIdx = output.indexOf("deploy");
+        assertTrue(stopIdx > defaultIdx && stopIdx < customIdx,
+                "stop should appear in Default section");
+        assertTrue(deployIdx > customIdx,
+                "deploy should appear in Custom section");
+    }
+
     // ============================================================
     // ENVIRONMENT VARIABLES
     // ============================================================

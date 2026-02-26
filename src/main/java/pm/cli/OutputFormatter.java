@@ -50,7 +50,7 @@ public class OutputFormatter {
     public static final String RESET = "\u001B[0m";
 
     /** Command names that are considered "default" (auto-configured by CommandConfigurator). */
-    private static final Set<String> DEFAULT_COMMANDS = Set.of("build", "run", "test", "clean");
+    private static final Set<String> DEFAULT_COMMANDS = Set.of("build", "run", "test", "clean", "stop");
 
     /**
      * Displays a success message (green, with ✓).
