@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -92,16 +93,13 @@ public class ProjectManager {
                 case "rename" -> handleRename(args);
                 case "info" -> handleInfo(args);
                 case "env" -> handleEnv(args);
+                case "hooks" -> handleHooks(args);
                 case "refresh" -> handleRefresh(args);
                 case "update" -> UpdateChecker.performUpdate();
                 case "doctor" -> handleDoctor();
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
-                default -> {
-                    OutputFormatter.error("Unknown command: " + command);
-                    System.out.println("Run 'pm help' for usage information");
-                    System.exit(1);
-                }
+                default -> handleGenericCommand(command, args);
             }
         } catch (Exception e) {
             handleFatalError(e);
@@ -313,6 +311,12 @@ public class ProjectManager {
             // Check runtime is available before executing
             RuntimeChecker.checkRuntime(project.type());
 
+            // Run pre-build hooks
+            if (!executeHooks(project, "pre-build")) {
+                OutputFormatter.error("Pre-build hook failed. Build aborted.");
+                System.exit(1);
+            }
+
             // Display info
             System.out.println();
             OutputFormatter.info("Building " + projectName + "...");
@@ -340,6 +344,10 @@ public class ProjectManager {
             System.out.println();
 
             if (result.success()) {
+                // Run post-build hooks
+                if (!executeHooks(project, "post-build")) {
+                    OutputFormatter.warning("Post-build hook failed.");
+                }
                 OutputFormatter.success("Build completed successfully");
                 System.out.println("Duration: " + result.formattedDuration());
             } else {
@@ -399,6 +407,12 @@ public class ProjectManager {
             // Check runtime is available before executing
             RuntimeChecker.checkRuntime(project.type());
 
+            // Run pre-run hooks
+            if (!executeHooks(project, "pre-run")) {
+                OutputFormatter.error("Pre-run hook failed. Run aborted.");
+                System.exit(1);
+            }
+
             System.out.println();
             OutputFormatter.info("Running " + projectName + "...");
             System.out.println("Command: " + runCommand);
@@ -424,6 +438,10 @@ public class ProjectManager {
             System.out.println();
 
             if (result.success()) {
+                // Run post-run hooks
+                if (!executeHooks(project, "post-run")) {
+                    OutputFormatter.warning("Post-run hook failed.");
+                }
                 OutputFormatter.info("Process terminated");
                 System.out.println("Duration: " + result.formattedDuration());
             } else {
@@ -482,13 +500,18 @@ public class ProjectManager {
             // Check runtime is available before executing
             RuntimeChecker.checkRuntime(project.type());
 
+            // Run pre-test hooks
+            if (!executeHooks(project, "pre-test")) {
+                OutputFormatter.error("Pre-test hook failed. Tests aborted.");
+                System.exit(1);
+            }
+
             System.out.println();
             OutputFormatter.info("Running tests for " + projectName + "...");
             System.out.println("Command: " + testCommand);
             System.out.println();
             System.out.println("─".repeat(60));
             System.out.println();
-
 
             // Execute: use inherited IO when running in a real terminal (interactive mode)
             CommandExecutor.ExecutionResult result;
@@ -507,6 +530,10 @@ public class ProjectManager {
             System.out.println();
 
             if (result.success()) {
+                // Run post-test hooks
+                if (!executeHooks(project, "post-test")) {
+                    OutputFormatter.warning("Post-test hook failed.");
+                }
                 OutputFormatter.success("All tests passed");
                 System.out.println("Duration: " + result.formattedDuration());
             } else {
@@ -1231,6 +1258,351 @@ public class ProjectManager {
     }
 
     // ============================================================
+    // COMMAND: HOOKS (Manage pre-/post-command hooks)
+    // ============================================================
+
+    /**
+     * Handler for the "hooks" command.
+     * Manages pre-/post-command hooks for a project.
+     *
+     * <p>Subcommands:
+     * <ul>
+     * <li>{@code pm hooks <project>} — list all hooks</li>
+     * <li>{@code pm hooks <project> add <slot> "<script>"} — add a hook</li>
+     * <li>{@code pm hooks <project> remove <slot> "<script>"} — remove a hook</li>
+     * <li>{@code pm hooks --all} — list hooks for all projects</li>
+     * </ul>
+     *
+     * @param args command arguments
+     */
+    private static void handleHooks(String[] args) {
+        // Handle --all flag: pm hooks --all
+        if (args.length >= 2 && args[1].equals("--all")) {
+            handleHooksAll();
+            return;
+        }
+
+        // Need at least a project name
+        if (args.length < 2) {
+            printHooksHelp();
+            return;
+        }
+
+        String projectName = args[1];
+
+        // Check for subcommands: pm hooks <project> add|remove
+        if (args.length >= 3) {
+            String subcommand = args[2].toLowerCase();
+            switch (subcommand) {
+                case "add" -> {
+                    handleHooksAdd(args, projectName);
+                    return;
+                }
+                case "remove", "rm" -> {
+                    handleHooksRemove(args, projectName);
+                    return;
+                }
+                default -> {
+                    // Unknown subcommand — fall through to show hooks
+                }
+            }
+        }
+
+        // Default: show hooks for this project
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            OutputFormatter.printHooks(projectName, project.hooks());
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Adds a hook to a project.
+     *
+     * <p>Usage: {@code pm hooks <project> add <slot> "<script>"}
+     */
+    private static void handleHooksAdd(String[] args, String projectName) {
+        if (args.length < 5) {
+            OutputFormatter.error("Hook slot and script are required");
+            System.out.println("Usage: pm hooks <project> add <slot> \"<script>\"");
+            System.out.println("Example: pm hooks my-app add pre-build \"npm run lint\"");
+            System.exit(1);
+        }
+
+        String slot = args[3].toLowerCase();
+
+        // Validate slot format: must be pre-<command> or post-<command>
+        if (!slot.startsWith("pre-") && !slot.startsWith("post-")) {
+            OutputFormatter.error("Invalid hook slot: " + slot);
+            System.out.println("Slots must start with 'pre-' or 'post-' (e.g., pre-build, post-test)");
+            System.exit(1);
+        }
+
+        String hookCommand = slot.startsWith("pre-") ? slot.substring(4) : slot.substring(5);
+        if (hookCommand.isBlank()) {
+            OutputFormatter.error("Invalid hook slot: " + slot);
+            System.out.println("Slots must include a command name (e.g., pre-build, post-test)");
+            System.exit(1);
+        }
+
+        // Join remaining args as the script (supports unquoted multi-word commands)
+        String script = String.join(" ", Arrays.copyOfRange(args, 4, args.length));
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            // Validate that the hook command matches an existing command on the project
+            if (!project.hasCommand(hookCommand)) {
+                OutputFormatter.warning("Project '" + projectName + "' has no '" + hookCommand +
+                        "' command configured. The hook will run when the command is added.");
+            }
+
+            project.addHook(slot, script);
+            store.saveProject(project);
+
+            System.out.println();
+            OutputFormatter.success("Hook added to '" + projectName + "'");
+            System.out.println("  " + OutputFormatter.GREEN + slot + OutputFormatter.RESET +
+                    " → " + OutputFormatter.CYAN + script + OutputFormatter.RESET);
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to update project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Removes a hook from a project by exact content match.
+     *
+     * <p>Usage: {@code pm hooks <project> remove <slot> "<script>"}
+     */
+    private static void handleHooksRemove(String[] args, String projectName) {
+        if (args.length < 5) {
+            OutputFormatter.error("Hook slot and script are required");
+            System.out.println("Usage: pm hooks <project> remove <slot> \"<script>\"");
+            System.out.println("Use 'pm hooks <project>' to see current hooks");
+            System.exit(1);
+        }
+
+        String slot = args[3].toLowerCase();
+        String script = String.join(" ", Arrays.copyOfRange(args, 4, args.length));
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            boolean removed = project.removeHook(slot, script);
+            if (!removed) {
+                OutputFormatter.error("Hook not found in slot '" + slot + "': " + script);
+                System.out.println("Use 'pm hooks " + projectName + "' to see current hooks");
+                System.exit(1);
+            }
+
+            store.saveProject(project);
+
+            System.out.println();
+            OutputFormatter.success("Hook removed from '" + projectName + "'");
+            System.out.println("  " + OutputFormatter.GRAY + slot + " → " + script + OutputFormatter.RESET);
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to update project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Lists hooks for all registered projects.
+     */
+    private static void handleHooksAll() {
+        try {
+            Map<String, Project> projects = store.load();
+
+            if (projects.isEmpty()) {
+                OutputFormatter.info("No projects registered");
+                return;
+            }
+
+            boolean anyHooks = false;
+            for (Project project : projects.values()) {
+                if (project.hasHooks()) {
+                    OutputFormatter.printHooks(project.name(), project.hooks());
+                    anyHooks = true;
+                }
+            }
+
+            if (!anyHooks) {
+                System.out.println();
+                OutputFormatter.info("No hooks configured in any project");
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Executes all hooks for a given slot.
+     *
+     * @param project the project whose hooks to run
+     * @param slot hook slot (e.g., "pre-build", "post-run")
+     * @return true if all hooks succeeded (or none existed), false if any failed
+     */
+    private static boolean executeHooks(Project project, String slot) {
+        List<String> scripts = project.getHooks(slot);
+        if (scripts.isEmpty()) {
+            return true;
+        }
+
+        OutputFormatter.info("Running " + slot + " hooks...");
+
+        for (String script : scripts) {
+            try {
+                CommandExecutor.ExecutionResult result = executor.execute(
+                        script, project.path(), Constants.HOOK_TIMEOUT, project.envVars());
+
+                if (!result.success()) {
+                    OutputFormatter.error(slot + " hook failed: " + script);
+                    if (result.message() != null && !result.message().isBlank()) {
+                        System.out.println("  " + result.message());
+                    }
+                    return false;
+                }
+            } catch (IOException | InterruptedException e) {
+                OutputFormatter.error(slot + " hook error: " + e.getMessage());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Handles execution of any command not handled by specific handlers.
+     * Enables running clean, stop, and custom commands with hook support.
+     *
+     * @param commandName the command name (e.g., "clean", "stop", or a custom command)
+     * @param args full command arguments
+     */
+    private static void handleGenericCommand(String commandName, String[] args) {
+        // Need a project name as second argument
+        if (args.length < 2) {
+            OutputFormatter.error("Unknown command: " + commandName);
+            System.out.println("Run 'pm help' for usage information");
+            System.exit(1);
+        }
+
+        String projectName = args[1];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                // Not a known project — this is truly an unknown command
+                OutputFormatter.error("Unknown command: " + commandName);
+                System.out.println("Run 'pm help' for usage information");
+                System.exit(1);
+            }
+
+            String cmdLine = project.getCommand(commandName);
+            if (cmdLine == null) {
+                OutputFormatter.error("No '" + commandName + "' command configured for project '" + projectName + "'");
+                System.out.println("Use 'pm commands " + projectName + "' to see available commands");
+                System.exit(1);
+            }
+
+            validateProjectPath(project);
+
+            // Run pre-hooks
+            if (!executeHooks(project, "pre-" + commandName)) {
+                OutputFormatter.error("Pre-" + commandName + " hook failed. Command aborted.");
+                System.exit(1);
+            }
+
+            System.out.println();
+            OutputFormatter.info("Running '" + commandName + "' on " + projectName + "...");
+            System.out.println("Command: " + cmdLine);
+            System.out.println("Directory: " + project.path());
+            System.out.println();
+            System.out.println("─".repeat(60));
+            System.out.println();
+
+            // Execute
+            CommandExecutor.ExecutionResult result;
+            if (System.console() != null) {
+                result = executor.executeWithInheritedIO(cmdLine, project.path(), 300, project.envVars());
+            } else {
+                if (project.envVarCount() > 0) {
+                    result = executor.execute(cmdLine, project.path(), 300, project.envVars());
+                } else {
+                    result = executor.execute(cmdLine, project.path(), 300);
+                }
+            }
+
+            System.out.println();
+            System.out.println("─".repeat(60));
+            System.out.println();
+
+            if (result.success()) {
+                // Run post-hooks
+                if (!executeHooks(project, "post-" + commandName)) {
+                    OutputFormatter.warning("Post-" + commandName + " hook failed.");
+                }
+                OutputFormatter.success("'" + commandName + "' completed successfully");
+                System.out.println("Duration: " + result.formattedDuration());
+            } else {
+                OutputFormatter.error("'" + commandName + "' failed");
+                System.out.println("Exit code: " + result.exitCode());
+                System.exit(1);
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        } catch (InterruptedException e) {
+            OutputFormatter.warning("Command interrupted");
+            System.exit(130);
+        }
+    }
+
+    private static void printHooksHelp() {
+        System.out.println("""
+        Usage: pm hooks <project> [subcommand] [options]
+
+        Subcommands:
+          (none)                                   List all hooks for the project
+          add <slot> "<script>"                    Add a hook
+          remove <slot> "<script>"                 Remove a hook by exact content
+          --all                                    List hooks for all projects
+
+        Slots:
+          pre-<command>    Runs before the command (failure aborts the command)
+          post-<command>   Runs after the command (failure shows a warning)
+
+        Examples:
+          pm hooks my-api
+          pm hooks my-api add pre-build "npm run lint"
+          pm hooks my-api add post-build "echo Build done"
+          pm hooks my-api remove pre-build "npm run lint"
+          pm hooks --all
+        """);
+    }
+
+    // ============================================================
     // COMMAND: REFRESH (Re-detect type and update commands)
     // ============================================================
 
@@ -1556,11 +1928,16 @@ public class ProjectManager {
           build <name>                              Build project
           run <name>                                Run project
           test <name>                               Run tests
+          <cmd> <name>                              Run any registered command
           scan <name>                               Scan for commands in code
           commands, cmd <name>                      List available commands
           commands <name> add <cmd> "<line>"         Add a custom command
           commands <name> remove <cmd>               Remove a command
           commands --all                              List commands for all projects
+          hooks <name>                              List hooks for a project
+          hooks <name> add <slot> "<script>"         Add a pre-/post-command hook
+          hooks <name> remove <slot> "<script>"      Remove a hook
+          hooks --all                                List hooks for all projects
           remove, rm <name>                         Remove project
           rename <name> [new-name] [--path <path>]   Rename project or update path
           info <name>                               Show project details
@@ -1579,6 +1956,13 @@ public class ProjectManager {
           env remove <name> KEY                     Remove a variable
           env clear <name>                          Remove all variables
 
+        Hooks (pm hooks):
+          hooks <name>                              List all hooks
+          hooks <name> add pre-<cmd> "<script>"     Add a pre-command hook
+          hooks <name> add post-<cmd> "<script>"    Add a post-command hook
+          hooks <name> remove <slot> "<script>"     Remove a hook by exact content
+          hooks --all                               List hooks for all projects
+
         Examples:
           pm add backend-api --path ~/projects/backend-api
           pm add web-server --path ~/projects/web-server --env "PORT=3000,DEBUG=true"
@@ -1590,6 +1974,8 @@ public class ProjectManager {
           pm commands backend-api
           pm commands backend-api add deploy "docker compose up -d"
           pm commands --all
+          pm hooks my-api add pre-build "npm run lint"
+          pm hooks my-api
           pm info web-server
         """);
     }

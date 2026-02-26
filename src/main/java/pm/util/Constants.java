@@ -15,7 +15,7 @@ import java.nio.file.Paths;
  * (utility class pattern).
  *
  * @author SoftDryzz
- * @version 1.4.0
+ * @version 1.5.0
  * @since 1.0.0
  */
 public final class Constants {
@@ -38,7 +38,7 @@ public final class Constants {
      * Current version of ProjectManager.
      * Follows Semantic Versioning (MAJOR.MINOR.PATCH).
      */
-    public static final String VERSION = "1.4.0";
+    public static final String VERSION = "1.5.0";
 
     // ============================================================
     // SYSTEM DIRECTORIES AND FILES
@@ -365,4 +365,11 @@ public final class Constants {
 
     /** Docker Compose configuration file (YAML full extension). */
     public static final String FILE_DOCKER_COMPOSE_YAML = "docker-compose.yaml";
+
+    // ============================================================
+    // HOOKS
+    // ============================================================
+
+    /** Timeout in seconds for pre-/post-command hooks. */
+    public static final int HOOK_TIMEOUT = 60;
 }

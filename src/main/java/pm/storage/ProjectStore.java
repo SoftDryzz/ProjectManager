@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static pm.util.Constants.CONFIG_DIR;
 import static pm.util.Constants.PROJECTS_FILE;
@@ -169,6 +170,8 @@ public class ProjectStore {
         Project renamed = new Project(newName, existing.path(), existing.type());
         existing.commands().forEach(renamed::addCommand);
         existing.envVars().forEach(renamed::addEnvVar);
+        existing.hooks().forEach((slot, scripts) ->
+                scripts.forEach(script -> renamed.addHook(slot, script)));
 
         projects.remove(oldName);
         projects.put(newName, renamed);
@@ -290,6 +293,7 @@ public class ProjectStore {
         Map<String, String> commands;
         String lastModified;  // String instead of Instant
         Map<String, String> envVars;
+        Map<String, List<String>> hooks;
 
         /**
          * Converts a Project to DTO.
@@ -302,6 +306,9 @@ public class ProjectStore {
             dto.commands = new HashMap<>(project.commands());
             dto.envVars = new HashMap<>(project.envVars());
             dto.lastModified = project.lastModified().toString();
+            // Deep copy hooks: each list must be a new ArrayList
+            dto.hooks = project.hooks().entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
             return dto;
         }
 
@@ -345,6 +352,14 @@ public class ProjectStore {
                 envVars.forEach(project::addEnvVar);
             }
 
+            if (hooks != null) {
+                hooks.forEach((slot, scripts) -> {
+                    if (scripts != null) {
+                        scripts.forEach(script -> project.addHook(slot, script));
+                    }
+                });
+            }
+
             return project;
         }
 
@@ -364,6 +379,14 @@ public class ProjectStore {
 
             if (envVars != null) {
                 envVars.forEach(project::addEnvVar);
+            }
+
+            if (hooks != null) {
+                hooks.forEach((slot, scripts) -> {
+                    if (scripts != null) {
+                        scripts.forEach(script -> project.addHook(slot, script));
+                    }
+                });
             }
 
             return project;

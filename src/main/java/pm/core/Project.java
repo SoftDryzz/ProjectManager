@@ -5,7 +5,10 @@ import pm.detector.ProjectType;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -78,6 +81,13 @@ public final class Project {
     private Map<String, String> envVars;
 
     /**
+     * Map of hooks for this project.
+     * Key: slot name (e.g., "pre-build", "post-run")
+     * Value: ordered list of scripts to execute
+     */
+    private final Map<String, List<String>> hooks;
+
+    /**
      * Creates a new project.
      *
      * @param name unique project name (cannot be null)
@@ -101,6 +111,7 @@ public final class Project {
         this.type = type;
         this.commands = new HashMap<>();
         this.envVars = new HashMap<>();
+        this.hooks = new HashMap<>();
         this.lastModified = Instant.now();
     }
 
@@ -349,5 +360,100 @@ public final class Project {
      */
     public int envVarCount() {
         return this.envVars.size();
+    }
+
+    // ============================================================
+    // HOOK MANAGEMENT
+    // ============================================================
+
+    /**
+     * Adds a hook script to the specified slot.
+     *
+     * @param slot hook slot (e.g., "pre-build", "post-run")
+     * @param script shell command to execute
+     */
+    public void addHook(String slot, String script) {
+        Objects.requireNonNull(slot, "Hook slot cannot be null");
+        Objects.requireNonNull(script, "Hook script cannot be null");
+        if (slot.isBlank()) {
+            throw new IllegalArgumentException("Hook slot cannot be blank");
+        }
+        if (script.isBlank()) {
+            throw new IllegalArgumentException("Hook script cannot be blank");
+        }
+
+        hooks.computeIfAbsent(slot, k -> new ArrayList<>()).add(script);
+        lastModified = Instant.now();
+    }
+
+    /**
+     * Removes a hook script from the specified slot by exact content match.
+     *
+     * @param slot hook slot
+     * @param script exact script to remove
+     * @return true if the script was found and removed
+     */
+    public boolean removeHook(String slot, String script) {
+        List<String> scripts = hooks.get(slot);
+        if (scripts == null) {
+            return false;
+        }
+
+        boolean removed = scripts.remove(script);
+        if (removed) {
+            if (scripts.isEmpty()) {
+                hooks.remove(slot);
+            }
+            lastModified = Instant.now();
+        }
+        return removed;
+    }
+
+    /**
+     * Gets the list of hook scripts for a slot.
+     *
+     * @param slot hook slot
+     * @return unmodifiable list of scripts, or empty list if none
+     */
+    public List<String> getHooks(String slot) {
+        List<String> scripts = hooks.get(slot);
+        return scripts != null ? Collections.unmodifiableList(scripts) : List.of();
+    }
+
+    /**
+     * Checks if any hooks are defined.
+     *
+     * @return true if at least one hook exists
+     */
+    public boolean hasHooks() {
+        return !hooks.isEmpty();
+    }
+
+    /**
+     * Gets an unmodifiable copy of the full hooks map.
+     *
+     * @return map of slot → scripts
+     */
+    public Map<String, List<String>> hooks() {
+        Map<String, List<String>> copy = new HashMap<>();
+        hooks.forEach((slot, scripts) -> copy.put(slot, Collections.unmodifiableList(scripts)));
+        return Collections.unmodifiableMap(copy);
+    }
+
+    /**
+     * Removes all hooks.
+     */
+    public void clearHooks() {
+        hooks.clear();
+        lastModified = Instant.now();
+    }
+
+    /**
+     * Gets the total number of hook scripts across all slots.
+     *
+     * @return total hook count
+     */
+    public int hookCount() {
+        return hooks.values().stream().mapToInt(List::size).sum();
     }
 }
