@@ -185,6 +185,7 @@ pm run order-service
 - 🔤 **Shell autocompletion** - TAB completion for bash, zsh, fish, and PowerShell with `pm completions`
 - 🔐 **Security scan** - Detect misconfigurations (Dockerfile root, exposed secrets, insecure URLs) with `pm secure`, auto-fix with `--fix`
 - 🔍 **Dependency audit** - Scan dependencies for known vulnerabilities with `pm audit` using native tools (npm audit, cargo audit, govulncheck, pip-audit, dotnet)
+- 📤 **Export & Import** - Migrate setups between machines with `pm export` and `pm import`, supports selective export and path validation
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -251,6 +252,9 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm secure` | Scan projects for security misconfigurations |
 | `pm secure --fix` | Auto-fix .gitignore issues (add .env, *.pem, *.key entries) |
 | `pm audit` | Audit dependencies for known vulnerabilities |
+| `pm export` | Export all projects to a portable JSON file |
+| `pm export <names...> [--file <path>]` | Export selected projects to a custom file |
+| `pm import <file>` | Import projects from an exported JSON file |
 | `pm help` | Show help |
 | `pm version` | Show version |
 
@@ -462,9 +466,10 @@ Projects are saved in:
 - **Integrations** — Git status, interactive TTY, multi-platform installers, GitHub Actions
 - **Security** — `pm secure` scans for misconfigurations, `--fix` auto-remediates .gitignore issues
 - **Audit** — `pm audit` checks dependencies for known vulnerabilities using native ecosystem tools
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 554 tests
+- **Portability** — `pm export` / `pm import` for migrating setups between machines or sharing team configs
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 582 tests
 
-> Latest release: **v1.6.3** (Dependency Audit) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v1.6.4** (Export & Import) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects

@@ -18,6 +18,7 @@
   - [Diagnósticos](#-diagnósticos)
   - [Escaneo de Seguridad](#-escaneo-de-seguridad)
   - [Auditoría de Dependencias](#-auditoría-de-dependencias)
+  - [Exportar e Importar](#-exportar-e-importar)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -765,6 +766,52 @@ Ejecuta herramientas nativas de auditoría de vulnerabilidades en cada proyecto 
   data-service (Maven)
     ℹ No native audit tool for Maven
       Consider: OWASP dependency-check plugin
+```
+
+---
+
+### 🔹 Exportar e Importar
+
+Exporta las configuraciones de tus proyectos a un archivo JSON portable e impórtalos en otra máquina.
+
+#### Exportar todos los proyectos
+```bash
+pm export
+```
+
+Guarda todos los proyectos registrados en `pm-export.json` en el directorio actual.
+
+#### Exportar proyectos seleccionados
+```bash
+pm export backend-api web-server
+```
+
+#### Exportar a un archivo personalizado
+```bash
+pm export --file ~/backup/mi-setup.json
+pm export backend-api --file config-equipo.json
+```
+
+#### Importar proyectos
+```bash
+pm import pm-export.json
+pm import ~/backup/mi-setup.json
+```
+
+**Comportamiento al importar:**
+- Los proyectos que ya existen se **omiten** (nunca se sobreescriben)
+- Los proyectos cuyas rutas no existen en disco se importan con un **aviso** — corrige luego con `pm rename <nombre> --path <nueva-ruta>`
+- Los tipos de proyecto inválidos se establecen como `UNKNOWN`
+
+**Ejemplo de salida:**
+```
+Import
+──────
+
+  ✓ Imported 3 projects
+  ⚠ Skipped 'backend' — already exists
+  ⚠ 'api-server' path does not exist: /old/machine/path
+    Update with: pm rename api-server --path <new-path>
 ```
 
 ---
@@ -1722,6 +1769,12 @@ pm secure --fix                                    # Auto-corregir problemas de 
 
 # === AUDITORÍA ===
 pm audit                                           # Auditar dependencias en busca de vulnerabilidades
+
+# === EXPORTAR E IMPORTAR ===
+pm export                                          # Exportar todos los proyectos a pm-export.json
+pm export backend web-server                       # Exportar proyectos seleccionados
+pm export --file backup.json                       # Exportar a archivo personalizado
+pm import pm-export.json                           # Importar proyectos desde archivo
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión
