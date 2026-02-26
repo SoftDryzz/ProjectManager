@@ -29,7 +29,7 @@ public final class CompletionHandler {
             "add", "list", "ls", "build", "run", "test", "scan",
             "commands", "cmd", "remove", "rm", "rename", "info",
             "env", "hooks", "refresh", "update", "doctor", "secure",
-            "help", "version", "completions"
+            "audit", "help", "version", "completions"
     );
 
     /** Commands that take a project name as their next argument. */

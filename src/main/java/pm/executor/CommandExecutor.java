@@ -394,6 +394,95 @@ public class CommandExecutor {
     }
 
     /**
+     * Executes a command and captures its stdout as a String.
+     *
+     * <p>Unlike {@link #execute}, this method does NOT print output to the console.
+     * All stdout is collected into a {@code StringBuilder} and returned in the result.
+     * Stderr is merged into stdout via {@code redirectErrorStream(true)}.
+     *
+     * @param command command to execute
+     * @param workingDirectory directory where to execute
+     * @param timeoutSeconds timeout in seconds (0 = no timeout)
+     * @return captured output result
+     * @throws IOException if execution fails
+     * @throws InterruptedException if the process is interrupted
+     *
+     * @since 1.6.3
+     */
+    public CapturedOutput captureOutput(String command, Path workingDirectory, long timeoutSeconds)
+            throws IOException, InterruptedException {
+
+        if (command == null || command.isBlank()) {
+            throw new IllegalArgumentException("Command cannot be null or blank");
+        }
+        if (workingDirectory == null) {
+            throw new IllegalArgumentException("Working directory cannot be null");
+        }
+        validateWorkingDirectory(workingDirectory);
+
+        String[] shellCommand = getShellCommand(command);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(shellCommand);
+        processBuilder.directory(workingDirectory.toFile());
+        processBuilder.redirectErrorStream(true);
+
+        long startTime = System.currentTimeMillis();
+        Process process = processBuilder.start();
+
+        StringBuilder output = new StringBuilder();
+        Thread outputReader = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line).append("\n");
+                }
+            } catch (IOException e) {
+                // Silently ignore read errors during capture
+            }
+        });
+
+        outputReader.start();
+
+        int exitCode;
+        if (timeoutSeconds > 0) {
+            boolean finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
+            if (!finished) {
+                process.destroyForcibly();
+                outputReader.interrupt();
+                long duration = System.currentTimeMillis() - startTime;
+                return new CapturedOutput(-1, output.toString(), duration);
+            }
+            exitCode = process.waitFor();
+        } else {
+            exitCode = process.waitFor();
+        }
+
+        outputReader.join(1000);
+        long duration = System.currentTimeMillis() - startTime;
+
+        return new CapturedOutput(exitCode, output.toString(), duration);
+    }
+
+    /**
+     * Result of a command execution with captured stdout.
+     *
+     * <p>Used by {@link #captureOutput} for silent command execution
+     * where the output needs to be parsed (e.g., JSON from audit tools).
+     *
+     * @param exitCode process exit code
+     * @param stdout captured standard output
+     * @param durationMs duration in milliseconds
+     *
+     * @since 1.6.3
+     */
+    public record CapturedOutput(
+            int exitCode,
+            String stdout,
+            long durationMs
+    ) {}
+
+    /**
      * Result of a command execution.
      *
      * <p>Immutable record containing:
