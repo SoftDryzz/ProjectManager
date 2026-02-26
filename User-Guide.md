@@ -1145,8 +1145,9 @@ pm run api-orders    # Port 3002
 | **Node.js** | `package.json` (fallback) | `build`, `start`, `test` |
 | **.NET** | `*.csproj`, `*.fsproj` | `build`, `run`, `test` |
 | **Python** | `requirements.txt`, `setup.py` | (manual configuration) |
+| **Docker** | `docker-compose.yml`, `docker-compose.yaml` | `build`, `run` (up), `stop` (down), `clean` |
 
-> **Detection priority:** When a project has both `package.json` and a lock file (pnpm-lock.yaml, bun.lockb, yarn.lock), the specific package manager is detected instead of generic Node.js.
+> **Detection priority:** Language types always take priority. When a project has both `pom.xml` and `docker-compose.yml`, it's detected as Maven (not Docker). Docker is only detected when no language-specific type is found. For JS projects, specific package managers (pnpm, Bun, Yarn) take priority over generic Node.js.
 
 ---
 

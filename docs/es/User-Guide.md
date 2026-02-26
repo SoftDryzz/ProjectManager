@@ -1145,8 +1145,9 @@ pm run api-pedidos    # Puerto 3002
 | **Node.js** | `package.json` (fallback) | `build`, `start`, `test` |
 | **.NET** | `*.csproj`, `*.fsproj` | `build`, `run`, `test` |
 | **Python** | `requirements.txt`, `setup.py` | (configuración manual) |
+| **Docker** | `docker-compose.yml`, `docker-compose.yaml` | `build`, `run` (up), `stop` (down), `clean` |
 
-> **Prioridad de detección:** Cuando un proyecto tiene `package.json` y un lock file (pnpm-lock.yaml, bun.lockb, yarn.lock), se detecta el package manager específico en vez del Node.js genérico.
+> **Prioridad de detección:** Los tipos de lenguaje siempre tienen prioridad. Cuando un proyecto tiene `pom.xml` y `docker-compose.yml`, se detecta como Maven (no Docker). Docker solo se detecta cuando no se encuentra ningún tipo de lenguaje. Para proyectos JS, los package managers específicos (pnpm, Bun, Yarn) tienen prioridad sobre Node.js genérico.
 
 ---
 

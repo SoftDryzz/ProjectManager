@@ -163,7 +163,7 @@ pm run servicio-pedidos
 
 ## ✨ Características
 
-- 🔍 **Detección automática** - Detecta Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn automáticamente
+- 🔍 **Detección automática** - Detecta Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Docker automáticamente
 - 🎯 **Comandos unificados** - Mismos comandos para todos los proyectos: `pm build`, `pm run`, `pm test`
 - 📦 **Gestión centralizada** - Todos los proyectos en un lugar, accesibles desde cualquier parte
 - ⚡ **Ejecución rápida** - Sin navegación de carpetas, ejecución instantánea de comandos
@@ -179,6 +179,7 @@ pm run servicio-pedidos
 - 🛡️ **Seguridad de datos** - Escritura atómica, backup automático y recuperación de JSON corrupto
 - 🔒 **Ejecución segura** - Validación de directorio antes de ejecutar comandos, avisos de metacaracteres
 - 🛡️ **Auto-update robusto** - Validación de integridad de descarga, protección contra loops de redirección, mensajes de error de red descriptivos
+- 🐳 **Soporte Docker** - Detecta proyectos Docker Compose, comandos por defecto (build, up, down, clean)
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -363,8 +364,9 @@ Environment Variables
 | **Node.js** | `package.json` (fallback) | build, start, test |
 | **.NET** | `*.csproj`, `*.fsproj` | build, run, test |
 | **Python** | `requirements.txt`, `setup.py` | (configuración manual) |
+| **Docker** | `docker-compose.yml`, `docker-compose.yaml` | build, up, down, clean |
 
-> **Prioridad de detección:** Cuando un proyecto tiene `package.json` y un lock file (pnpm-lock.yaml, bun.lockb, yarn.lock), se detecta el package manager específico en vez del Node.js genérico.
+> **Prioridad de detección:** Los tipos de lenguaje siempre tienen prioridad. Cuando un proyecto tiene `pom.xml` y `docker-compose.yml`, se detecta como Maven (no Docker). Docker solo se detecta cuando no se encuentra ningún tipo de lenguaje. Para proyectos JS, los package managers específicos (pnpm, Bun, Yarn) tienen prioridad sobre Node.js genérico.
 
 **¿No encuentras tu tecnología?** ProjectManager funciona con cualquier proyecto - solo configura comandos manualmente.
 
@@ -526,7 +528,7 @@ Los proyectos se guardan en:
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos
 - [ ] Grupos de proyectos (`pm group create backend api-users product-service`, `pm run-group backend`)
 - [ ] Autocompletado de shell (tab completion para bash/zsh/PowerShell)
-- [ ] Soporte Docker (detectar Dockerfile/docker-compose, gestionar servicios)
+- [x] Soporte Docker (detectar docker-compose, comandos por defecto) — **v1.4.0**
 - [ ] Instaladores multi-ecosistema (npm, Cargo, Homebrew, Scoop, etc.)
 
 > Ver [ROADMAP.md](ROADMAP.md) para el roadmap completo con planes detallados.

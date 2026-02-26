@@ -163,7 +163,7 @@ pm run order-service
 
 ## ✨ Features
 
-- 🔍 **Automatic detection** - Detects Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn automatically
+- 🔍 **Automatic detection** - Detects Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Docker automatically
 - 🎯 **Unified commands** - Same commands for all projects: `pm build`, `pm run`, `pm test`
 - 📦 **Centralized management** - All projects in one place, accessible from anywhere
 - ⚡ **Fast execution** - No folder navigation, instant command execution
@@ -179,6 +179,7 @@ pm run order-service
 - 🛡️ **Data safety** - Atomic writes, automatic backup, and recovery from corrupted JSON
 - 🔒 **Safe execution** - Directory validation before running commands, metacharacter warnings
 - 🛡️ **Robust auto-update** - Download integrity validation, redirect loop protection, descriptive network error messages
+- 🐳 **Docker support** - Detect Docker Compose projects, default commands (build, up, down, clean)
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -363,8 +364,9 @@ Environment Variables
 | **Node.js** | `package.json` (fallback) | build, start, test |
 | **.NET** | `*.csproj`, `*.fsproj` | build, run, test |
 | **Python** | `requirements.txt`, `setup.py` | (manual configuration) |
+| **Docker** | `docker-compose.yml`, `docker-compose.yaml` | build, up, down, clean |
 
-> **Detection priority:** When a project has both `package.json` and a lock file (pnpm-lock.yaml, bun.lockb, yarn.lock), the specific package manager is detected instead of generic Node.js.
+> **Detection priority:** Language types always take priority. When a project has both `pom.xml` and `docker-compose.yml`, it's detected as Maven (not Docker). Docker is only detected when no language-specific type is found. For JS projects, specific package managers (pnpm, Bun, Yarn) take priority over generic Node.js.
 
 **Can't find your stack?** ProjectManager works with any project - just configure commands manually.
 
@@ -526,7 +528,7 @@ Projects are saved in:
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)
 - [ ] Shell autocompletion (bash/zsh/PowerShell tab completion)
-- [ ] Docker support (detect Dockerfile/docker-compose, manage services)
+- [x] Docker support (detect docker-compose, default commands) — **v1.4.0**
 - [ ] Multi-ecosystem installers (npm, Cargo, Homebrew, Scoop, etc.)
 
 > See [ROADMAP.md](ROADMAP.md) for the full roadmap with detailed plans.

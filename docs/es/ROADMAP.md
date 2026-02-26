@@ -127,16 +127,20 @@ Asegurar que el auto-updater maneje casos límite con gracia: descargas parciale
 
 ---
 
-## v1.4.0 — Soporte Docker
+## v1.4.0 — Soporte Docker ✅
 
 ### Detección de proyectos Docker
-- Detectar `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml` en la raíz del proyecto
-- Nuevo tipo de proyecto: `DOCKER`
-- Comandos por defecto:
-  - `build` → `docker compose build`
-  - `run` → `docker compose up`
-  - `stop` → `docker compose down`
-  - `clean` → `docker compose down -v --rmi all`
+Detecta proyectos Docker Compose y configura comandos por defecto. Los tipos de lenguaje siempre tienen prioridad — DOCKER solo se asigna cuando no se detecta ningún tipo específico de lenguaje.
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| Detectar `docker-compose.yml` / `docker-compose.yaml` en la raíz del proyecto | ✅ Hecho |
+| Nuevo tipo de proyecto: `DOCKER` | ✅ Hecho |
+| Comandos por defecto: build, run, stop, clean (docker compose) | ✅ Hecho |
+| Los tipos de lenguaje tienen prioridad sobre Docker cuando ambos existen | ✅ Hecho |
+| Verificación de runtime Docker (`pm doctor`, pre-ejecución) | ✅ Hecho |
+| `stop` clasificado como comando por defecto en la salida de `pm commands` | ✅ Hecho |
+| Separación de comandos default/custom en la salida de `pm commands` | ✅ Hecho |
 
 ---
 

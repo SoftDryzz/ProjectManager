@@ -127,16 +127,20 @@ Ensure the auto-updater handles edge cases gracefully: partial downloads, redire
 
 ---
 
-## v1.4.0 — Docker Support
+## v1.4.0 — Docker Support ✅
 
 ### Docker project detection
-- Detect `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml` in project root
-- New project type: `DOCKER`
-- Default commands:
-  - `build` → `docker compose build`
-  - `run` → `docker compose up`
-  - `stop` → `docker compose down`
-  - `clean` → `docker compose down -v --rmi all`
+Detect Docker Compose projects and configure default commands. Language types always take priority — DOCKER is only assigned when no language-specific type (Gradle, Maven, Node.js, etc.) is detected.
+
+| Feature | Status |
+|---------|--------|
+| Detect `docker-compose.yml` / `docker-compose.yaml` in project root | ✅ Done |
+| New project type: `DOCKER` | ✅ Done |
+| Default commands: build, run, stop, clean (docker compose) | ✅ Done |
+| Language types take priority over Docker when both exist | ✅ Done |
+| Docker runtime check (`pm doctor`, pre-execution) | ✅ Done |
+| `stop` classified as default command in `pm commands` output | ✅ Done |
+| Separate default/custom commands in `pm commands` output | ✅ Done |
 
 ---
 
