@@ -6,6 +6,8 @@ import pm.completion.CompletionScripts;
 import pm.core.Project;
 import pm.detector.ProjectType;
 import pm.detector.ProjectTypeDetector;
+import pm.doctor.HealthCheck;
+import pm.doctor.HealthScorer;
 import pm.executor.CommandExecutor;
 import pm.storage.ProjectStore;
 import pm.util.ArgsParser;
@@ -105,7 +107,7 @@ public class ProjectManager {
                 case "refresh" -> handleRefresh(args);
                 case "completions" -> handleCompletions(args);
                 case "update" -> UpdateChecker.performUpdate();
-                case "doctor" -> handleDoctor();
+                case "doctor" -> handleDoctor(args);
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
@@ -1800,53 +1802,60 @@ public class ProjectManager {
 
     /**
      * Handler for the "doctor" command.
-     * Checks if required runtimes are installed and validates registered projects.
+     * Checks runtimes, validates projects, and shows health scores.
      *
-     * <p>Usage: {@code pm doctor}
+     * <p>Usage:
+     * <ul>
+     *   <li>{@code pm doctor} — full report with health details</li>
+     *   <li>{@code pm doctor --score} — compact grade-only output</li>
+     * </ul>
      */
-    private static void handleDoctor() {
-        OutputFormatter.section("Environment Check");
+    private static void handleDoctor(String[] args) {
+        boolean scoreOnly = Arrays.asList(args).contains("--score");
 
-        // Check each runtime
-        String[][] runtimes = {
-                {"Java",    "java",    "-version"},
-                {"Maven",   "mvn",     "-version"},
-                {"Gradle",  "gradle",  "-version"},
-                {"Node.js", "node",    "--version"},
-                {"npm",     "npm",     "--version"},
-                {".NET",    "dotnet",  "--version"},
-                {"Python",  "python",  "--version"},
-                {"Rust",    "cargo",   "--version"},
-                {"Go",      "go",      "version"},
-                {"pnpm",    "pnpm",    "--version"},
-                {"Bun",     "bun",     "--version"},
-                {"Yarn",    "yarn",    "--version"},
-                {"Flutter", "flutter", "--version"},
-                {"Docker",  "docker",  "--version"},
-        };
+        if (!scoreOnly) {
+            OutputFormatter.section("Environment Check");
 
-        for (String[] rt : runtimes) {
-            String name = rt[0];
-            String command = rt[1];
-            String flag = rt[2];
+            // Check each runtime
+            String[][] runtimes = {
+                    {"Java",    "java",    "-version"},
+                    {"Maven",   "mvn",     "-version"},
+                    {"Gradle",  "gradle",  "-version"},
+                    {"Node.js", "node",    "--version"},
+                    {"npm",     "npm",     "--version"},
+                    {".NET",    "dotnet",  "--version"},
+                    {"Python",  "python",  "--version"},
+                    {"Rust",    "cargo",   "--version"},
+                    {"Go",      "go",      "version"},
+                    {"pnpm",    "pnpm",    "--version"},
+                    {"Bun",     "bun",     "--version"},
+                    {"Yarn",    "yarn",    "--version"},
+                    {"Flutter", "flutter", "--version"},
+                    {"Docker",  "docker",  "--version"},
+            };
 
-            String version = RuntimeChecker.getVersion(command, flag);
-            if (version != null) {
-                // Trim version output to something short
-                String shortVersion = version.length() > 40
-                        ? version.substring(0, 40) + "..."
-                        : version;
-                System.out.println("  " + OutputFormatter.GREEN + "OK" + OutputFormatter.RESET +
-                        "  " + padRight(name, 10) + OutputFormatter.GRAY + shortVersion + OutputFormatter.RESET);
-            } else {
-                System.out.println("  " + OutputFormatter.RED + "X " + OutputFormatter.RESET +
-                        "  " + padRight(name, 10) + OutputFormatter.GRAY + "(not found)" + OutputFormatter.RESET);
+            for (String[] rt : runtimes) {
+                String name = rt[0];
+                String command = rt[1];
+                String flag = rt[2];
+
+                String version = RuntimeChecker.getVersion(command, flag);
+                if (version != null) {
+                    String shortVersion = version.length() > 40
+                            ? version.substring(0, 40) + "..."
+                            : version;
+                    System.out.println("  " + OutputFormatter.GREEN + "OK" + OutputFormatter.RESET +
+                            "  " + padRight(name, 10) + OutputFormatter.GRAY + shortVersion + OutputFormatter.RESET);
+                } else {
+                    System.out.println("  " + OutputFormatter.RED + "X " + OutputFormatter.RESET +
+                            "  " + padRight(name, 10) + OutputFormatter.GRAY + "(not found)" + OutputFormatter.RESET);
+                }
             }
-        }
 
-        // Check registered projects
-        System.out.println();
-        OutputFormatter.section("Registered Projects");
+            // Check registered projects
+            System.out.println();
+            OutputFormatter.section("Registered Projects");
+        }
 
         try {
             Map<String, Project> projects = store.load();
@@ -1856,23 +1865,77 @@ public class ProjectManager {
                 return;
             }
 
+            if (!scoreOnly) {
+                for (Project project : projects.values()) {
+                    boolean pathExists = Files.exists(project.path()) && Files.isDirectory(project.path());
+                    boolean runtimeOk = RuntimeChecker.isRuntimeAvailable(project.type());
+
+                    String status;
+                    if (pathExists && runtimeOk) {
+                        status = OutputFormatter.GREEN + "OK" + OutputFormatter.RESET;
+                    } else if (!pathExists) {
+                        status = OutputFormatter.RED + "PATH NOT FOUND" + OutputFormatter.RESET;
+                    } else {
+                        status = OutputFormatter.YELLOW + "RUNTIME MISSING" + OutputFormatter.RESET;
+                    }
+
+                    System.out.println("  " + status + "  " +
+                            padRight(project.name(), 20) +
+                            OutputFormatter.GRAY + project.type().displayName() +
+                            " -> " + project.path() + OutputFormatter.RESET);
+                }
+            }
+
+            // Health Report
+            if (scoreOnly) {
+                OutputFormatter.section("Health Scores");
+            } else {
+                System.out.println();
+                OutputFormatter.section("Health Report");
+            }
+
             for (Project project : projects.values()) {
                 boolean pathExists = Files.exists(project.path()) && Files.isDirectory(project.path());
-                boolean runtimeOk = RuntimeChecker.isRuntimeAvailable(project.type());
-
-                String status;
-                if (pathExists && runtimeOk) {
-                    status = OutputFormatter.GREEN + "OK" + OutputFormatter.RESET;
-                } else if (!pathExists) {
-                    status = OutputFormatter.RED + "PATH NOT FOUND" + OutputFormatter.RESET;
-                } else {
-                    status = OutputFormatter.YELLOW + "RUNTIME MISSING" + OutputFormatter.RESET;
+                if (!pathExists) {
+                    if (scoreOnly) {
+                        System.out.println("  " + OutputFormatter.RED + "-" + OutputFormatter.RESET +
+                                "  " + project.name() + OutputFormatter.GRAY + "  (path not found)" + OutputFormatter.RESET);
+                    } else {
+                        System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                                " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+                        System.out.println("    " + OutputFormatter.RED + "Cannot evaluate — path not found" + OutputFormatter.RESET);
+                        System.out.println();
+                    }
+                    continue;
                 }
 
-                System.out.println("  " + status + "  " +
-                        padRight(project.name(), 20) +
-                        OutputFormatter.GRAY + project.type().displayName() +
-                        " -> " + project.path() + OutputFormatter.RESET);
+                List<HealthCheck> checks = HealthScorer.evaluate(project);
+                char grade = HealthScorer.grade(checks);
+                String color = HealthScorer.gradeColor(grade);
+                long passed = checks.stream().filter(HealthCheck::passed).count();
+
+                if (scoreOnly) {
+                    System.out.println("  " + color + grade + OutputFormatter.RESET +
+                            "  " + project.name());
+                } else {
+                    System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                            " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+
+                    for (HealthCheck check : checks) {
+                        if (check.passed()) {
+                            System.out.println("    " + OutputFormatter.GREEN + "\u2713" + OutputFormatter.RESET +
+                                    " " + check.description());
+                        } else {
+                            System.out.println("    " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                                    " " + check.description() +
+                                    OutputFormatter.GRAY + " — " + check.recommendation() + OutputFormatter.RESET);
+                        }
+                    }
+
+                    System.out.println("    Score: " + color + grade + OutputFormatter.RESET +
+                            " (" + passed + "/" + checks.size() + ")");
+                    System.out.println();
+                }
             }
 
         } catch (IOException e) {
@@ -1955,7 +2018,7 @@ public class ProjectManager {
           refresh --all                             Refresh all registered projects
           completions <shell>                       Generate completion script (bash/zsh/fish/powershell)
           update                                    Update to the latest version
-          doctor                                    Check environment and runtimes
+          doctor [--score]                            Check environment, runtimes, and project health (A/B/C/D/F)
           help                                      Show this help
           version                                   Show version
 

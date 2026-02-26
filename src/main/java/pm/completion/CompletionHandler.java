@@ -171,6 +171,7 @@ public final class CompletionHandler {
         return switch (cmd) {
             case "env" -> new ArrayList<>(ENV_SUBCOMMANDS);
             case "completions" -> new ArrayList<>(SHELL_NAMES);
+            case "doctor" -> new ArrayList<>(List.of("--score"));
             default -> List.of();
         };
     }
