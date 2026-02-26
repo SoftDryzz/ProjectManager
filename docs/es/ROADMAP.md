@@ -183,14 +183,21 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.6.1 — Puntuación de Salud del Doctor
+## v1.6.1 — Puntuación de Salud del Doctor ✅
 
 ### `pm doctor` ampliado
-- Puntuación de salud: calificación **A/B/C/D/F** basada en buenas prácticas del proyecto
-- Verificaciones: `.gitignore` existe, README presente, tests configurados, CI detectado, dependencias actualizadas
-- Recomendaciones accionables por verificación
-- `pm doctor` — mostrar reporte completo con puntuación
-- `pm doctor --score` — mostrar solo la calificación
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| Puntuación de salud: calificación **A/B/C/D/F** basada en buenas prácticas | ✅ Hecho |
+| Verificación: `.gitignore` existe en la raíz del proyecto | ✅ Hecho |
+| Verificación: README presente (sin distinción de mayúsculas) | ✅ Hecho |
+| Verificación: Tests configurados (comando `test` existe) | ✅ Hecho |
+| Verificación: CI/CD detectado (GitHub Actions, GitLab CI, Jenkins) | ✅ Hecho |
+| Verificación: Lockfile de dependencias presente (por tipo de proyecto) | ✅ Hecho |
+| Recomendaciones accionables por verificación fallida | ✅ Hecho |
+| `pm doctor` — reporte completo con detalles de salud por proyecto | ✅ Hecho |
+| `pm doctor --score` — salida compacta solo con calificaciones | ✅ Hecho |
 
 ---
 

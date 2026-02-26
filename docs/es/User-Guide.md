@@ -662,7 +662,32 @@ Run 'pm refresh mi-proyecto' to update
 pm doctor
 ```
 
-Verifica runtimes instalados (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Cargo, Go, pnpm, Bun, Yarn, Flutter) y valida las rutas de todos los proyectos registrados.
+Verifica runtimes instalados (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Cargo, Go, pnpm, Bun, Yarn, Flutter), valida las rutas de todos los proyectos registrados y muestra un **reporte de salud** por cada proyecto.
+
+#### Verificaciones de salud (por proyecto)
+
+| Verificación | Condición para pasar | Recomendación si falla |
+|-------------|---------------------|----------------------|
+| `.gitignore` | El archivo existe en la raíz del proyecto | Crea un .gitignore para excluir artefactos de build |
+| README | `README.md` o `README` existe (sin distinción de mayúsculas) | Añade un README.md para documentar tu proyecto |
+| Tests | El proyecto tiene un comando `test` configurado | Configura tests con `pm commands add` |
+| CI/CD | GitHub Actions, GitLab CI o Jenkinsfile detectado | Configura CI/CD para testing automatizado |
+| Lockfile | Lockfile de dependencias existe para el tipo de proyecto | Commitea tu lockfile para builds reproducibles |
+
+Cada proyecto recibe una **calificación** basada en cuántas verificaciones pasa:
+- **A** = 5/5 — **B** = 4/5 — **C** = 3/5 — **D** = 2/5 — **F** = 0–1/5
+
+#### Mostrar solo calificaciones (compacto)
+```bash
+pm doctor --score
+```
+
+Muestra solo la nota por proyecto sin detalles:
+```
+  A  backend
+  B  frontend
+  F  legacy-api
+```
 
 ---
 
@@ -1610,7 +1635,8 @@ pm completions fish                                # Generar script para Fish
 pm completions powershell                          # Generar script para PowerShell
 
 # === DIAGNÓSTICOS ===
-pm doctor                                          # Verificar salud del entorno
+pm doctor                                          # Reporte completo: runtimes + salud (A-F)
+pm doctor --score                                  # Compacto: solo calificaciones por proyecto
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

@@ -171,7 +171,8 @@ pm run order-service
 - 🌿 **Git integration** - See branch, status, and unpushed commits in `pm info`
 - 🔧 **Environment variables** - Configure per-project variables (PORT, DEBUG, API_KEY, etc)
 - 🩺 **Runtime checker** - Detects missing runtimes before execution, shows install instructions
-- 🏥 **pm doctor** - Diagnose your environment: verify installed tools and validate project paths
+- 🏥 **pm doctor** - Diagnose your environment: verify installed tools, validate project paths, and get A–F health scores
+- 📊 **Health scores** - Project health grading (A/B/C/D/F) based on best practices (.gitignore, README, tests, CI, lockfile)
 - 🔄 **Auto-update** - Check for updates on startup, update with `pm update`
 - 🔃 **Project refresh** - Re-detect types and update commands with `pm refresh`, warns when projects are outdated
 - ✏️ **Rename & path update** - Rename projects or update paths with `pm rename`, preserving all data
@@ -243,7 +244,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm refresh <name>` | Re-detect project type and update commands |
 | `pm refresh --all` | Refresh all registered projects |
 | `pm update` | Update to the latest version |
-| `pm doctor` | Diagnose environment (runtimes, paths) |
+| `pm doctor` | Diagnose environment (runtimes, paths, health scores) |
+| `pm doctor --score` | Show only health grades (A/B/C/D/F) per project |
 | `pm help` | Show help |
 | `pm version` | Show version |
 
@@ -453,9 +455,9 @@ Projects are saved in:
 - **CLI** — `pm doctor`, `pm env`, `pm refresh`, `pm rename`, `pm update`, `pm commands add/remove`
 - **Runtimes** — Gradle, Maven, Node.js, .NET, Python, Rust, Go, pnpm, Bun, Yarn, Flutter, Docker
 - **Integrations** — Git status, interactive TTY, multi-platform installers, GitHub Actions
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 402 tests
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 441 tests
 
-> Latest release: **v1.6.0** (Shell Autocompletion) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v1.6.1** (Doctor Health Score) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects

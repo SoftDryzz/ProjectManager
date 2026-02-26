@@ -183,14 +183,21 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.6.1 — Doctor Health Score
+## v1.6.1 — Doctor Health Score ✅
 
 ### `pm doctor` expanded
-- Health score: **A/B/C/D/F** rating based on project best practices
-- Checks: `.gitignore` exists, README present, tests configured, CI detected, dependencies up to date
-- Actionable recommendations per check
-- `pm doctor` — show full health report with score
-- `pm doctor --score` — show only the letter grade
+
+| Feature | Status |
+|---------|--------|
+| Health score: **A/B/C/D/F** rating based on project best practices | ✅ Done |
+| Check: `.gitignore` exists in project root | ✅ Done |
+| Check: README present (case-insensitive) | ✅ Done |
+| Check: Tests configured (`test` command exists) | ✅ Done |
+| Check: CI/CD detected (GitHub Actions, GitLab CI, Jenkins) | ✅ Done |
+| Check: Dependencies lockfile present (per project type) | ✅ Done |
+| Actionable recommendations per failed check | ✅ Done |
+| `pm doctor` — full report with health details per project | ✅ Done |
+| `pm doctor --score` — compact grade-only output | ✅ Done |
 
 ---
 
