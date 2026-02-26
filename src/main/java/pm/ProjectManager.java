@@ -1,6 +1,8 @@
 package pm;
 
 import pm.cli.OutputFormatter;
+import pm.completion.CompletionHandler;
+import pm.completion.CompletionScripts;
 import pm.core.Project;
 import pm.detector.ProjectType;
 import pm.detector.ProjectTypeDetector;
@@ -68,6 +70,12 @@ public class ProjectManager {
      * @param args command-line arguments
      */
     public static void main(String[] args) {
+        // Fast path: shell completion callback (no banner, no update check)
+        if (args.length > 0 && "--complete".equals(args[0])) {
+            CompletionHandler.handle(args);
+            return;
+        }
+
         printBanner();
 
         // Check for updates in the background (non-blocking, 2s timeout)
@@ -95,6 +103,7 @@ public class ProjectManager {
                 case "env" -> handleEnv(args);
                 case "hooks" -> handleHooks(args);
                 case "refresh" -> handleRefresh(args);
+                case "completions" -> handleCompletions(args);
                 case "update" -> UpdateChecker.performUpdate();
                 case "doctor" -> handleDoctor();
                 case "help", "-h", "--help" -> printHelp();
@@ -1944,6 +1953,7 @@ public class ProjectManager {
           env <subcommand> <name> [options]         Manage environment variables
           refresh <name>                            Re-detect type and update commands
           refresh --all                             Refresh all registered projects
+          completions <shell>                       Generate completion script (bash/zsh/fish/powershell)
           update                                    Update to the latest version
           doctor                                    Check environment and runtimes
           help                                      Show this help
@@ -1978,6 +1988,39 @@ public class ProjectManager {
           pm hooks my-api
           pm info web-server
         """);
+    }
+
+    private static void handleCompletions(String[] args) {
+        if (args.length < 2) {
+            OutputFormatter.error("Shell name required.");
+            System.out.println("Usage: pm completions <shell>");
+            System.out.println("Supported shells: bash, zsh, fish, powershell");
+            System.out.println();
+            System.out.println("Setup:");
+            System.out.println("  Bash:       eval \"$(pm completions bash)\"       # add to ~/.bashrc");
+            System.out.println("  Zsh:        eval \"$(pm completions zsh)\"        # add to ~/.zshrc");
+            System.out.println("  Fish:       pm completions fish > ~/.config/fish/completions/pm.fish");
+            System.out.println("  PowerShell: pm completions powershell | Out-String | Invoke-Expression  # add to $PROFILE");
+            return;
+        }
+
+        String shell = args[1].toLowerCase();
+        String script = switch (shell) {
+            case "bash" -> CompletionScripts.bash();
+            case "zsh" -> CompletionScripts.zsh();
+            case "fish" -> CompletionScripts.fish();
+            case "powershell", "pwsh" -> CompletionScripts.powershell();
+            default -> null;
+        };
+
+        if (script == null) {
+            OutputFormatter.error("Unsupported shell: " + args[1]);
+            System.out.println("Supported: bash, zsh, fish, powershell");
+            return;
+        }
+
+        // Print raw script to stdout (no ANSI, suitable for eval/sourcing)
+        System.out.print(script);
     }
 
     private static void printVersion() {
