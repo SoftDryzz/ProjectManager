@@ -166,17 +166,6 @@ Ejecuta scripts personalizados automáticamente antes o después de cualquier co
 
 ---
 
-## v1.5.1 — Orquestación de Servicios
-
-### Servicios Docker Compose
-- Detectar Docker Compose multi-servicio y listar servicios
-- `pm services` — mostrar servicios en ejecución/detenidos
-- `pm run <servicio>` — iniciar servicios individuales
-- `pm logs <servicio>` — ver logs de un servicio específico
-- Integración con health checks (endpoints `/health`, `/ready`)
-
----
-
 ## v1.6.0 — Autocompletado en Shell
 
 ### Comando `pm completions`

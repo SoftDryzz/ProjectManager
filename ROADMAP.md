@@ -166,17 +166,6 @@ Run custom scripts automatically before or after any command. Hooks are per-proj
 
 ---
 
-## v1.5.1 — Service Orchestration
-
-### Docker Compose services
-- Detect multi-service Docker Compose and list services
-- `pm services` — show running/stopped services
-- `pm run <service>` — start individual services
-- `pm logs <service>` — tail logs of a specific service
-- Health check integration (`/health`, `/ready` endpoints)
-
----
-
 ## v1.6.0 — Shell Autocompletion
 
 ### `pm completions` command
