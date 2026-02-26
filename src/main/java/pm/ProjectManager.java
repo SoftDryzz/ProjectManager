@@ -11,6 +11,9 @@ import pm.doctor.HealthScorer;
 import pm.audit.AuditReport;
 import pm.audit.DependencyAuditor;
 import pm.audit.Severity;
+import pm.export.ExportResult;
+import pm.export.ImportResult;
+import pm.export.ProjectExporter;
 import pm.security.SecurityCheck;
 import pm.security.SecurityScorer;
 import pm.executor.CommandExecutor;
@@ -115,6 +118,8 @@ public class ProjectManager {
                 case "doctor" -> handleDoctor(args);
                 case "secure" -> handleSecure(args);
                 case "audit" -> handleAudit(args);
+                case "export" -> handleExport(args);
+                case "import" -> handleImport(args);
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
@@ -2183,6 +2188,102 @@ public class ProjectManager {
         }
     }
 
+    // ============================================================
+    // COMMAND: EXPORT (Export projects to JSON file)
+    // ============================================================
+
+    /**
+     * Handler for the {@code export} command.
+     *
+     * <p>Exports all or selected projects to a portable JSON file.
+     *
+     * <p>Usage: {@code pm export [names...] [--file <path>]}
+     */
+    private static void handleExport(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+        String fileFlag = parser.getFlag("file");
+        Path outputFile = Paths.get(fileFlag != null ? fileFlag : "pm-export.json").toAbsolutePath().normalize();
+
+        // Collect project names (positional args after "export")
+        List<String> projectNames = new java.util.ArrayList<>();
+        for (int i = 1; i < parser.positionalCount(); i++) {
+            projectNames.add(parser.getPositional(i));
+        }
+
+        OutputFormatter.section("Export");
+
+        try {
+            ProjectExporter exporter = new ProjectExporter(store);
+            ExportResult result = exporter.export(outputFile, projectNames.isEmpty() ? null : projectNames);
+
+            OutputFormatter.success("Exported " + result.exported() + " project" +
+                    (result.exported() != 1 ? "s" : "") + " to " + result.outputFile().getFileName());
+
+            for (String name : result.notFound()) {
+                OutputFormatter.warning("Project not found: " + name);
+            }
+        } catch (IOException e) {
+            OutputFormatter.error("Export failed: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    // ============================================================
+    // COMMAND: IMPORT (Import projects from JSON file)
+    // ============================================================
+
+    /**
+     * Handler for the {@code import} command.
+     *
+     * <p>Imports projects from a previously exported JSON file.
+     *
+     * <p>Usage: {@code pm import <file>}
+     */
+    private static void handleImport(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+        String filePath = parser.getPositional(1);
+
+        if (filePath == null || filePath.isBlank()) {
+            OutputFormatter.error("File path is required");
+            System.out.println("Usage: pm import <file>");
+            System.exit(1);
+        }
+
+        // Expand ~ to home directory
+        String expandedPath = filePath.replace("~", System.getProperty("user.home"));
+        Path inputFile = Paths.get(expandedPath).toAbsolutePath().normalize();
+
+        if (!Files.exists(inputFile)) {
+            OutputFormatter.error("File not found: " + inputFile);
+            System.exit(1);
+        }
+
+        OutputFormatter.section("Import");
+
+        try {
+            ProjectExporter exporter = new ProjectExporter(store);
+            ImportResult result = exporter.importProjects(inputFile);
+
+            OutputFormatter.success("Imported " + result.imported() + " project" +
+                    (result.imported() != 1 ? "s" : ""));
+
+            for (String name : result.skipped()) {
+                OutputFormatter.warning("Skipped '" + name + "' — already exists");
+            }
+
+            for (String warning : result.warnings()) {
+                OutputFormatter.warning(warning);
+            }
+        } catch (IllegalArgumentException e) {
+            OutputFormatter.error("Invalid export file: " + e.getMessage());
+        } catch (IOException e) {
+            OutputFormatter.error("Import failed: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
     /**
      * Right-pads a string to the specified length.
      */
@@ -2259,6 +2360,8 @@ public class ProjectManager {
           doctor [--score]                            Check environment, runtimes, and project health (A/B/C/D/F)
           secure [--fix]                              Scan projects for security misconfigurations
           audit                                     Audit dependencies for known vulnerabilities
+          export [names...] [--file <path>]           Export projects to JSON file
+          import <file>                               Import projects from JSON file
           help                                      Show this help
           version                                   Show version
 
@@ -2290,6 +2393,9 @@ public class ProjectManager {
           pm hooks my-api add pre-build "npm run lint"
           pm hooks my-api
           pm info web-server
+          pm export
+          pm export backend-api web-server --file my-setup.json
+          pm import pm-export.json
         """);
     }
 
