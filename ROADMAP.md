@@ -352,6 +352,28 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
+## v1.8.0 — Telemetry
+
+### Anonymous usage analytics (opt-in)
+- First-run prompt: "Allow anonymous usage statistics? (y/n)"
+- Tracks: version, OS, command frequency, project count
+- `pm config telemetry on/off` to toggle at any time
+- Privacy-first: no personal data, no project names, no paths
+- Transparent: documented in README and `pm help`
+- Backend: PostHog Cloud (free tier)
+
+---
+
+## v1.9.0 — License Key System
+
+### Offline license validation (RSA)
+- License key generation and validation using RSA signatures
+- Offline verification (no server call required)
+- Foundation for future feature gating (Community vs Pro)
+- `pm license activate <key>` / `pm license status`
+
+---
+
 ## v2.0.0 — Dashboard & Analytics
 
 ### Interactive TUI dashboard
