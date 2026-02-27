@@ -2,7 +2,7 @@
 # ProjectManager - Installation Script for Linux/Mac
 # Works both from source (mvn clean package) and from GitHub Release download
 
-JAR_NAME="projectmanager-1.6.5.jar"
+JAR_NAME="projectmanager-1.6.6.jar"
 
 echo "=== ProjectManager Installer ==="
 echo ""
