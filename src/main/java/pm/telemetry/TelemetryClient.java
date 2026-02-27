@@ -23,6 +23,7 @@ public final class TelemetryClient {
 
     private static final int TIMEOUT_MS = 3000;
     private static final Gson GSON = new Gson();
+    private static volatile Thread pendingSender;
 
     private TelemetryClient() {
         throw new AssertionError("TelemetryClient cannot be instantiated");
@@ -52,9 +53,30 @@ public final class TelemetryClient {
                 conn.disconnect();
             } catch (Exception ignored) {
                 // Telemetry NEVER blocks or crashes the CLI
+            } finally {
+                pendingSender = null;
             }
         }, "pm-telemetry");
         sender.setDaemon(true);
+        pendingSender = sender;
         sender.start();
+    }
+
+    /**
+     * Waits for any pending telemetry send to complete.
+     * Called at the end of main() to ensure the event is delivered
+     * before the JVM exits.
+     *
+     * @param timeoutMs Maximum time to wait in milliseconds
+     */
+    public static void flush(long timeoutMs) {
+        Thread sender = pendingSender;
+        if (sender != null && sender.isAlive()) {
+            try {
+                sender.join(timeoutMs);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }

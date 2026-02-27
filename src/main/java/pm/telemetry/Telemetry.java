@@ -148,6 +148,16 @@ public final class Telemetry {
     }
 
     /**
+     * Waits for any pending telemetry event to be sent.
+     * Call at the end of main() to ensure delivery before JVM exit.
+     */
+    public static void flush() {
+        if (config != null && config.isTelemetryEnabled()) {
+            TelemetryClient.flush(2000);
+        }
+    }
+
+    /**
      * Resets telemetry state (for testing).
      */
     static void reset() {

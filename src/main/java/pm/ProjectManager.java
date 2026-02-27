@@ -149,6 +149,8 @@ public class ProjectManager {
             Telemetry.trackCommand(command);
         } catch (Exception e) {
             handleFatalError(e);
+        } finally {
+            Telemetry.flush();
         }
     }
 
