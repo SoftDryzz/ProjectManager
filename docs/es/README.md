@@ -568,6 +568,13 @@ Licencias comerciales disponibles para organizaciones que requieran términos al
 
 - GitHub: [@SoftDryzz](https://github.com/SoftDryzz)
 
+| | |
+|---|---|
+| 📩 General | [contact@softdryzz.com](mailto:contact@softdryzz.com) |
+| 🛡️ Seguridad | [security@softdryzz.com](mailto:security@softdryzz.com) |
+| ⚖️ Licencias | [legal@softdryzz.com](mailto:legal@softdryzz.com) |
+| 👤 Fundador | [cristo@softdryzz.com](mailto:cristo@softdryzz.com) |
+
 ---
 
 **⭐ Si ProjectManager te ahorra tiempo, ¡dale una estrella en GitHub!**

@@ -568,6 +568,13 @@ Commercial licensing is available for organizations that require alternative ter
 
 - GitHub: [@SoftDryzz](https://github.com/SoftDryzz)
 
+| | |
+|---|---|
+| 📩 General | [contact@softdryzz.com](mailto:contact@softdryzz.com) |
+| 🛡️ Security | [security@softdryzz.com](mailto:security@softdryzz.com) |
+| ⚖️ Licensing | [legal@softdryzz.com](mailto:legal@softdryzz.com) |
+| 👤 Founder | [cristo@softdryzz.com](mailto:cristo@softdryzz.com) |
+
 ---
 
 **⭐ If ProjectManager saves you time, give it a star on GitHub!**
