@@ -25,6 +25,9 @@ import pm.audit.Severity;
 import pm.export.ExportResult;
 import pm.export.ImportResult;
 import pm.export.ProjectExporter;
+import pm.license.LicenseKey;
+import pm.license.LicenseManager;
+import pm.license.LicenseValidator;
 import pm.security.SecurityCheck;
 import pm.security.SecurityScorer;
 import pm.executor.CommandExecutor;
@@ -144,6 +147,7 @@ public class ProjectManager {
                 case "export" -> handleExport(args);
                 case "import" -> handleImport(args);
                 case "config" -> handleConfig(args);
+                case "license" -> handleLicense(args);
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
@@ -3224,12 +3228,13 @@ public class ProjectManager {
     // ============================================================
 
     private static void printBanner() {
+        String edition = LicenseManager.getEditionLabel();
         System.out.println("""
             ╔════════════════════════════════╗
             ║  ProjectManager v%-12s  ║
-            ║  Manage your projects          ║
+            ║  %-28s  ║
             ╚════════════════════════════════╝
-            """.formatted(Constants.VERSION));
+            """.formatted(Constants.VERSION, edition));
     }
 
     // ============================================================
@@ -3281,6 +3286,95 @@ public class ProjectManager {
         """);
     }
 
+    // ============================================================
+    // COMMAND: LICENSE (License key management)
+    // ============================================================
+
+    private static void handleLicense(String[] args) {
+        if (args.length < 2 || "info".equalsIgnoreCase(args[1])) {
+            printLicenseInfo();
+            return;
+        }
+
+        String subcommand = args[1].toLowerCase();
+        switch (subcommand) {
+            case "activate" -> {
+                if (args.length < 3) {
+                    OutputFormatter.error("License key is required.");
+                    System.out.println("  Usage: pm license activate <key>");
+                    return;
+                }
+                String rawKey = args[2];
+                LicenseManager.ActivationResult result = LicenseManager.activate(rawKey);
+                if (result.success()) {
+                    OutputFormatter.success(result.message());
+                    LicenseKey key = result.key();
+                    System.out.println("  Holder:  " + key.holder());
+                    System.out.println("  Edition: " + key.edition());
+                    if (key.expires() != null) {
+                        System.out.println("  Expires: " + key.expires());
+                    } else {
+                        System.out.println("  Expires: never");
+                    }
+                } else {
+                    OutputFormatter.error("Activation failed: " + result.message());
+                }
+            }
+            case "deactivate" -> {
+                LicenseManager.deactivate();
+                OutputFormatter.success("License deactivated. Reverted to Community Edition.");
+            }
+            default -> {
+                OutputFormatter.error("Unknown subcommand: " + args[1]);
+                printLicenseHelp();
+            }
+        }
+    }
+
+    private static void printLicenseInfo() {
+        LicenseKey key = LicenseManager.getLicenseInfo();
+        if (key != null) {
+            System.out.println();
+            System.out.println("  Edition: " + OutputFormatter.GREEN + key.edition()
+                    + OutputFormatter.RESET);
+            System.out.println("  Holder:  " + key.holder());
+            System.out.println("  ID:      " + key.id());
+            System.out.println("  Issued:  " + key.issued());
+            if (key.expires() != null) {
+                System.out.println("  Expires: " + key.expires());
+            } else {
+                System.out.println("  Expires: never");
+            }
+            System.out.println();
+        } else {
+            LicenseValidator.ValidationResult result = LicenseManager.getValidationResult();
+            if (result != null && result.error() != null) {
+                System.out.println();
+                System.out.println("  Edition: " + OutputFormatter.YELLOW
+                        + "Community Edition" + OutputFormatter.RESET);
+                OutputFormatter.warning(result.error());
+                System.out.println();
+            } else {
+                System.out.println();
+                System.out.println("  Edition: Community Edition");
+                System.out.println();
+                System.out.println("  Activate a license: pm license activate <key>");
+                System.out.println();
+            }
+        }
+    }
+
+    private static void printLicenseHelp() {
+        System.out.println("""
+        Usage: pm license [subcommand]
+
+        Subcommands:
+          info                Show current license status (default)
+          activate <key>      Activate a license key
+          deactivate          Remove license, revert to Community Edition
+        """);
+    }
+
     private static void printHelp() {
         System.out.println("""
         Usage: pm <command> [options]
@@ -3322,6 +3416,9 @@ public class ProjectManager {
           export [names...] [--file <path>]           Export projects to JSON file
           import <file>                               Import projects from JSON file
           config telemetry [on|off]                    Manage telemetry settings
+          license [info]                              Show license status
+          license activate <key>                      Activate a Pro license
+          license deactivate                          Deactivate license
           help                                      Show this help
           version                                   Show version
 
