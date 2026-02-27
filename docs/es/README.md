@@ -26,6 +26,7 @@
 - [Cómo Se Compara](#-cómo-se-compara)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Configuración](#️-configuración)
+- [License Key](#-license-key)
 - [Roadmap](#-roadmap)
 - [Contribuir](#-contribuir)
 
@@ -192,6 +193,7 @@ pm run servicio-pedidos
 - 📂 **Detección de archivos .env** - Descubre archivos `.env` con `pm env files`, visualiza contenidos enmascarados con `pm env show`, cambia entornos con `pm env switch`
 - 🔑 **Escaneo de secretos** - Detecta secretos hardcodeados (claves AWS, tokens GitHub, tokens Slack) en archivos `.env`, integrado en `pm doctor` y `pm secure`
 - 🗄️ **Migraciones de base de datos** - Detecta herramientas de migración (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx) con `pm migrate`, ejecuta y comprueba estado
+- 🔑 **Sistema de License Key** - Modelo Open Core con `pm license`, validación offline RSA-SHA256, branding Community/Pro (sin restricciones de funcionalidades)
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -274,6 +276,9 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm export <nombres...> [--file <ruta>]` | Exportar proyectos seleccionados a un archivo personalizado |
 | `pm import <archivo>` | Importar proyectos desde un archivo JSON exportado |
 | `pm config telemetry [on\|off]` | Habilitar o deshabilitar telemetría anónima |
+| `pm license [info]` | Mostrar estado actual de la licencia |
+| `pm license activate <key>` | Activar una licencia Pro |
+| `pm license deactivate` | Eliminar licencia, volver a Community Edition |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
 
@@ -503,6 +508,26 @@ Elimina `~/.projectmanager/config.json` para resetear todas las preferencias.
 
 ---
 
+## 🔑 License Key
+
+ProjectManager sigue un modelo **Open Core**. Por defecto, se ejecuta como **Community Edition** — todas las funcionalidades están disponibles sin restricciones.
+
+### Cómo funciona
+- El banner muestra **"Community Edition"** o **"Pro"** según el estado de tu licencia
+- Las license keys se validan offline usando firmas **RSA-SHA256** (sin llamadas a servidor)
+- Los datos de licencia se almacenan localmente en `~/.projectmanager/license.json`
+- **Solo branding** — ninguna funcionalidad está restringida
+
+### Comandos
+```bash
+pm license                     # Mostrar estado actual de la licencia
+pm license info                # Igual que arriba
+pm license activate <key>      # Activar una licencia Pro
+pm license deactivate          # Eliminar licencia, volver a Community Edition
+```
+
+---
+
 ## 🚧 Roadmap
 
 ### ✅ Completado
@@ -518,9 +543,10 @@ Elimina `~/.projectmanager/config.json` para resetear todas las preferencias.
 - **Workspaces** — `pm modules` detecta monorepos (Cargo, npm, Gradle, Go), detección multi-lenguaje, `pm build --all` y `pm test --all`
 - **Entornos** — `pm env files/show/switch` para descubrir archivos .env, escaneo de secretos (tokens AWS, GitHub, Slack), `pm migrate` para herramientas de migración (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx)
 - **Telemetría** — Analíticas de uso anónimas opt-in vía PostHog, `pm config telemetry on/off`, diseño privacy-first
-- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 763 tests
+- **License Key** — Modelo Open Core con `pm license`, validación offline RSA-SHA256, branding Community/Pro (sin restricciones de funcionalidades)
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 789 tests
 
-> Última release: **v1.8.0** (Telemetría) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v1.9.0** (Sistema de License Key) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] Grupos de proyectos (`pm group create backend api-users product-service`, `pm run-group backend`)

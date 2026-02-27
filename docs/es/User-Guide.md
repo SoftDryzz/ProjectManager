@@ -23,6 +23,7 @@
   - [Linting y Formateo](#-linting-y-formateo)
   - [Espacios de Trabajo Multi-proyecto](#-espacios-de-trabajo-multi-proyecto)
   - [Migraciones de Base de Datos](#-migraciones-de-base-de-datos)
+  - [License Key](#-license-key)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -1130,6 +1131,39 @@ pm config telemetry off
 
 ---
 
+### 🔹 License Key
+
+ProjectManager sigue un modelo Open Core. Por defecto, se ejecuta como **Community Edition** con todas las funcionalidades disponibles. Activar una license key Pro solo cambia el branding del banner — ninguna funcionalidad está restringida.
+
+#### Mostrar estado de licencia
+```bash
+pm license
+```
+o
+```bash
+pm license info
+```
+
+Muestra el estado actual de la licencia: Community Edition o Pro, junto con los detalles de la licencia si está activada.
+
+#### Activar una licencia
+```bash
+pm license activate <key>
+```
+
+Valida la license key offline usando firmas RSA-SHA256 (no requiere llamadas a servidor) y activa el branding Pro. La licencia se almacena en `~/.projectmanager/license.json`.
+
+#### Desactivar una licencia
+```bash
+pm license deactivate
+```
+
+Elimina la licencia actual y vuelve a Community Edition.
+
+> **Nota**: Las license keys se validan completamente offline. No se requiere conexión a internet para la activación o validación.
+
+---
+
 ### 🔹 Ayuda y Versión
 
 #### Ver ayuda
@@ -2119,6 +2153,12 @@ pm migrate <nombre> status                         # Comprobar estado de migraci
 pm config telemetry                                # Comprobar estado de telemetría
 pm config telemetry on                             # Activar telemetría anónima
 pm config telemetry off                            # Desactivar telemetría
+
+# === LICENCIA ===
+pm license                                         # Mostrar estado de licencia
+pm license info                                    # Mostrar estado de licencia
+pm license activate <key>                          # Activar licencia Pro
+pm license deactivate                              # Eliminar licencia, volver a Community
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

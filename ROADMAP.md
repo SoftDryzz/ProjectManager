@@ -368,13 +368,19 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
-## v1.9.0 — License Key System
+## v1.9.0 — License Key System ✅
 
-### Offline license validation (RSA)
-- License key generation and validation using RSA signatures
-- Offline verification (no server call required)
-- Foundation for future feature gating (Community vs Pro)
-- `pm license activate <key>` / `pm license status`
+### Open Core license validation (RSA-SHA256)
+
+| Feature | Status |
+|---------|--------|
+| `pm license` / `pm license info` — show current license status | ✅ Done |
+| `pm license activate <key>` — activate a Pro license key | ✅ Done |
+| `pm license deactivate` — remove license, revert to Community Edition | ✅ Done |
+| Banner shows "Community Edition" or "Pro" based on license status | ✅ Done |
+| RSA-SHA256 offline validation (no server calls required) | ✅ Done |
+| License stored at `~/.projectmanager/license.json` | ✅ Done |
+| Branding only — no features are restricted | ✅ Done |
 
 ---
 
