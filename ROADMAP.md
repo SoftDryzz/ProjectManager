@@ -298,21 +298,6 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
-## v1.6.7 — Code Generation & Team Workflows
-
-### Code generation detection
-- Detect build_runner (Flutter/Dart), protobuf, OpenAPI generators
-- `pm codegen` — run detected code generation tools
-- Warn if generated files are outdated
-
-### Team workflow support
-- Detect number of contributors from git log
-- `pm team` — show active contributors and their recent areas
-- Branch naming convention detection and validation
-- PR template detection
-
----
-
 ## v1.7.0 — Multi-project Workspaces
 
 ### Monorepo support

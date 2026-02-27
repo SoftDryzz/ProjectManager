@@ -6,6 +6,8 @@ import pm.lint.FormatDetector;
 import pm.lint.FormatTool;
 import pm.lint.LintDetector;
 import pm.lint.LintTool;
+import pm.workspace.WorkspaceDetector;
+import pm.workspace.WorkspaceModule;
 import pm.cli.OutputFormatter;
 import pm.completion.CompletionHandler;
 import pm.completion.CompletionScripts;
@@ -128,6 +130,7 @@ public class ProjectManager {
                 case "ci" -> handleCI(args);
                 case "lint" -> handleLint(args);
                 case "fmt" -> handleFmt(args);
+                case "modules" -> handleModules(args);
                 case "export" -> handleExport(args);
                 case "import" -> handleImport(args);
                 case "help", "-h", "--help" -> printHelp();
@@ -231,6 +234,12 @@ public class ProjectManager {
         // Create project
         Project project = new Project(name, projectPath, detectedType);
 
+        // Detect secondary types (e.g., Docker alongside Maven)
+        List<ProjectType> allTypes = ProjectTypeDetector.detectAll(projectPath);
+        allTypes.stream()
+                .filter(t -> t != detectedType)
+                .forEach(project::addSecondaryType);
+
         // Configure default commands based on type
         CommandConfigurator.configureDefaultCommands(project);
 
@@ -313,16 +322,24 @@ public class ProjectManager {
     private static void handleBuild(String[] args) {
         ArgsParser parser = new ArgsParser(args);
 
-        // Get project name
         String projectName = parser.getPositional(1);
-        if (projectName == null || projectName.isBlank()) {
-            OutputFormatter.error("Project name is required");
+
+        if (projectName != null && !projectName.isBlank()) {
+            // Single project build (existing behavior)
+            buildSingleProject(projectName);
+        } else if (parser.hasFlag("all")) {
+            // Build all registered projects
+            buildAllProjects();
+        } else {
+            OutputFormatter.error("Project name is required. Use --all to build all projects.");
             System.out.println("Usage: pm build <name>");
+            System.out.println("       pm build --all");
             System.exit(1);
         }
+    }
 
+    private static void buildSingleProject(String projectName) {
         try {
-            // Find project
             Project project = store.findProject(projectName);
             if (project == null) {
                 OutputFormatter.error("Project '" + projectName + "' not found");
@@ -333,7 +350,6 @@ public class ProjectManager {
             checkTypeOutdated(project);
             validateProjectPath(project);
 
-            // Get build command
             String buildCommand = project.getCommand("build");
             if (buildCommand == null) {
                 OutputFormatter.error("No 'build' command configured for this project");
@@ -341,16 +357,13 @@ public class ProjectManager {
                 System.exit(1);
             }
 
-            // Check runtime is available before executing
             RuntimeChecker.checkRuntime(project.type());
 
-            // Run pre-build hooks
             if (!executeHooks(project, "pre-build")) {
                 OutputFormatter.error("Pre-build hook failed. Build aborted.");
                 System.exit(1);
             }
 
-            // Display info
             System.out.println();
             OutputFormatter.info("Building " + projectName + "...");
             System.out.println("Command: " + buildCommand);
@@ -359,7 +372,6 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            // Execute: use inherited IO when running in a real terminal (interactive mode)
             CommandExecutor.ExecutionResult result;
             if (System.console() != null) {
                 result = executor.executeWithInheritedIO(buildCommand, project.path(), 300, project.envVars());
@@ -371,13 +383,11 @@ public class ProjectManager {
                 }
             }
 
-            // Show result
             System.out.println();
             System.out.println("─".repeat(60));
             System.out.println();
 
             if (result.success()) {
-                // Run post-build hooks
                 if (!executeHooks(project, "post-build")) {
                     OutputFormatter.warning("Post-build hook failed.");
                 }
@@ -395,7 +405,77 @@ public class ProjectManager {
             System.exit(1);
         } catch (InterruptedException e) {
             OutputFormatter.warning("Build interrupted");
-            System.exit(130);  // Standard exit code for Ctrl+C
+            System.exit(130);
+        }
+    }
+
+    private static void buildAllProjects() {
+        try {
+            Map<String, Project> projects = store.load();
+            if (projects.isEmpty()) {
+                OutputFormatter.section("Build All");
+                System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                return;
+            }
+
+            OutputFormatter.section("Build All");
+            int passed = 0;
+            int total = 0;
+
+            for (Project project : projects.values()) {
+                String buildCommand = project.getCommand("build");
+                if (buildCommand == null) {
+                    System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                            " " + OutputFormatter.GRAY + "— no build command, skipped" + OutputFormatter.RESET);
+                    continue;
+                }
+
+                if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+                    System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                            " " + OutputFormatter.RED + "— path not found" + OutputFormatter.RESET);
+                    total++;
+                    continue;
+                }
+
+                total++;
+                System.out.println();
+                System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                        " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+                System.out.println("  " + "─".repeat(40));
+
+                try {
+                    executeHooks(project, "pre-build");
+
+                    CommandExecutor.ExecutionResult result;
+                    if (System.console() != null) {
+                        result = executor.executeWithInheritedIO(buildCommand, project.path(), 300, project.envVars());
+                    } else {
+                        result = executor.execute(buildCommand, project.path(), 300, project.envVars());
+                    }
+
+                    System.out.println("  " + "─".repeat(40));
+                    if (result.success()) {
+                        executeHooks(project, "post-build");
+                        System.out.println("  " + OutputFormatter.GREEN + "✓" + OutputFormatter.RESET +
+                                " " + project.name() + " built (" + result.formattedDuration() + ")");
+                        passed++;
+                    } else {
+                        System.out.println("  " + OutputFormatter.RED + "✗" + OutputFormatter.RESET +
+                                " " + project.name() + " failed (exit code " + result.exitCode() + ")");
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("  " + "─".repeat(40));
+                    System.out.println("  " + OutputFormatter.RED + "✗" + OutputFormatter.RESET +
+                            " " + project.name() + " error: " + e.getMessage());
+                }
+            }
+
+            System.out.println();
+            System.out.println("  Result: " + passed + "/" + total + " projects built successfully");
+            System.out.println();
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
         }
     }
 
@@ -508,12 +588,20 @@ public class ProjectManager {
         ArgsParser parser = new ArgsParser(args);
 
         String projectName = parser.getPositional(1);
-        if (projectName == null || projectName.isBlank()) {
-            OutputFormatter.error("Project name is required");
+
+        if (projectName != null && !projectName.isBlank()) {
+            testSingleProject(projectName);
+        } else if (parser.hasFlag("all")) {
+            testAllProjects();
+        } else {
+            OutputFormatter.error("Project name is required. Use --all to test all projects.");
             System.out.println("Usage: pm test <name>");
+            System.out.println("       pm test --all");
             System.exit(1);
         }
+    }
 
+    private static void testSingleProject(String projectName) {
         try {
             Project project = store.findProject(projectName);
             if (project == null) {
@@ -530,10 +618,8 @@ public class ProjectManager {
                 System.exit(1);
             }
 
-            // Check runtime is available before executing
             RuntimeChecker.checkRuntime(project.type());
 
-            // Run pre-test hooks
             if (!executeHooks(project, "pre-test")) {
                 OutputFormatter.error("Pre-test hook failed. Tests aborted.");
                 System.exit(1);
@@ -546,7 +632,6 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
-            // Execute: use inherited IO when running in a real terminal (interactive mode)
             CommandExecutor.ExecutionResult result;
             if (System.console() != null) {
                 result = executor.executeWithInheritedIO(testCommand, project.path(), 600, project.envVars());
@@ -563,7 +648,6 @@ public class ProjectManager {
             System.out.println();
 
             if (result.success()) {
-                // Run post-test hooks
                 if (!executeHooks(project, "post-test")) {
                     OutputFormatter.warning("Post-test hook failed.");
                 }
@@ -581,6 +665,76 @@ public class ProjectManager {
         } catch (InterruptedException e) {
             OutputFormatter.warning("Tests interrupted");
             System.exit(130);
+        }
+    }
+
+    private static void testAllProjects() {
+        try {
+            Map<String, Project> projects = store.load();
+            if (projects.isEmpty()) {
+                OutputFormatter.section("Test All");
+                System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                return;
+            }
+
+            OutputFormatter.section("Test All");
+            int passed = 0;
+            int total = 0;
+
+            for (Project project : projects.values()) {
+                String testCommand = project.getCommand("test");
+                if (testCommand == null) {
+                    System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                            " " + OutputFormatter.GRAY + "— no test command, skipped" + OutputFormatter.RESET);
+                    continue;
+                }
+
+                if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+                    System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                            " " + OutputFormatter.RED + "— path not found" + OutputFormatter.RESET);
+                    total++;
+                    continue;
+                }
+
+                total++;
+                System.out.println();
+                System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                        " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+                System.out.println("  " + "─".repeat(40));
+
+                try {
+                    executeHooks(project, "pre-test");
+
+                    CommandExecutor.ExecutionResult result;
+                    if (System.console() != null) {
+                        result = executor.executeWithInheritedIO(testCommand, project.path(), 600, project.envVars());
+                    } else {
+                        result = executor.execute(testCommand, project.path(), 600, project.envVars());
+                    }
+
+                    System.out.println("  " + "─".repeat(40));
+                    if (result.success()) {
+                        executeHooks(project, "post-test");
+                        System.out.println("  " + OutputFormatter.GREEN + "✓" + OutputFormatter.RESET +
+                                " " + project.name() + " passed (" + result.formattedDuration() + ")");
+                        passed++;
+                    } else {
+                        System.out.println("  " + OutputFormatter.RED + "✗" + OutputFormatter.RESET +
+                                " " + project.name() + " failed (exit code " + result.exitCode() + ")");
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("  " + "─".repeat(40));
+                    System.out.println("  " + OutputFormatter.RED + "✗" + OutputFormatter.RESET +
+                            " " + project.name() + " error: " + e.getMessage());
+                }
+            }
+
+            System.out.println();
+            System.out.println("  Result: " + passed + "/" + total + " projects tested successfully");
+            System.out.println();
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
         }
     }
 
@@ -1695,6 +1849,12 @@ public class ProjectManager {
         Project refreshed = new Project(project.name(), project.path(), newType);
         CommandConfigurator.configureDefaultCommands(refreshed);
 
+        // Detect secondary types
+        List<ProjectType> allTypes = ProjectTypeDetector.detectAll(project.path());
+        allTypes.stream()
+                .filter(t -> t != newType)
+                .forEach(refreshed::addSecondaryType);
+
         // Copy environment variables
         for (Map.Entry<String, String> entry : project.envVars().entrySet()) {
             refreshed.addEnvVar(entry.getKey(), entry.getValue());
@@ -1775,6 +1935,12 @@ public class ProjectManager {
                 // Create refreshed project
                 Project refreshed = new Project(name, project.path(), newType);
                 CommandConfigurator.configureDefaultCommands(refreshed);
+
+                // Detect secondary types
+                List<ProjectType> allTypes = ProjectTypeDetector.detectAll(project.path());
+                allTypes.stream()
+                        .filter(t -> t != newType)
+                        .forEach(refreshed::addSecondaryType);
 
                 // Copy environment variables
                 for (Map.Entry<String, String> entry : project.envVars().entrySet()) {
@@ -2494,6 +2660,96 @@ public class ProjectManager {
     }
 
     // ============================================================
+    // COMMAND: MODULES (Show workspace modules)
+    // ============================================================
+
+    private static void handleModules(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+        String projectName = parser.getPositional(1);
+
+        try {
+            if (projectName != null && !projectName.isBlank()) {
+                Project project = store.findProject(projectName);
+                if (project == null) {
+                    OutputFormatter.error("Project '" + projectName + "' not found");
+                    System.exit(1);
+                }
+
+                OutputFormatter.section("Workspace Modules — " + project.name());
+                printWorkspaceModules(project);
+            } else {
+                Map<String, Project> projects = store.load();
+                if (projects.isEmpty()) {
+                    OutputFormatter.section("Workspace Modules");
+                    System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                    System.out.println();
+                    return;
+                }
+
+                OutputFormatter.section("Workspace Modules");
+                boolean anyModules = false;
+                for (Project project : projects.values()) {
+                    if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+                        continue;
+                    }
+
+                    List<WorkspaceModule> modules = WorkspaceDetector.detect(project.type(), project.path());
+                    if (!modules.isEmpty()) {
+                        anyModules = true;
+                        System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                                " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+                        printModuleTable(modules);
+                        System.out.println();
+                    }
+                }
+
+                if (!anyModules) {
+                    System.out.println("  " + OutputFormatter.GRAY + "No workspaces detected" + OutputFormatter.RESET);
+                }
+            }
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    private static void printWorkspaceModules(Project project) {
+        if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+            System.out.println("  " + OutputFormatter.RED + "Path not found" + OutputFormatter.RESET);
+            return;
+        }
+
+        List<WorkspaceModule> modules = WorkspaceDetector.detect(project.type(), project.path());
+
+        if (modules.isEmpty()) {
+            System.out.println("  " + OutputFormatter.GRAY + "No workspace modules detected" + OutputFormatter.RESET);
+            System.out.println();
+            return;
+        }
+
+        printModuleTable(modules);
+        System.out.println();
+        System.out.println("  " + modules.size() + " module" + (modules.size() != 1 ? "s" : "") + " detected");
+    }
+
+    private static void printModuleTable(List<WorkspaceModule> modules) {
+        // Calculate column widths
+        int nameWidth = Math.max(4, modules.stream().mapToInt(m -> m.name().length()).max().orElse(4));
+        int pathWidth = Math.max(4, modules.stream().mapToInt(m -> m.relativePath().length()).max().orElse(4));
+
+        System.out.println();
+        System.out.println("  " + padRight("Name", nameWidth + 2) + padRight("Path", pathWidth + 2) + "Type");
+        System.out.println("  " + "─".repeat(nameWidth + pathWidth + 16));
+
+        for (WorkspaceModule module : modules) {
+            System.out.println("  " + padRight(module.name(), nameWidth + 2) +
+                    padRight(module.relativePath(), pathWidth + 2) +
+                    module.type().displayName());
+        }
+    }
+
+    // ============================================================
     // COMMAND: EXPORT (Export projects to JSON file)
     // ============================================================
 
@@ -2641,9 +2897,9 @@ public class ProjectManager {
         Commands:
           add <name> --path <path> [--env <vars>]  Register a new project
           list, ls                                  List all projects
-          build <name>                              Build project
+          build <name> [--all]                       Build project (or all with --all)
           run <name>                                Run project
-          test <name>                               Run tests
+          test <name> [--all]                        Run tests (or all with --all)
           <cmd> <name>                              Run any registered command
           scan <name>                               Scan for commands in code
           commands, cmd <name>                      List available commands
@@ -2668,6 +2924,7 @@ public class ProjectManager {
           ci [name]                                   Show CI/CD pipelines and dashboard URLs
           lint [name]                                 Run linters on project(s)
           fmt [name]                                  Run formatters on project(s)
+          modules [name]                              Show workspace modules
           export [names...] [--file <path>]           Export projects to JSON file
           import <file>                               Import projects from JSON file
           help                                      Show this help

@@ -5,6 +5,8 @@ import pm.util.Constants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -121,6 +123,72 @@ public class ProjectTypeDetector {
 
         // Could not detect
         return ProjectType.UNKNOWN;
+    }
+
+    /**
+     * Detects ALL project types present in the directory.
+     * Unlike {@link #detect(Path)} which returns only the highest-priority type,
+     * this method returns every matching type in priority order.
+     *
+     * @param projectPath path to the project directory
+     * @return list of all detected types (may be empty, never contains UNKNOWN)
+     * @throws IllegalArgumentException if projectPath is null or does not exist
+     */
+    public static List<ProjectType> detectAll(Path projectPath) {
+        if (projectPath == null) {
+            throw new IllegalArgumentException("Project path cannot be null");
+        }
+        if (!Files.exists(projectPath)) {
+            throw new IllegalArgumentException("Project path does not exist: " + projectPath);
+        }
+        if (!Files.isDirectory(projectPath)) {
+            throw new IllegalArgumentException("Project path is not a directory: " + projectPath);
+        }
+
+        List<ProjectType> types = new ArrayList<>();
+
+        if (fileExists(projectPath, Constants.FILE_BUILD_GRADLE) ||
+                fileExists(projectPath, Constants.FILE_BUILD_GRADLE_KTS)) {
+            types.add(ProjectType.GRADLE);
+        }
+        if (fileExists(projectPath, Constants.FILE_POM_XML)) {
+            types.add(ProjectType.MAVEN);
+        }
+        if (fileExists(projectPath, Constants.FILE_CARGO_TOML)) {
+            types.add(ProjectType.RUST);
+        }
+        if (fileExists(projectPath, Constants.FILE_GO_MOD)) {
+            types.add(ProjectType.GO);
+        }
+        if (fileExists(projectPath, Constants.FILE_PUBSPEC_YAML)) {
+            types.add(ProjectType.FLUTTER);
+        }
+        if (fileExists(projectPath, Constants.FILE_PNPM_LOCK)) {
+            types.add(ProjectType.PNPM);
+        }
+        if (fileExists(projectPath, Constants.FILE_BUN_LOCKB) ||
+                fileExists(projectPath, Constants.FILE_BUN_LOCK)) {
+            types.add(ProjectType.BUN);
+        }
+        if (fileExists(projectPath, Constants.FILE_YARN_LOCK)) {
+            types.add(ProjectType.YARN);
+        }
+        if (fileExists(projectPath, Constants.FILE_PACKAGE_JSON)) {
+            types.add(ProjectType.NODEJS);
+        }
+        if (hasCsprojFile(projectPath)) {
+            types.add(ProjectType.DOTNET);
+        }
+        if (fileExists(projectPath, Constants.FILE_REQUIREMENTS_TXT) ||
+                fileExists(projectPath, "setup.py")) {
+            types.add(ProjectType.PYTHON);
+        }
+        if (fileExists(projectPath, Constants.FILE_DOCKER_COMPOSE_YML) ||
+                fileExists(projectPath, Constants.FILE_DOCKER_COMPOSE_YAML)) {
+            types.add(ProjectType.DOCKER);
+        }
+
+        return types;
     }
 
     /**

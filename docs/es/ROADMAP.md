@@ -298,21 +298,6 @@ Exporta todos o proyectos seleccionados a un archivo JSON portable e impórtalos
 
 ---
 
-## v1.6.7 — Generación de Código y Flujos de Equipo
-
-### Detección de generación de código
-- Detectar build_runner (Flutter/Dart), protobuf, generadores OpenAPI
-- `pm codegen` — ejecutar herramientas de generación de código detectadas
-- Avisar si los archivos generados están desactualizados
-
-### Soporte de flujos de equipo
-- Detectar número de colaboradores desde el log de git
-- `pm team` — mostrar colaboradores activos y sus áreas recientes
-- Detección y validación de convenciones de nombres de rama
-- Detección de templates de PR
-
----
-
 ## v1.7.0 — Espacios de Trabajo Multi-proyecto
 
 ### Soporte monorepo

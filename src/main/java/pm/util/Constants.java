@@ -366,6 +366,12 @@ public final class Constants {
     /** Docker Compose configuration file (YAML full extension). */
     public static final String FILE_DOCKER_COMPOSE_YAML = "docker-compose.yaml";
 
+    /** Gradle settings file (Groovy DSL). */
+    public static final String FILE_SETTINGS_GRADLE = "settings.gradle";
+
+    /** Gradle settings file (Kotlin DSL). */
+    public static final String FILE_SETTINGS_GRADLE_KTS = "settings.gradle.kts";
+
     // ============================================================
     // HOOKS
     // ============================================================

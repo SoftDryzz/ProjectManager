@@ -88,6 +88,13 @@ public final class Project {
     private final Map<String, List<String>> hooks;
 
     /**
+     * Secondary project types detected in the project directory.
+     * For example, a Maven project may also have Docker and Node.js files.
+     * The primary type is stored in the {@link #type} field.
+     */
+    private final List<ProjectType> secondaryTypes;
+
+    /**
      * Creates a new project.
      *
      * @param name unique project name (cannot be null)
@@ -112,6 +119,7 @@ public final class Project {
         this.commands = new HashMap<>();
         this.envVars = new HashMap<>();
         this.hooks = new HashMap<>();
+        this.secondaryTypes = new ArrayList<>();
         this.lastModified = Instant.now();
     }
 
@@ -455,5 +463,58 @@ public final class Project {
      */
     public int hookCount() {
         return hooks.values().stream().mapToInt(List::size).sum();
+    }
+
+    // ============================================================
+    // SECONDARY TYPE MANAGEMENT
+    // ============================================================
+
+    /**
+     * Gets an unmodifiable copy of the secondary types list.
+     *
+     * @return list of secondary project types (may be empty, never null)
+     */
+    public List<ProjectType> secondaryTypes() {
+        return List.copyOf(secondaryTypes);
+    }
+
+    /**
+     * Adds a secondary type if not already present and different from the primary type.
+     *
+     * @param type the secondary type to add
+     */
+    public void addSecondaryType(ProjectType type) {
+        Objects.requireNonNull(type, "Secondary type cannot be null");
+        if (type != this.type && !secondaryTypes.contains(type)) {
+            secondaryTypes.add(type);
+            lastModified = Instant.now();
+        }
+    }
+
+    /**
+     * Replaces all secondary types.
+     * Filters out the primary type and duplicates.
+     *
+     * @param types the new secondary types
+     */
+    public void setSecondaryTypes(List<ProjectType> types) {
+        secondaryTypes.clear();
+        if (types != null) {
+            for (ProjectType t : types) {
+                if (t != null && t != this.type && !secondaryTypes.contains(t)) {
+                    secondaryTypes.add(t);
+                }
+            }
+        }
+        lastModified = Instant.now();
+    }
+
+    /**
+     * Checks if any secondary types are detected.
+     *
+     * @return true if at least one secondary type exists
+     */
+    public boolean hasSecondaryTypes() {
+        return !secondaryTypes.isEmpty();
     }
 }
