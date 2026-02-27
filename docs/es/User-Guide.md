@@ -22,6 +22,7 @@
   - [Detección CI/CD](#-detección-cicd)
   - [Linting y Formateo](#-linting-y-formateo)
   - [Espacios de Trabajo Multi-proyecto](#-espacios-de-trabajo-multi-proyecto)
+  - [Migraciones de Base de Datos](#-migraciones-de-base-de-datos)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -591,6 +592,53 @@ pm env clear <nombre>
 
 ---
 
+#### Listar archivos .env
+```bash
+pm env files <nombre>
+```
+
+Descubre todos los archivos `.env*` (`.env`, `.env.local`, `.env.production`, etc.) en el directorio del proyecto y muestra el número de entradas y tamaño.
+
+**Ejemplo de salida:**
+```
+Env Files — mi-api
+
+  File               Entries   Size
+  ────────────────────────────────────
+  .env               5         128 B
+  .env.local         3         84 B
+  .env.production    8         256 B
+
+  3 env files found
+```
+
+---
+
+#### Mostrar contenido de archivo .env
+```bash
+pm env show <nombre> <archivo>           # Valores sensibles enmascarados
+pm env show <nombre> <archivo> --show    # Todos los valores revelados
+```
+
+Muestra el contenido de un archivo `.env` específico. Los valores sensibles (PASSWORD, TOKEN, KEY, SECRET, AUTH) se enmascaran por defecto — muestra los primeros 3 caracteres seguidos de `****`.
+
+---
+
+#### Cambiar entorno
+```bash
+pm env switch <nombre> <nombre-env>
+```
+
+Copia `.env.<nombre-env>` a `.env` en el directorio del proyecto. Pide confirmación si `.env` ya existe.
+
+**Ejemplo:**
+```bash
+pm env switch mi-api production
+# Copia .env.production → .env (con confirmación y/n)
+```
+
+---
+
 ### 🔹 Renombrar y Actualizar Ruta
 
 #### Renombrar un proyecto
@@ -679,9 +727,10 @@ Verifica runtimes instalados (Java, Node.js, .NET, Python, Gradle, Maven, Rust/C
 | Tests | El proyecto tiene un comando `test` configurado | Configura tests con `pm commands add` |
 | CI/CD | GitHub Actions, GitLab CI o Jenkinsfile detectado | Configura CI/CD para testing automatizado |
 | Lockfile | Lockfile de dependencias existe para el tipo de proyecto | Commitea tu lockfile para builds reproducibles |
+| Secretos | No se encontraron secretos hardcodeados en archivos `.env` | Usa inyección de entorno o un vault |
 
 Cada proyecto recibe una **calificación** basada en cuántas verificaciones pasa:
-- **A** = 5/5 — **B** = 4/5 — **C** = 3/5 — **D** = 2/5 — **F** = 0–1/5
+- **A** = 6/6 — **B** = 5/6 — **C** = 4/6 — **D** = 3/6 — **F** = 0–2/6
 
 #### Mostrar solo calificaciones (compacto)
 ```bash
@@ -704,7 +753,7 @@ Muestra solo la nota por proyecto sin detalles:
 pm secure
 ```
 
-Ejecuta 5 verificaciones de seguridad basadas en el sistema de archivos en cada proyecto:
+Ejecuta 7 verificaciones de seguridad basadas en el sistema de archivos en cada proyecto:
 
 | Verificación | Condición para pasar | Recomendación si falla |
 |-------------|---------------------|----------------------|
@@ -713,8 +762,10 @@ Ejecuta 5 verificaciones de seguridad basadas en el sistema de archivos en cada 
 | Solo HTTPS | No hay URLs `http://` en archivos de configuración (excluyendo localhost) | Reemplaza http:// con https:// |
 | Archivos sensibles | `.gitignore` contiene `*.pem` y `*.key` | Añade *.pem y *.key a .gitignore |
 | Lockfile | Lockfile de dependencias existe para el tipo de proyecto | Commitea tu lockfile contra ataques de supply-chain |
+| Patrones de secretos | No se detectan patrones conocidos (claves AWS, tokens GitHub, tokens Slack) en archivos `.env` | Elimina secretos hardcodeados y usa inyección de entorno |
+| Vaultic | [Vaultic](https://github.com/SoftDryzz/Vaultic) instalado e inicializado (cuando existen archivos `.env`) | Instala Vaultic para encriptar tus archivos `.env` |
 
-Coloreado: **5/5** = verde, **3–4/5** = amarillo, **0–2/5** = rojo
+Coloreado: **7/7** = verde, **5–6/7** = amarillo, **0–4/7** = rojo
 
 #### Auto-corregir problemas de .gitignore
 ```bash
@@ -1003,6 +1054,57 @@ Testea todos los proyectos registrados. Continúa en caso de fallo y muestra un 
   ✗ legacy-api (Gradle) — exit code 1
 
   Result: 2/3 projects built successfully
+```
+
+---
+
+### 🔹 Migraciones de Base de Datos
+
+Detecta y gestiona herramientas de migración de bases de datos en tus proyectos.
+
+#### Listar herramientas de migración detectadas
+```bash
+pm migrate
+```
+
+Escanea todos los proyectos registrados y muestra qué herramientas de migración se detectan:
+
+| Herramienta | Detección | Comando de Migración | Comando de Estado |
+|-------------|-----------|---------------------|-------------------|
+| Prisma | `prisma/schema.prisma` | `npx prisma migrate deploy` | `npx prisma migrate status` |
+| Alembic | `alembic.ini` o directorio `alembic/` | `alembic upgrade head` | `alembic current` |
+| Diesel | `diesel.toml` | `diesel migration run` | `diesel migration list` |
+| Flyway | `flyway.conf` o `flyway.toml` | `flyway migrate` | `flyway info` |
+| Liquibase | `liquibase.properties` | `liquibase update` | `liquibase status` |
+| SQLx | directorio `.sqlx/` | `sqlx migrate run` | `sqlx migrate info` |
+
+#### Ejecutar una migración
+```bash
+pm migrate <nombre>
+```
+
+Detecta la herramienta de migración del proyecto, pide confirmación (y/n) y ejecuta el comando de migración. Si se detectan múltiples herramientas, usa la primera encontrada.
+
+#### Comprobar estado de migración
+```bash
+pm migrate <nombre> status
+```
+
+Ejecuta el comando de estado de la herramienta de migración detectada. Es solo lectura y no requiere confirmación.
+
+**Ejemplo de salida:**
+```
+Migration — mi-api
+
+  Tool: Prisma
+  Command: npx prisma migrate status
+
+  [Salida de Prisma aquí...]
+```
+
+Las herramientas de migración también se muestran en `pm info`:
+```
+  Migration: Prisma, Flyway
 ```
 
 ---
@@ -1927,6 +2029,10 @@ pm env list <nombre>                               # Listar (enmascaradas)
 pm env list <nombre> --show                        # Listar (reveladas)
 pm env remove <nombre> KEY                         # Eliminar una variable
 pm env clear <nombre>                              # Eliminar todas
+pm env files <nombre>                              # Listar archivos .env del proyecto
+pm env show <nombre> .env                          # Mostrar contenido .env (enmascarado)
+pm env show <nombre> .env.local --show             # Mostrar contenido .env (revelado)
+pm env switch <nombre> production                  # Copiar .env.production → .env
 
 # === HOOKS ===
 pm hooks <nombre>                                  # Listar hooks
@@ -1982,6 +2088,11 @@ pm modules                                         # Mostrar módulos de todos l
 pm modules <nombre>                                # Mostrar módulos de un proyecto
 pm build --all                                     # Compilar todos los proyectos registrados
 pm test --all                                      # Testear todos los proyectos registrados
+
+# === MIGRACIONES DE BASE DE DATOS ===
+pm migrate                                         # Listar herramientas de migración por proyecto
+pm migrate <nombre>                                # Ejecutar migración (con confirmación)
+pm migrate <nombre> status                         # Comprobar estado de migración
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

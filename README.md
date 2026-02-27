@@ -189,6 +189,9 @@ pm run order-service
 - 🔄 **CI/CD detection** - Detect GitHub Actions, GitLab CI, Jenkins, Travis CI, CircleCI with `pm ci` and in `pm info`
 - 🧹 **Linting & Formatting** - Run linters with `pm lint` and formatters with `pm fmt`, auto-detects ESLint, Clippy, Prettier, gofmt, Ruff, and more
 - 📦 **Multi-project Workspaces** - Detect monorepo modules with `pm modules`, multi-language detection, `pm build --all` and `pm test --all`
+- 📂 **Env File Detection** - Discover `.env` files with `pm env files`, view masked contents with `pm env show`, switch environments with `pm env switch`
+- 🔑 **Secret Scanning** - Detect hardcoded secrets (AWS keys, GitHub tokens, Slack tokens) in `.env` files, integrated in `pm doctor` and `pm secure`
+- 🗄️ **Database Migrations** - Detect migration tools (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx) with `pm migrate`, run and check status
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -240,6 +243,9 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm env list <name> [--show]` | List variables (sensitive values masked) |
 | `pm env remove <name> KEY` | Remove a variable |
 | `pm env clear <name>` | Remove all variables |
+| `pm env files <name>` | List `.env` files in project directory |
+| `pm env show <name> <file> [--show]` | Show `.env` file contents (masked by default) |
+| `pm env switch <name> <env-name>` | Copy `.env.<env-name>` to `.env` |
 | `pm hooks <name>` | List hooks for a project |
 | `pm hooks <name> add <slot> "<script>"` | Add a pre-/post-command hook |
 | `pm hooks <name> remove <slot> "<script>"` | Remove a hook |
@@ -259,6 +265,9 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm lint [name]` | Run linters on project(s) |
 | `pm fmt [name]` | Run formatters on project(s) |
 | `pm modules [name]` | Show workspace modules |
+| `pm migrate` | List detected migration tools per project |
+| `pm migrate <name>` | Run database migration (with confirmation) |
+| `pm migrate <name> status` | Check migration status |
 | `pm build --all` | Build all registered projects |
 | `pm test --all` | Test all registered projects |
 | `pm export` | Export all projects to a portable JSON file |
@@ -480,9 +489,10 @@ Projects are saved in:
 - **CI/CD** — `pm ci` detects pipelines (GitHub Actions, GitLab CI, Jenkins, Travis, CircleCI) and shows dashboard URLs
 - **Lint & Format** — `pm lint` / `pm fmt` auto-detect and run linters/formatters (ESLint, Prettier, Clippy, gofmt, Ruff, Black, Checkstyle, Spotless, and more)
 - **Workspaces** — `pm modules` detects monorepo structures (Cargo, npm/pnpm/yarn, Gradle, Go), multi-language detection, `pm build --all` / `pm test --all`
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 697 tests
+- **Environments** — `pm env files/show/switch` for .env file discovery, secret scanning (AWS, GitHub, Slack tokens), `pm migrate` for database migration tools (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx)
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 748 tests
 
-> Latest release: **v1.7.0** (Multi-project Workspaces) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v1.7.1** (Environments, Secrets & Databases) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)

@@ -22,6 +22,7 @@
   - [CI/CD Detection](#-cicd-detection)
   - [Linting & Formatting](#-linting--formatting)
   - [Multi-project Workspaces](#-multi-project-workspaces)
+  - [Database Migrations](#-database-migrations)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -591,6 +592,53 @@ pm env clear <name>
 
 ---
 
+#### List .env files
+```bash
+pm env files <name>
+```
+
+Discovers all `.env*` files (`.env`, `.env.local`, `.env.production`, etc.) in the project directory and shows their entry count and file size.
+
+**Example output:**
+```
+Env Files — my-api
+
+  File               Entries   Size
+  ────────────────────────────────────
+  .env               5         128 B
+  .env.local         3         84 B
+  .env.production    8         256 B
+
+  3 env files found
+```
+
+---
+
+#### Show .env file contents
+```bash
+pm env show <name> <file>           # Sensitive values masked
+pm env show <name> <file> --show    # All values revealed
+```
+
+Displays the contents of a specific `.env` file. Sensitive values (PASSWORD, TOKEN, KEY, SECRET, AUTH) are masked by default — shows the first 3 characters followed by `****`.
+
+---
+
+#### Switch environment
+```bash
+pm env switch <name> <env-name>
+```
+
+Copies `.env.<env-name>` to `.env` in the project directory. Asks for confirmation if `.env` already exists.
+
+**Example:**
+```bash
+pm env switch my-api production
+# Copies .env.production → .env (with y/n confirmation)
+```
+
+---
+
 ### 🔹 Rename & Path Update
 
 #### Rename a project
@@ -679,9 +727,10 @@ Verifies installed runtimes (Java, Node.js, .NET, Python, Gradle, Maven, Rust/Ca
 | Tests | Project has a `test` command configured | Configure tests with `pm commands add` |
 | CI/CD | GitHub Actions, GitLab CI, or Jenkinsfile detected | Set up CI/CD for automated testing |
 | Lockfile | Dependency lockfile exists for project type | Commit your lockfile for reproducible builds |
+| Secrets | No hardcoded secrets found in `.env` files | Use environment injection or a vault instead |
 
 Each project receives a **letter grade** based on how many checks pass:
-- **A** = 5/5 — **B** = 4/5 — **C** = 3/5 — **D** = 2/5 — **F** = 0–1/5
+- **A** = 6/6 — **B** = 5/6 — **C** = 4/6 — **D** = 3/6 — **F** = 0–2/6
 
 #### Show only health grades (compact)
 ```bash
@@ -704,7 +753,7 @@ Shows just the letter grade per project without details:
 pm secure
 ```
 
-Runs 5 filesystem-only security checks on each registered project:
+Runs 7 filesystem-only security checks on each registered project:
 
 | Check | Pass condition | Recommendation if failed |
 |-------|---------------|--------------------------|
@@ -713,8 +762,10 @@ Runs 5 filesystem-only security checks on each registered project:
 | HTTPS only | No `http://` URLs in config files (excluding localhost) | Replace http:// with https:// in config files |
 | Sensitive files | `.gitignore` contains `*.pem` and `*.key` patterns | Add *.pem and *.key to .gitignore to protect keys |
 | Lockfile | Dependency lockfile exists for project type | Commit your lockfile to prevent supply-chain attacks |
+| Secret patterns | No known secret patterns (AWS keys, GitHub tokens, Slack tokens) in `.env` files | Remove hardcoded secrets and use environment injection |
+| Vaultic | [Vaultic](https://github.com/SoftDryzz/Vaultic) installed and initialized (when `.env` files exist) | Install Vaultic to encrypt your `.env` files |
 
-Result coloring: **5/5** = green, **3–4/5** = yellow, **0–2/5** = red
+Result coloring: **7/7** = green, **5–6/7** = yellow, **0–4/7** = red
 
 #### Auto-fix .gitignore issues
 ```bash
@@ -1003,6 +1054,57 @@ Tests every registered project. Continues on failure and shows a summary.
   ✗ legacy-api (Gradle) — exit code 1
 
   Result: 2/3 projects built successfully
+```
+
+---
+
+### 🔹 Database Migrations
+
+Detect and manage database migration tools across your projects.
+
+#### List detected migration tools
+```bash
+pm migrate
+```
+
+Scans all registered projects and shows which migration tools are detected:
+
+| Tool | Detection | Migrate Command | Status Command |
+|------|-----------|----------------|----------------|
+| Prisma | `prisma/schema.prisma` | `npx prisma migrate deploy` | `npx prisma migrate status` |
+| Alembic | `alembic.ini` or `alembic/` dir | `alembic upgrade head` | `alembic current` |
+| Diesel | `diesel.toml` | `diesel migration run` | `diesel migration list` |
+| Flyway | `flyway.conf` or `flyway.toml` | `flyway migrate` | `flyway info` |
+| Liquibase | `liquibase.properties` | `liquibase update` | `liquibase status` |
+| SQLx | `.sqlx/` dir | `sqlx migrate run` | `sqlx migrate info` |
+
+#### Run a migration
+```bash
+pm migrate <name>
+```
+
+Detects the migration tool for the project, asks for confirmation (y/n), then executes the migration command. If multiple tools are detected, uses the first one found.
+
+#### Check migration status
+```bash
+pm migrate <name> status
+```
+
+Runs the status command for the detected migration tool. This is read-only and does not require confirmation.
+
+**Example output:**
+```
+Migration — my-api
+
+  Tool: Prisma
+  Command: npx prisma migrate status
+
+  [Prisma output here...]
+```
+
+Migration tools are also shown in `pm info`:
+```
+  Migration: Prisma, Flyway
 ```
 
 ---
@@ -1927,6 +2029,10 @@ pm env list <name>                             # List (masked)
 pm env list <name> --show                      # List (revealed)
 pm env remove <name> KEY                       # Remove a variable
 pm env clear <name>                            # Remove all variables
+pm env files <name>                            # List .env files in project
+pm env show <name> .env                        # Show .env contents (masked)
+pm env show <name> .env.local --show           # Show .env contents (revealed)
+pm env switch <name> production                # Copy .env.production → .env
 
 # === HOOKS ===
 pm hooks <name>                                # List hooks
@@ -1982,6 +2088,11 @@ pm modules                                     # Show workspace modules for all 
 pm modules <name>                              # Show workspace modules for a project
 pm build --all                                 # Build all registered projects
 pm test --all                                  # Test all registered projects
+
+# === DATABASE MIGRATIONS ===
+pm migrate                                     # List migration tools per project
+pm migrate <name>                              # Run migration (with confirmation)
+pm migrate <name> status                       # Check migration status
 
 # === UPDATES ===
 pm update                                      # Update to latest version
