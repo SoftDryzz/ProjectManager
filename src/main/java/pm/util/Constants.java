@@ -15,7 +15,7 @@ import java.nio.file.Paths;
  * (utility class pattern).
  *
  * @author SoftDryzz
- * @version 1.8.1
+ * @version 1.9.0
  * @since 1.0.0
  */
 public final class Constants {
@@ -38,7 +38,7 @@ public final class Constants {
      * Current version of ProjectManager.
      * Follows Semantic Versioning (MAJOR.MINOR.PATCH).
      */
-    public static final String VERSION = "1.8.1";
+    public static final String VERSION = "1.9.0";
 
     // ============================================================
     // SYSTEM DIRECTORIES AND FILES
@@ -120,6 +120,30 @@ public final class Constants {
      * PostHog capture API endpoint (US cloud).
      */
     public static final String POSTHOG_ENDPOINT = "https://us.i.posthog.com/capture/";
+
+    // ============================================================
+    // LICENSE
+    // ============================================================
+
+    /**
+     * License file for license key validation.
+     * Path: ~/.projectmanager/license.json
+     */
+    public static final Path LICENSE_FILE = CONFIG_DIR.resolve("license.json");
+
+    /**
+     * RSA public key for license signature verification (Base64, X.509/DER).
+     * Can only VERIFY signatures — cannot create them.
+     * The corresponding private key is NEVER stored in this repository.
+     */
+    public static final String LICENSE_PUBLIC_KEY =
+            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyFHWLxj6JtxBb1Pm8I1V"
+            + "x5nfKlAqZUd0kwmMlMuZRWbXsJxBADhXzBElc0wudAaFUaARcDDCFZ9rIB+tx+b"
+            + "Ho9cmVaTsmG7GqegmNTiGIQdCxfehl+tO+WcsBfj5jWZYlMIBGbcHQmJdWvIeOPU"
+            + "2Cgj2ViOikr3OjtkgHZEP4Dl8l/T45+jMl+4U+Z8rbV/p5XC2TGHnnfA6IS7bmfx"
+            + "jbhSeITsWAU+Rcp6/XjxBt/lzt50FCRk5mMyZjbqzKuRqMrLKgQiLxIKV/EmcxZe"
+            + "accr4OQzJOMba+slZrImlTVGLDN3G6AwLQX2BWJCnGnNzTfrbakZstXu6l45/uHO"
+            + "KoQIDAQAB";
 
     // ============================================================
     // DEFAULT COMMANDS - GRADLE

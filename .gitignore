@@ -40,3 +40,7 @@ build/
 
 ### Claude ###
 CLAUDE.md
+
+### License Keys (NEVER commit private keys) ###
+*.pem
+license-private*

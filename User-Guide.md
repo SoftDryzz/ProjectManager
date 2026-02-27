@@ -23,6 +23,7 @@
   - [Linting & Formatting](#-linting--formatting)
   - [Multi-project Workspaces](#-multi-project-workspaces)
   - [Database Migrations](#-database-migrations)
+  - [License Key](#-license-key)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -1130,6 +1131,39 @@ pm config telemetry off
 
 ---
 
+### 🔹 License Key
+
+ProjectManager follows an Open Core model. By default, it runs as **Community Edition** with all features available. Activating a Pro license key changes the banner branding only — no features are restricted.
+
+#### Show license status
+```bash
+pm license
+```
+or
+```bash
+pm license info
+```
+
+Displays the current license status: Community Edition or Pro, along with license details if activated.
+
+#### Activate a license
+```bash
+pm license activate <key>
+```
+
+Validates the license key offline using RSA-SHA256 signatures (no server calls required) and activates Pro branding. The license is stored at `~/.projectmanager/license.json`.
+
+#### Deactivate a license
+```bash
+pm license deactivate
+```
+
+Removes the current license and reverts to Community Edition.
+
+> **Note**: License keys are validated entirely offline. No network connection is required for activation or validation.
+
+---
+
 ### 🔹 Help and Version
 
 #### View help
@@ -2119,6 +2153,12 @@ pm migrate <name> status                       # Check migration status
 pm config telemetry                            # Check telemetry status
 pm config telemetry on                         # Enable anonymous telemetry
 pm config telemetry off                        # Disable telemetry
+
+# === LICENSE ===
+pm license                                     # Show license status
+pm license info                                # Show license status
+pm license activate <key>                      # Activate a Pro license key
+pm license deactivate                          # Remove license, revert to Community
 
 # === UPDATES ===
 pm update                                      # Update to latest version

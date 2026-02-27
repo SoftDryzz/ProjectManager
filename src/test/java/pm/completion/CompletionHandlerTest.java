@@ -345,4 +345,24 @@ class CompletionHandlerTest {
         assertTrue(result.contains("on"));
         assertTrue(result.contains("off"));
     }
+
+    // ============================================================
+    // LICENSE COMPLETIONS
+    // ============================================================
+
+    @Test
+    @DisplayName("license is in top-level commands")
+    void licenseInTopLevel() {
+        assertTrue(CompletionHandler.TOP_LEVEL_COMMANDS.contains("license"));
+    }
+
+    @Test
+    @DisplayName("license command suggests subcommands")
+    void licenseSuggestsSubcommands() {
+        String[] words = {"pm", "license", ""};
+        List<String> result = CompletionHandler.computeCompletions(words, 2);
+        assertTrue(result.contains("info"));
+        assertTrue(result.contains("activate"));
+        assertTrue(result.contains("deactivate"));
+    }
 }

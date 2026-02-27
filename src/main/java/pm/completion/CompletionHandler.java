@@ -30,7 +30,7 @@ public final class CompletionHandler {
             "commands", "cmd", "remove", "rm", "rename", "info",
             "env", "hooks", "refresh", "update", "doctor", "secure",
             "audit", "ci", "lint", "fmt", "modules", "migrate", "export", "import",
-            "config", "help", "version", "completions"
+            "config", "license", "help", "version", "completions"
     );
 
     /** Commands that take a project name as their next argument. */
@@ -58,6 +58,9 @@ public final class CompletionHandler {
 
     /** Telemetry values. */
     static final List<String> TELEMETRY_VALUES = List.of("on", "off");
+
+    /** License subcommands. */
+    static final List<String> LICENSE_SUBCOMMANDS = List.of("info", "activate", "deactivate");
 
     /** Supported shell names for completions command. */
     static final List<String> SHELL_NAMES = List.of(
@@ -183,6 +186,7 @@ public final class CompletionHandler {
         return switch (cmd) {
             case "env" -> new ArrayList<>(ENV_SUBCOMMANDS);
             case "config" -> new ArrayList<>(CONFIG_SUBCOMMANDS);
+            case "license" -> new ArrayList<>(LICENSE_SUBCOMMANDS);
             case "completions" -> new ArrayList<>(SHELL_NAMES);
             case "doctor" -> new ArrayList<>(List.of("--score"));
             case "secure" -> new ArrayList<>(List.of("--fix"));
