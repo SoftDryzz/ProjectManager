@@ -373,6 +373,25 @@ public final class Constants {
     public static final String FILE_SETTINGS_GRADLE_KTS = "settings.gradle.kts";
 
     // ============================================================
+    // MIGRATION TOOL FILES
+    // ============================================================
+
+    /** Alembic configuration file (Python). */
+    public static final String FILE_ALEMBIC_INI = "alembic.ini";
+
+    /** Diesel configuration file (Rust). */
+    public static final String FILE_DIESEL_TOML = "diesel.toml";
+
+    /** Flyway configuration file (properties format). */
+    public static final String FILE_FLYWAY_CONF = "flyway.conf";
+
+    /** Flyway configuration file (TOML format). */
+    public static final String FILE_FLYWAY_TOML = "flyway.toml";
+
+    /** Liquibase configuration file. */
+    public static final String FILE_LIQUIBASE_PROPERTIES = "liquibase.properties";
+
+    // ============================================================
     // HOOKS
     // ============================================================
 

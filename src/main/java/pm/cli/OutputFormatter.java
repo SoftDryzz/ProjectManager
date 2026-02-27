@@ -4,6 +4,9 @@ import pm.ci.CIDetector;
 import pm.ci.CIProvider;
 import pm.core.Project;
 import pm.detector.ProjectType;
+import pm.migration.MigrationDetector;
+import pm.migration.MigrationTool;
+import pm.scanner.EnvFileDetector;
 import pm.util.GitIntegration;
 import pm.workspace.WorkspaceDetector;
 import pm.workspace.WorkspaceModule;
@@ -157,6 +160,26 @@ public class OutputFormatter {
             System.out.println("  " + BOLD + "Workspace:" + RESET + " " +
                     modules.size() + " module" + (modules.size() != 1 ? "s" : "") +
                     " (use 'pm modules " + project.name() + "' for details)");
+        }
+
+        // Show .env files
+        List<Path> envFiles = EnvFileDetector.detectEnvFiles(project.path());
+        if (!envFiles.isEmpty()) {
+            String names = envFiles.stream()
+                    .map(p -> p.getFileName().toString())
+                    .collect(Collectors.joining(", "));
+            System.out.println();
+            System.out.println("  " + BOLD + "Env Files:" + RESET + " " +
+                    envFiles.size() + " (" + names + ")");
+        }
+
+        // Show migration tools
+        List<MigrationTool> migrations = MigrationDetector.detect(project.path());
+        if (!migrations.isEmpty()) {
+            String tools = migrations.stream()
+                    .map(MigrationTool::displayName)
+                    .collect(Collectors.joining(", "));
+            System.out.println("  " + BOLD + "Migration:" + RESET + " " + tools);
         }
 
         System.out.println();

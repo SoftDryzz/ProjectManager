@@ -258,7 +258,7 @@ public final class RuntimeChecker {
      * @param versionFlag the flag to test with
      * @return true if the command executes successfully
      */
-    static boolean isCommandAvailable(String command, String versionFlag) {
+    public static boolean isCommandAvailable(String command, String versionFlag) {
         return getVersion(command, versionFlag) != null;
     }
 

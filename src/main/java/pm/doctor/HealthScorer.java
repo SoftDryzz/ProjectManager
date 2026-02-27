@@ -3,6 +3,8 @@ package pm.doctor;
 import pm.cli.OutputFormatter;
 import pm.core.Project;
 import pm.detector.ProjectType;
+import pm.scanner.SecretFinding;
+import pm.scanner.SecretScanner;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -14,13 +16,14 @@ import java.util.List;
 /**
  * Evaluates project health based on best-practice checks and assigns A–F grades.
  *
- * <p>Each project is scored on 5 equally-weighted checks (20 pts each, 100 total):
+ * <p>Each project is scored on 6 equally-weighted checks:
  * <ol>
  *   <li>.gitignore exists</li>
  *   <li>README present</li>
  *   <li>Tests configured</li>
  *   <li>CI/CD detected</li>
  *   <li>Dependencies lockfile present</li>
+ *   <li>No exposed secrets in .env files</li>
  * </ol>
  *
  * @author SoftDryzz
@@ -35,7 +38,7 @@ public final class HealthScorer {
      * Runs all health checks on a project and returns the results.
      *
      * @param project project to evaluate
-     * @return list of check results (always 5 items)
+     * @return list of check results (always 6 items)
      */
     public static List<HealthCheck> evaluate(Project project) {
         Path root = project.path();
@@ -46,6 +49,7 @@ public final class HealthScorer {
         checks.add(checkTests(project));
         checks.add(checkCI(root));
         checks.add(checkLockfile(root, project.type()));
+        checks.add(checkNoExposedSecrets(root));
 
         return checks;
     }
@@ -59,10 +63,10 @@ public final class HealthScorer {
     public static char grade(List<HealthCheck> checks) {
         long passed = checks.stream().filter(HealthCheck::passed).count();
         return switch ((int) passed) {
-            case 5 -> 'A';
-            case 4 -> 'B';
-            case 3 -> 'C';
-            case 2 -> 'D';
+            case 6 -> 'A';
+            case 5 -> 'B';
+            case 4 -> 'C';
+            case 3 -> 'D';
             default -> 'F';
         };
     }
@@ -148,6 +152,16 @@ public final class HealthScorer {
                 exists,
                 "Lockfile",
                 "Commit your lockfile to ensure reproducible builds"
+        );
+    }
+
+    private static HealthCheck checkNoExposedSecrets(Path root) {
+        List<SecretFinding> findings = SecretScanner.scan(root);
+        return new HealthCheck(
+                "secrets",
+                findings.isEmpty(),
+                "No exposed secrets",
+                "Hardcoded secrets found in .env files — use environment injection or a vault"
         );
     }
 

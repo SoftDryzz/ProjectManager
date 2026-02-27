@@ -320,16 +320,7 @@ Exporta todos o proyectos seleccionados a un archivo JSON portable e impórtalos
 
 ---
 
-## v1.7.1 — Plantillas de Proyecto
-
-### Comando `pm init`
-- `pm init <tipo>` — crear un nuevo proyecto desde plantillas
-- Plantillas incluidas: Java (Maven/Gradle), Node.js, Rust, Go, Python, .NET
-- Soporte de plantillas personalizadas desde repos de GitHub
-
----
-
-## v1.8.0 — Entornos, Secretos y Bases de Datos
+## v1.7.1 — Entornos, Secretos y Bases de Datos
 
 ### Gestión de entornos
 - Detectar archivos `.env`, `.env.local`, `.env.production`

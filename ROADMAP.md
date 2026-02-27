@@ -320,16 +320,7 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
-## v1.7.1 — Project Templates
-
-### `pm init` command
-- `pm init <type>` — scaffold a new project from templates
-- Built-in templates: Java (Maven/Gradle), Node.js, Rust, Go, Python, .NET
-- Support custom templates from GitHub repos
-
----
-
-## v1.8.0 — Environments, Secrets & Databases
+## v1.7.1 — Environments, Secrets & Databases
 
 ### Environment management
 - Detect `.env`, `.env.local`, `.env.production` files

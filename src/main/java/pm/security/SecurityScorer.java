@@ -2,6 +2,10 @@ package pm.security;
 
 import pm.core.Project;
 import pm.detector.ProjectType;
+import pm.scanner.EnvFileDetector;
+import pm.scanner.SecretFinding;
+import pm.scanner.SecretScanner;
+import pm.util.RuntimeChecker;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -15,13 +19,15 @@ import java.util.Set;
 /**
  * Scans projects for common security misconfigurations.
  *
- * <p>Runs 5 filesystem-only checks:
+ * <p>Runs 7 filesystem-only checks:
  * <ol>
  *   <li>Dockerfile runs as non-root user</li>
  *   <li>.env files protected by .gitignore</li>
  *   <li>No hardcoded http:// URLs in config files</li>
  *   <li>Sensitive files (.pem, .key) in .gitignore</li>
  *   <li>Dependencies lockfile present</li>
+ *   <li>No hardcoded secret patterns in .env files</li>
+ *   <li>Vaultic secret encryption (when .env files present)</li>
  * </ol>
  *
  * @author SoftDryzz
@@ -36,7 +42,7 @@ public final class SecurityScorer {
      * Runs all security checks on a project.
      *
      * @param project project to evaluate
-     * @return list of check results (always 5 items)
+     * @return list of check results (always 7 items)
      */
     public static List<SecurityCheck> evaluate(Project project) {
         Path root = project.path();
@@ -47,6 +53,8 @@ public final class SecurityScorer {
         checks.add(checkHttpUrls(root));
         checks.add(checkSensitiveFilesInGitignore(root));
         checks.add(checkLockfile(root, project.type()));
+        checks.add(checkSecretPatterns(root));
+        checks.add(checkVaultic(root));
 
         return checks;
     }
@@ -288,6 +296,53 @@ public final class SecurityScorer {
                 "Commit your lockfile to ensure reproducible builds and prevent supply-chain attacks",
                 false
         );
+    }
+
+    static SecurityCheck checkSecretPatterns(Path root) {
+        List<SecretFinding> findings = SecretScanner.scan(root);
+        if (findings.isEmpty()) {
+            return new SecurityCheck(
+                    "secret-patterns", true, "Secret patterns",
+                    "No hardcoded secret patterns detected", false
+            );
+        }
+        return new SecurityCheck(
+                "secret-patterns", false, "Secret patterns",
+                findings.size() + " hardcoded secret(s) found in .env files — "
+                        + "use environment injection or a vault", false
+        );
+    }
+
+    static SecurityCheck checkVaultic(Path root) {
+        List<Path> envFiles = EnvFileDetector.detectEnvFiles(root);
+        if (envFiles.isEmpty()) {
+            return new SecurityCheck(
+                    "vaultic", true, "Vaultic",
+                    "No .env files — Vaultic not needed", false
+            );
+        }
+
+        boolean installed = RuntimeChecker.isCommandAvailable("vaultic", "--version");
+        boolean initialized = Files.isDirectory(root.resolve(".vaultic"));
+
+        if (installed && initialized) {
+            return new SecurityCheck(
+                    "vaultic", true, "Vaultic",
+                    "Protected by Vaultic", false
+            );
+        } else if (installed) {
+            return new SecurityCheck(
+                    "vaultic", false, "Vaultic",
+                    "Vaultic installed but not initialized — run 'vaultic init' in project root "
+                            + "(see https://github.com/SoftDryzz/Vaultic)", false
+            );
+        } else {
+            return new SecurityCheck(
+                    "vaultic", false, "Vaultic",
+                    "Install Vaultic for secret encryption: cargo install vaultic "
+                            + "or https://github.com/SoftDryzz/Vaultic/releases", false
+            );
+        }
     }
 
     // ============================================================

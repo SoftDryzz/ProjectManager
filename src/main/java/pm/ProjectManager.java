@@ -6,6 +6,9 @@ import pm.lint.FormatDetector;
 import pm.lint.FormatTool;
 import pm.lint.LintDetector;
 import pm.lint.LintTool;
+import pm.migration.MigrationDetector;
+import pm.migration.MigrationTool;
+import pm.scanner.EnvFileDetector;
 import pm.workspace.WorkspaceDetector;
 import pm.workspace.WorkspaceModule;
 import pm.cli.OutputFormatter;
@@ -131,6 +134,7 @@ public class ProjectManager {
                 case "lint" -> handleLint(args);
                 case "fmt" -> handleFmt(args);
                 case "modules" -> handleModules(args);
+                case "migrate" -> handleMigrate(args);
                 case "export" -> handleExport(args);
                 case "import" -> handleImport(args);
                 case "help", "-h", "--help" -> printHelp();
@@ -1203,6 +1207,9 @@ public class ProjectManager {
             case "list", "ls" -> handleEnvList(args);
             case "remove", "rm" -> handleEnvRemove(args);
             case "clear" -> handleEnvClear(args);
+            case "files" -> handleEnvFiles(args);
+            case "show" -> handleEnvShow(args);
+            case "switch" -> handleEnvSwitch(args);
             default -> {
                 OutputFormatter.error("Unknown env subcommand: " + subcommand);
                 printEnvHelp();
@@ -1395,6 +1402,166 @@ public class ProjectManager {
         }
     }
 
+    private static void handleEnvFiles(String[] args) {
+        if (args.length < 3) {
+            OutputFormatter.error("Project name is required");
+            System.out.println("Usage: pm env files <name>");
+            System.exit(1);
+        }
+
+        String projectName = args[2];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            List<Path> envFiles = EnvFileDetector.detectEnvFiles(project.path());
+            if (envFiles.isEmpty()) {
+                OutputFormatter.info("No .env files found in '" + projectName + "'");
+                return;
+            }
+
+            OutputFormatter.section("Env Files — " + projectName);
+            System.out.println();
+            for (Path envFile : envFiles) {
+                String name = envFile.getFileName().toString();
+                Map<String, String> entries = EnvFileDetector.parseEnvFile(envFile);
+                long size;
+                try {
+                    size = Files.size(envFile);
+                } catch (IOException ex) {
+                    size = 0;
+                }
+                System.out.println("  " + OutputFormatter.CYAN + name + OutputFormatter.RESET
+                        + "  " + OutputFormatter.GRAY + entries.size() + " vars, "
+                        + formatFileSize(size) + OutputFormatter.RESET);
+            }
+            System.out.println();
+            System.out.println("  " + envFiles.size() + " file" + (envFiles.size() != 1 ? "s" : "") + " detected");
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleEnvShow(String[] args) {
+        if (args.length < 4) {
+            OutputFormatter.error("Project name and filename are required");
+            System.out.println("Usage: pm env show <name> <filename> [--show]");
+            System.exit(1);
+        }
+
+        String projectName = args[2];
+        String filename = args[3];
+        boolean showValues = Arrays.asList(args).contains("--show");
+
+        if (!filename.startsWith(".env")) {
+            OutputFormatter.error("Filename must start with '.env'");
+            System.exit(1);
+        }
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            Path envFile = project.path().resolve(filename);
+            if (!Files.isRegularFile(envFile)) {
+                OutputFormatter.error("File '" + filename + "' not found in project directory");
+                System.exit(1);
+            }
+
+            Map<String, String> entries = EnvFileDetector.parseEnvFile(envFile);
+            if (entries.isEmpty()) {
+                OutputFormatter.info("File '" + filename + "' is empty or has no variables");
+                return;
+            }
+
+            OutputFormatter.section(filename + " — " + projectName);
+            System.out.println();
+
+            int maxKeyLen = entries.keySet().stream().mapToInt(String::length).max().orElse(10);
+            for (Map.Entry<String, String> entry : entries.entrySet()) {
+                String key = entry.getKey();
+                String value = showValues ? entry.getValue()
+                        : EnvFileDetector.maskValue(key, entry.getValue());
+                System.out.printf("  %-" + maxKeyLen + "s = %s%n", key, value);
+            }
+
+            System.out.println();
+            System.out.println("  " + entries.size() + " variable" + (entries.size() != 1 ? "s" : ""));
+            if (!showValues) {
+                System.out.println("  " + OutputFormatter.GRAY
+                        + "Use --show to reveal sensitive values" + OutputFormatter.RESET);
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleEnvSwitch(String[] args) {
+        if (args.length < 4) {
+            OutputFormatter.error("Project name and environment name are required");
+            System.out.println("Usage: pm env switch <name> <env-name>");
+            System.exit(1);
+        }
+
+        String projectName = args[2];
+        String envName = args[3];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            Path source = project.path().resolve(".env." + envName);
+            Path target = project.path().resolve(".env");
+
+            if (!Files.isRegularFile(source)) {
+                OutputFormatter.error("File '.env." + envName + "' not found in project directory");
+                System.exit(1);
+            }
+
+            if (Files.exists(target)) {
+                System.out.println("About to overwrite .env with .env." + envName
+                        + " in project '" + projectName + "'");
+                System.out.print("Are you sure? (y/n): ");
+
+                String response = System.console() != null
+                        ? System.console().readLine()
+                        : "n";
+
+                if (!response.toLowerCase().startsWith("y")) {
+                    System.out.println("Aborted.");
+                    return;
+                }
+            }
+
+            Files.copy(source, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            OutputFormatter.success("Switched to .env." + envName + " for '" + projectName + "'");
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to switch environment: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static String formatFileSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024) + " KB";
+        return (bytes / (1024 * 1024)) + " MB";
+    }
+
     /**
      * Masks a value if the key suggests it is sensitive.
      * Sensitive keys contain: KEY, SECRET, PASSWORD, TOKEN, PRIVATE, CREDENTIAL.
@@ -1433,14 +1600,17 @@ public class ProjectManager {
           list <name> [--show]                 List variables (masked by default)
           remove <name> KEY                    Remove a variable
           clear <name>                         Remove all variables
+          files <name>                         List .env files in project directory
+          show <name> <file> [--show]          Show .env file contents (masked)
+          switch <name> <env-name>             Copy .env.<env-name> to .env
 
         Examples:
           pm env set my-api PORT=8080,DEBUG=true
           pm env get my-api PORT
-          pm env list my-api
           pm env list my-api --show
-          pm env remove my-api DEBUG
-          pm env clear my-api
+          pm env files my-api
+          pm env show my-api .env.production
+          pm env switch my-api production
         """);
     }
 
@@ -2750,6 +2920,166 @@ public class ProjectManager {
     }
 
     // ============================================================
+    // COMMAND: MIGRATE (Database migration awareness)
+    // ============================================================
+
+    /**
+     * Handler for the "migrate" command.
+     *
+     * <ul>
+     *   <li>{@code pm migrate} — list detected migration tools for all projects</li>
+     *   <li>{@code pm migrate <name>} — run migration with confirmation</li>
+     *   <li>{@code pm migrate <name> status} — show migration status (read-only)</li>
+     * </ul>
+     */
+    private static void handleMigrate(String[] args) {
+        if (args.length < 2) {
+            // pm migrate — list all
+            handleMigrateList();
+            return;
+        }
+
+        String projectName = args[1];
+
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+
+            List<MigrationTool> tools = MigrationDetector.detect(project.path());
+            if (tools.isEmpty()) {
+                OutputFormatter.info("No migration tools detected for '" + projectName + "'");
+                return;
+            }
+
+            boolean isStatus = args.length >= 3 && "status".equalsIgnoreCase(args[2]);
+
+            if (isStatus) {
+                handleMigrateStatus(project, tools);
+            } else {
+                handleMigrateRun(project, tools);
+            }
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleMigrateList() {
+        try {
+            Map<String, Project> projects = store.load();
+            if (projects.isEmpty()) {
+                OutputFormatter.info("No projects registered");
+                return;
+            }
+
+            OutputFormatter.section("Migration Tools");
+            System.out.println();
+
+            boolean anyFound = false;
+            for (Project project : projects.values()) {
+                List<MigrationTool> tools = MigrationDetector.detect(project.path());
+                if (!tools.isEmpty()) {
+                    anyFound = true;
+                    String toolNames = tools.stream()
+                            .map(MigrationTool::displayName)
+                            .collect(java.util.stream.Collectors.joining(", "));
+                    System.out.println("  " + OutputFormatter.BOLD + project.name()
+                            + OutputFormatter.RESET + " " + OutputFormatter.GRAY
+                            + "(" + project.type().displayName() + ")" + OutputFormatter.RESET
+                            + " → " + toolNames);
+                }
+            }
+
+            if (!anyFound) {
+                System.out.println("  " + OutputFormatter.GRAY
+                        + "No migration tools detected in any project" + OutputFormatter.RESET);
+            }
+            System.out.println();
+
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleMigrateRun(Project project, List<MigrationTool> tools) {
+        MigrationTool tool = tools.get(0);
+
+        if (!RuntimeChecker.isCommandAvailable(tool.binary(), "--version")) {
+            OutputFormatter.error(tool.displayName() + " is not installed or not in PATH");
+            System.out.println("  Install " + tool.displayName() + " and try again.");
+            System.exit(1);
+        }
+
+        System.out.println();
+        System.out.println("About to run: " + OutputFormatter.CYAN + tool.migrateCommand()
+                + OutputFormatter.RESET);
+        System.out.println("Project: " + OutputFormatter.BOLD + project.name()
+                + OutputFormatter.RESET + " (" + project.path() + ")");
+        System.out.print("\nAre you sure? (y/n): ");
+
+        String response = System.console() != null
+                ? System.console().readLine()
+                : "n";
+
+        if (!response.toLowerCase().startsWith("y")) {
+            System.out.println("Aborted.");
+            return;
+        }
+
+        System.out.println();
+
+        try {
+            CommandExecutor executor = new CommandExecutor();
+            var result = executor.executeWithInheritedIO(
+                    tool.migrateCommand(), project.path(), 300, project.envVars());
+
+            System.out.println();
+            if (result.success()) {
+                OutputFormatter.success("Migration completed for '" + project.name() + "'");
+            } else {
+                OutputFormatter.error("Migration failed for '" + project.name()
+                        + "' (exit code " + result.exitCode() + ")");
+            }
+        } catch (IOException | InterruptedException e) {
+            OutputFormatter.error("Migration execution failed: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void handleMigrateStatus(Project project, List<MigrationTool> tools) {
+        MigrationTool tool = tools.get(0);
+
+        if (!RuntimeChecker.isCommandAvailable(tool.binary(), "--version")) {
+            OutputFormatter.error(tool.displayName() + " is not installed or not in PATH");
+            System.out.println("  Install " + tool.displayName() + " and try again.");
+            System.exit(1);
+        }
+
+        OutputFormatter.section("Migration Status — " + project.name()
+                + " (" + tool.displayName() + ")");
+        System.out.println();
+
+        try {
+            CommandExecutor executor = new CommandExecutor();
+            var result = executor.executeWithInheritedIO(
+                    tool.statusCommand(), project.path(), 60, project.envVars());
+
+            if (!result.success()) {
+                System.out.println();
+                OutputFormatter.warning("Status command exited with code " + result.exitCode());
+            }
+        } catch (IOException | InterruptedException e) {
+            OutputFormatter.error("Status check failed: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    // ============================================================
     // COMMAND: EXPORT (Export projects to JSON file)
     // ============================================================
 
@@ -2925,6 +3255,9 @@ public class ProjectManager {
           lint [name]                                 Run linters on project(s)
           fmt [name]                                  Run formatters on project(s)
           modules [name]                              Show workspace modules
+          migrate                                     List detected migration tools
+          migrate <name>                              Run database migration (with confirmation)
+          migrate <name> status                       Check migration status
           export [names...] [--file <path>]           Export projects to JSON file
           import <file>                               Import projects from JSON file
           help                                      Show this help
@@ -2936,6 +3269,9 @@ public class ProjectManager {
           env list <name> [--show]                  List variables (masked by default)
           env remove <name> KEY                     Remove a variable
           env clear <name>                          Remove all variables
+          env files <name>                          List .env files in project directory
+          env show <name> <file> [--show]           Show .env file contents (masked)
+          env switch <name> <env-name>              Copy .env.<env-name> to .env
 
         Hooks (pm hooks):
           hooks <name>                              List all hooks
