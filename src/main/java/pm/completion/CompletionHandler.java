@@ -29,7 +29,8 @@ public final class CompletionHandler {
             "add", "list", "ls", "build", "run", "test", "scan",
             "commands", "cmd", "remove", "rm", "rename", "info",
             "env", "hooks", "refresh", "update", "doctor", "secure",
-            "audit", "ci", "lint", "fmt", "modules", "migrate", "export", "import", "help", "version", "completions"
+            "audit", "ci", "lint", "fmt", "modules", "migrate", "export", "import",
+            "config", "help", "version", "completions"
     );
 
     /** Commands that take a project name as their next argument. */
@@ -51,6 +52,12 @@ public final class CompletionHandler {
     static final List<String> MANAGEMENT_SUBCOMMANDS = List.of(
             "add", "remove"
     );
+
+    /** Config subcommands. */
+    static final List<String> CONFIG_SUBCOMMANDS = List.of("telemetry");
+
+    /** Telemetry values. */
+    static final List<String> TELEMETRY_VALUES = List.of("on", "off");
 
     /** Supported shell names for completions command. */
     static final List<String> SHELL_NAMES = List.of(
@@ -175,6 +182,7 @@ public final class CompletionHandler {
         }
         return switch (cmd) {
             case "env" -> new ArrayList<>(ENV_SUBCOMMANDS);
+            case "config" -> new ArrayList<>(CONFIG_SUBCOMMANDS);
             case "completions" -> new ArrayList<>(SHELL_NAMES);
             case "doctor" -> new ArrayList<>(List.of("--score"));
             case "secure" -> new ArrayList<>(List.of("--fix"));
@@ -198,6 +206,10 @@ public final class CompletionHandler {
         // pm migrate <project> <TAB> → status
         if ("migrate".equals(cmd)) {
             return new ArrayList<>(List.of("status"));
+        }
+        // pm config telemetry <TAB> → on, off
+        if ("config".equals(cmd) && "telemetry".equals(arg2.toLowerCase())) {
+            return new ArrayList<>(TELEMETRY_VALUES);
         }
         // pm export <name> <TAB> → more project names + --file
         if ("export".equals(cmd)) {

@@ -1109,6 +1109,27 @@ Las herramientas de migración también se muestran en `pm info`:
 
 ---
 
+### 🔹 Configuración
+
+#### Comprobar estado de telemetría
+```bash
+pm config telemetry
+```
+
+#### Activar telemetría
+```bash
+pm config telemetry on
+```
+
+#### Desactivar telemetría
+```bash
+pm config telemetry off
+```
+
+> **Privacidad**: La telemetría es opt-in (desactivada por defecto). Solo se recopilan datos anónimos: versión de PM, SO, nombre del comando y número de proyectos. Nunca se envían nombres de proyectos, rutas, secretos ni información personal.
+
+---
+
 ### 🔹 Ayuda y Versión
 
 #### Ver ayuda
@@ -2093,6 +2114,11 @@ pm test --all                                      # Testear todos los proyectos
 pm migrate                                         # Listar herramientas de migración por proyecto
 pm migrate <nombre>                                # Ejecutar migración (con confirmación)
 pm migrate <nombre> status                         # Comprobar estado de migración
+
+# === CONFIGURACIÓN ===
+pm config telemetry                                # Comprobar estado de telemetría
+pm config telemetry on                             # Activar telemetría anónima
+pm config telemetry off                            # Desactivar telemetría
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

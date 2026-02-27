@@ -355,12 +355,16 @@ Export all or selected projects to a portable JSON file and import them back on 
 ## v1.8.0 — Telemetry
 
 ### Anonymous usage analytics (opt-in)
-- First-run prompt: "Allow anonymous usage statistics? (y/n)"
-- Tracks: version, OS, command frequency, project count
-- `pm config telemetry on/off` to toggle at any time
-- Privacy-first: no personal data, no project names, no paths
-- Transparent: documented in README and `pm help`
-- Backend: PostHog Cloud (free tier)
+
+| Feature | Status |
+|---------|--------|
+| First-run consent prompt (opt-in, default disabled) | ✅ Done |
+| Track: version, OS, command name, project count | ✅ Done |
+| `pm config telemetry on/off` to toggle at any time | ✅ Done |
+| Privacy-first: no personal data, no project names, no paths | ✅ Done |
+| Transparent: documented in README, User-Guide, and `pm help` | ✅ Done |
+| Backend: PostHog Cloud (free tier) | ✅ Done |
+| Shell completions for config command | ✅ Done |
 
 ---
 

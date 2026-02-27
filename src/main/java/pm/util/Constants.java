@@ -15,7 +15,7 @@ import java.nio.file.Paths;
  * (utility class pattern).
  *
  * @author SoftDryzz
- * @version 1.7.1
+ * @version 1.8.0
  * @since 1.0.0
  */
 public final class Constants {
@@ -38,7 +38,7 @@ public final class Constants {
      * Current version of ProjectManager.
      * Follows Semantic Versioning (MAJOR.MINOR.PATCH).
      */
-    public static final String VERSION = "1.7.1";
+    public static final String VERSION = "1.8.0";
 
     // ============================================================
     // SYSTEM DIRECTORIES AND FILES
@@ -94,6 +94,32 @@ public final class Constants {
      * Used to avoid re-scanning large projects.
      */
     public static final Path CACHE_DIR = CONFIG_DIR.resolve("cache");
+
+    // ============================================================
+    // CONFIGURATION FILE
+    // ============================================================
+
+    /**
+     * Global configuration file for user preferences.
+     * Path: ~/.projectmanager/config.json
+     *
+     * Stores settings like telemetry consent and preferences.
+     */
+    public static final Path CONFIG_FILE = CONFIG_DIR.resolve("config.json");
+
+    // ============================================================
+    // TELEMETRY (PostHog)
+    // ============================================================
+
+    /**
+     * PostHog project API key (write-only, safe to embed in client code).
+     */
+    public static final String POSTHOG_KEY = "phc_asvTXX2Bcro3OA5g7sX10tXXy4VcDeIYymD4AiEuvsa";
+
+    /**
+     * PostHog capture API endpoint (US cloud).
+     */
+    public static final String POSTHOG_ENDPOINT = "https://us.i.posthog.com/capture/";
 
     // ============================================================
     // DEFAULT COMMANDS - GRADLE

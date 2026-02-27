@@ -355,12 +355,16 @@ Exporta todos o proyectos seleccionados a un archivo JSON portable e impórtalos
 ## v1.8.0 — Telemetría
 
 ### Analíticas de uso anónimas (opt-in)
-- Pregunta en primera ejecución: "¿Permitir estadísticas anónimas? (y/n)"
-- Rastrea: versión, SO, frecuencia de comandos, número de proyectos
-- `pm config telemetry on/off` para activar/desactivar en cualquier momento
-- Privacidad primero: sin datos personales, sin nombres de proyecto, sin rutas
-- Transparente: documentado en README y `pm help`
-- Backend: PostHog Cloud (tier gratuito)
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| Prompt de consentimiento en primera ejecución (opt-in, desactivado por defecto) | ✅ Hecho |
+| Rastrea: versión, SO, nombre del comando, número de proyectos | ✅ Hecho |
+| `pm config telemetry on/off` para activar/desactivar en cualquier momento | ✅ Hecho |
+| Privacidad primero: sin datos personales, sin nombres de proyecto, sin rutas | ✅ Hecho |
+| Transparente: documentado en README, User-Guide y `pm help` | ✅ Hecho |
+| Backend: PostHog Cloud (tier gratuito) | ✅ Hecho |
+| Autocompletado en shell para comando config | ✅ Hecho |
 
 ---
 

@@ -318,4 +318,31 @@ class CompletionHandlerTest {
         assertDoesNotThrow(() -> CompletionHandler.handle(
                 new String[]{"--complete", "--", "1", "pm", ""}));
     }
+
+    // ============================================================
+    // CONFIG COMMAND COMPLETIONS
+    // ============================================================
+
+    @Test
+    @DisplayName("config is in top-level commands")
+    void configInTopLevel() {
+        assertTrue(CompletionHandler.TOP_LEVEL_COMMANDS.contains("config"));
+    }
+
+    @Test
+    @DisplayName("config command suggests telemetry subcommand")
+    void configSuggestsTelemetry() {
+        String[] words = {"pm", "config", ""};
+        List<String> result = CompletionHandler.computeCompletions(words, 2);
+        assertTrue(result.contains("telemetry"));
+    }
+
+    @Test
+    @DisplayName("config telemetry suggests on/off")
+    void configTelemetrySuggestsOnOff() {
+        String[] words = {"pm", "config", "telemetry", ""};
+        List<String> result = CompletionHandler.computeCompletions(words, 3);
+        assertTrue(result.contains("on"));
+        assertTrue(result.contains("off"));
+    }
 }
