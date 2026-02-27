@@ -273,6 +273,7 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm export` | Exportar todos los proyectos a un archivo JSON portátil |
 | `pm export <nombres...> [--file <ruta>]` | Exportar proyectos seleccionados a un archivo personalizado |
 | `pm import <archivo>` | Importar proyectos desde un archivo JSON exportado |
+| `pm config telemetry [on\|off]` | Habilitar o deshabilitar telemetría anónima |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
 
@@ -476,6 +477,32 @@ Los proyectos se guardan en:
 
 ---
 
+## 📊 Telemetría
+
+ProjectManager recopila estadísticas de uso **anónimas** para mejorar la herramienta. La telemetría es **opt-in** — desactivada por defecto.
+
+### Qué se recopila
+- Versión de PM, nombre/versión del SO, versión de Java
+- Nombre del comando (ej: `build`, `test`) — **sin argumentos**
+- Número de proyectos registrados — **sin nombres ni rutas**
+
+### Qué NO se recopila
+- Nombres de proyectos, rutas de archivos, código fuente
+- Variables de entorno, secretos, credenciales
+- Información personal, direcciones IP, nombres de usuario
+
+### Control
+```bash
+pm config telemetry on       # Activar
+pm config telemetry off      # Desactivar
+pm config telemetry          # Comprobar estado
+```
+
+En la primera ejecución, PM pregunta: `Enable telemetry? (y/n)` — por defecto es **no**.
+Elimina `~/.projectmanager/config.json` para resetear todas las preferencias.
+
+---
+
 ## 🚧 Roadmap
 
 ### ✅ Completado
@@ -490,9 +517,10 @@ Los proyectos se guardan en:
 - **Lint y Formato** — `pm lint` / `pm fmt` auto-detectan y ejecutan linters/formateadores (ESLint, Prettier, Clippy, gofmt, Ruff, Black, Checkstyle, Spotless y más)
 - **Workspaces** — `pm modules` detecta monorepos (Cargo, npm, Gradle, Go), detección multi-lenguaje, `pm build --all` y `pm test --all`
 - **Entornos** — `pm env files/show/switch` para descubrir archivos .env, escaneo de secretos (tokens AWS, GitHub, Slack), `pm migrate` para herramientas de migración (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx)
-- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 748 tests
+- **Telemetría** — Analíticas de uso anónimas opt-in vía PostHog, `pm config telemetry on/off`, diseño privacy-first
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 763 tests
 
-> Última release: **v1.7.1** (Entornos, Secretos y Bases de Datos) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v1.8.0** (Telemetría) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] Grupos de proyectos (`pm group create backend api-users product-service`, `pm run-group backend`)

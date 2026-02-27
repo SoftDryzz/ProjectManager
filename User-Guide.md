@@ -1109,6 +1109,27 @@ Migration tools are also shown in `pm info`:
 
 ---
 
+### 🔹 Configuration
+
+#### Check telemetry status
+```bash
+pm config telemetry
+```
+
+#### Enable telemetry
+```bash
+pm config telemetry on
+```
+
+#### Disable telemetry
+```bash
+pm config telemetry off
+```
+
+> **Privacy**: Telemetry is opt-in (disabled by default). Only anonymous data is collected: PM version, OS, command name, and project count. No project names, file paths, secrets, or personal information is ever sent.
+
+---
+
 ### 🔹 Help and Version
 
 #### View help
@@ -2093,6 +2114,11 @@ pm test --all                                  # Test all registered projects
 pm migrate                                     # List migration tools per project
 pm migrate <name>                              # Run migration (with confirmation)
 pm migrate <name> status                       # Check migration status
+
+# === CONFIGURATION ===
+pm config telemetry                            # Check telemetry status
+pm config telemetry on                         # Enable anonymous telemetry
+pm config telemetry off                        # Disable telemetry
 
 # === UPDATES ===
 pm update                                      # Update to latest version

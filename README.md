@@ -273,6 +273,7 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm export` | Export all projects to a portable JSON file |
 | `pm export <names...> [--file <path>]` | Export selected projects to a custom file |
 | `pm import <file>` | Import projects from an exported JSON file |
+| `pm config telemetry [on\|off]` | Enable or disable anonymous telemetry |
 | `pm help` | Show help |
 | `pm version` | Show version |
 
@@ -476,6 +477,32 @@ Projects are saved in:
 
 ---
 
+## 📊 Telemetry
+
+ProjectManager collects **anonymous** usage statistics to improve the tool. Telemetry is **opt-in** — disabled by default.
+
+### What is collected
+- PM version, OS name/version, Java version
+- Command name (e.g., `build`, `test`) — **no arguments**
+- Number of registered projects — **no project names or paths**
+
+### What is NOT collected
+- Project names, file paths, source code
+- Environment variables, secrets, credentials
+- Personal information, IP addresses, usernames
+
+### Control
+```bash
+pm config telemetry on       # Enable
+pm config telemetry off      # Disable
+pm config telemetry          # Check status
+```
+
+On first run, PM asks: `Enable telemetry? (y/n)` — default is **no**.
+Delete `~/.projectmanager/config.json` to reset all preferences.
+
+---
+
 ## 🚧 Roadmap
 
 ### ✅ Completed
@@ -490,9 +517,10 @@ Projects are saved in:
 - **Lint & Format** — `pm lint` / `pm fmt` auto-detect and run linters/formatters (ESLint, Prettier, Clippy, gofmt, Ruff, Black, Checkstyle, Spotless, and more)
 - **Workspaces** — `pm modules` detects monorepo structures (Cargo, npm/pnpm/yarn, Gradle, Go), multi-language detection, `pm build --all` / `pm test --all`
 - **Environments** — `pm env files/show/switch` for .env file discovery, secret scanning (AWS, GitHub, Slack tokens), `pm migrate` for database migration tools (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx)
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 748 tests
+- **Telemetry** — Opt-in anonymous usage analytics via PostHog, `pm config telemetry on/off`, privacy-first design
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 763 tests
 
-> Latest release: **v1.7.1** (Environments, Secrets & Databases) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v1.8.0** (Telemetry) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)
