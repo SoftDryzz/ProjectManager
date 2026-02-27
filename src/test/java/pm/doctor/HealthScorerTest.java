@@ -388,11 +388,11 @@ class HealthScorerTest {
     // ============================================================
 
     @Test
-    @DisplayName("evaluate always returns exactly 5 checks")
-    void evaluateReturnsFiveChecks() {
+    @DisplayName("evaluate always returns exactly 6 checks")
+    void evaluateReturnsSixChecks() {
         Project project = createProject("test", ProjectType.NODEJS);
         List<HealthCheck> checks = HealthScorer.evaluate(project);
-        assertEquals(5, checks.size());
+        assertEquals(6, checks.size());
     }
 
     @Test
@@ -402,7 +402,7 @@ class HealthScorerTest {
         List<HealthCheck> checks = HealthScorer.evaluate(project);
 
         List<String> names = checks.stream().map(HealthCheck::name).toList();
-        assertEquals(List.of("gitignore", "readme", "tests", "ci", "lockfile"), names);
+        assertEquals(List.of("gitignore", "readme", "tests", "ci", "lockfile", "secrets"), names);
     }
 
     // ============================================================
@@ -414,13 +414,13 @@ class HealthScorerTest {
     class GradeCalculation {
 
         @Test
-        @DisplayName("A when all 5 checks pass")
+        @DisplayName("A when all 6 checks pass")
         void gradeA() throws IOException {
             // Set up all checks to pass
             Files.createFile(tempDir.resolve(".gitignore"));
             Files.createFile(tempDir.resolve("README.md"));
             Files.createDirectories(tempDir.resolve(".github").resolve("workflows"));
-            // Maven always passes lockfile
+            // Maven always passes lockfile, no .env files = secrets passes
             Project project = createProject("test", ProjectType.MAVEN);
             project.addCommand("test", "mvn test");
 
@@ -429,11 +429,11 @@ class HealthScorerTest {
         }
 
         @Test
-        @DisplayName("B when 4 checks pass")
+        @DisplayName("B when 5 checks pass")
         void gradeB() throws IOException {
             Files.createFile(tempDir.resolve(".gitignore"));
             Files.createFile(tempDir.resolve("README.md"));
-            // No CI → 4/5
+            // No CI → 5/6 (gitignore + readme + test + lockfile(Maven) + secrets)
             Project project = createProject("test", ProjectType.MAVEN);
             project.addCommand("test", "mvn test");
 
@@ -442,10 +442,10 @@ class HealthScorerTest {
         }
 
         @Test
-        @DisplayName("C when 3 checks pass")
+        @DisplayName("C when 4 checks pass")
         void gradeC() throws IOException {
             Files.createFile(tempDir.resolve(".gitignore"));
-            // No README, no CI → 3/5 (gitignore + lockfile(Maven) + test)
+            // No README, no CI → 4/6 (gitignore + test + lockfile(Maven) + secrets)
             Project project = createProject("test", ProjectType.MAVEN);
             project.addCommand("test", "mvn test");
 
@@ -454,10 +454,10 @@ class HealthScorerTest {
         }
 
         @Test
-        @DisplayName("D when 2 checks pass")
+        @DisplayName("D when 3 checks pass")
         void gradeD() throws IOException {
             Files.createFile(tempDir.resolve(".gitignore"));
-            // No README, no CI, no test → 2/5 (gitignore + lockfile(Maven))
+            // No README, no CI, no test → 3/6 (gitignore + lockfile(Maven) + secrets)
             Project project = createProject("test", ProjectType.MAVEN);
 
             List<HealthCheck> checks = HealthScorer.evaluate(project);
@@ -465,9 +465,10 @@ class HealthScorerTest {
         }
 
         @Test
-        @DisplayName("F when 1 or fewer checks pass")
+        @DisplayName("F when 2 or fewer checks pass")
         void gradeF() {
             // No gitignore, no README, no CI, no test, no lockfile
+            // Only secrets passes (no .env files)
             Project project = createProject("test", ProjectType.NODEJS);
 
             List<HealthCheck> checks = HealthScorer.evaluate(project);

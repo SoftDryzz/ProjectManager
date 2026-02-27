@@ -26,15 +26,15 @@ class SecurityScorerTest {
     }
 
     // ============================================================
-    // EVALUATE — always returns 5 checks
+    // EVALUATE — always returns 7 checks
     // ============================================================
 
     @Test
-    @DisplayName("evaluate returns exactly 5 checks")
-    void evaluateReturnsFiveChecks() {
+    @DisplayName("evaluate returns exactly 7 checks")
+    void evaluateReturnsSevenChecks() {
         Project project = createProject("test", ProjectType.NODEJS);
         List<SecurityCheck> checks = SecurityScorer.evaluate(project);
-        assertEquals(5, checks.size());
+        assertEquals(7, checks.size());
     }
 
     @Test
@@ -45,7 +45,7 @@ class SecurityScorerTest {
 
         Set<String> names = Set.of(
                 "dockerfile-root", "env-gitignore", "https-only",
-                "sensitive-files", "lockfile"
+                "sensitive-files", "lockfile", "secret-patterns", "vaultic"
         );
         for (SecurityCheck check : checks) {
             assertTrue(names.contains(check.name()), "Unexpected check: " + check.name());
