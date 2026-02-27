@@ -294,6 +294,7 @@ public class ProjectStore {
         String lastModified;  // String instead of Instant
         Map<String, String> envVars;
         Map<String, List<String>> hooks;
+        List<String> secondaryTypes;
 
         /**
          * Converts a Project to DTO.
@@ -309,6 +310,9 @@ public class ProjectStore {
             // Deep copy hooks: each list must be a new ArrayList
             dto.hooks = project.hooks().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
+            dto.secondaryTypes = project.secondaryTypes().stream()
+                    .map(ProjectType::name)
+                    .collect(Collectors.toList());
             return dto;
         }
 
@@ -358,6 +362,16 @@ public class ProjectStore {
                         scripts.forEach(script -> project.addHook(slot, script));
                     }
                 });
+            }
+
+            if (secondaryTypes != null) {
+                for (String st : secondaryTypes) {
+                    try {
+                        project.addSecondaryType(ProjectType.valueOf(st));
+                    } catch (IllegalArgumentException e) {
+                        warnings.add("Project '" + safeName + "': unknown secondary type '" + st + "', skipped");
+                    }
+                }
             }
 
             return project;

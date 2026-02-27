@@ -3,7 +3,10 @@ package pm.cli;
 import pm.ci.CIDetector;
 import pm.ci.CIProvider;
 import pm.core.Project;
+import pm.detector.ProjectType;
 import pm.util.GitIntegration;
+import pm.workspace.WorkspaceDetector;
+import pm.workspace.WorkspaceModule;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -12,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Output formatter with ANSI colors for the CLI interface.
@@ -111,6 +115,12 @@ public class OutputFormatter {
     public static void printProject(Project project) {
         System.out.println(BOLD + project.name() + RESET + " " +
                 GRAY + "(" + project.type().displayName() + ")" + RESET);
+        if (project.hasSecondaryTypes()) {
+            String secondary = project.secondaryTypes().stream()
+                    .map(ProjectType::displayName)
+                    .collect(Collectors.joining(", "));
+            System.out.println("  Also detected: " + GRAY + secondary + RESET);
+        }
         System.out.println("  Path: " + CYAN + project.path() + RESET);
 
         // Show last modification
@@ -139,6 +149,15 @@ public class OutputFormatter {
 
         // Show CI/CD information
         printCIInfo(project.path());
+
+        // Show workspace info
+        List<WorkspaceModule> modules = WorkspaceDetector.detect(project.type(), project.path());
+        if (!modules.isEmpty()) {
+            System.out.println();
+            System.out.println("  " + BOLD + "Workspace:" + RESET + " " +
+                    modules.size() + " module" + (modules.size() != 1 ? "s" : "") +
+                    " (use 'pm modules " + project.name() + "' for details)");
+        }
 
         System.out.println();
     }

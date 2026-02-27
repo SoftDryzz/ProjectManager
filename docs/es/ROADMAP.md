@@ -298,38 +298,25 @@ Exporta todos o proyectos seleccionados a un archivo JSON portable e impórtalos
 
 ---
 
-## v1.6.7 — Generación de Código y Flujos de Equipo
+## v1.7.0 — Espacios de Trabajo Multi-proyecto ✅
 
-### Detección de generación de código
-- Detectar build_runner (Flutter/Dart), protobuf, generadores OpenAPI
-- `pm codegen` — ejecutar herramientas de generación de código detectadas
-- Avisar si los archivos generados están desactualizados
+### Monorepo y detección multi-lenguaje
 
-### Soporte de flujos de equipo
-- Detectar número de colaboradores desde el log de git
-- `pm team` — mostrar colaboradores activos y sus áreas recientes
-- Detección y validación de convenciones de nombres de rama
-- Detección de templates de PR
-
----
-
-## v1.7.0 — Espacios de Trabajo Multi-proyecto
-
-### Soporte monorepo
-- Detectar estructuras monorepo:
-  - Cargo workspaces (`[workspace]` en Cargo.toml)
-  - npm/pnpm/yarn workspaces
-  - Go repos multi-módulo
-  - Gradle builds multi-proyecto
-- `pm list-modules` — mostrar todos los sub-proyectos
-- `pm build --all` — compilar todos los módulos
-- `pm test --all` — testear todos los módulos
-- `pm run <módulo>` — ejecutar módulo específico
-
-### Detección de proyectos multi-lenguaje
-- Detectar proyectos que usan múltiples lenguajes (ej. backend Rust + frontend Flutter)
-- Mostrar todos los tipos detectados: `pm info` → "Types: RUST, FLUTTER, DOCKER"
-- Ejecutar comandos por componente: `pm build backend`, `pm test mobile`
+| Funcionalidad | Estado |
+|---------------|--------|
+| Detección multi-lenguaje: `detectAll()` encuentra todos los tipos en un directorio | ✅ Hecho |
+| Tipos secundarios en `pm info` ("Also detected: Docker, Node.js") | ✅ Hecho |
+| Tipos secundarios persistidos en `projects.json` (compatible hacia atrás) | ✅ Hecho |
+| `pm build --all` — compilar todos los proyectos registrados con resumen | ✅ Hecho |
+| `pm test --all` — testear todos los proyectos registrados con resumen | ✅ Hecho |
+| Continuar-en-fallo: `--all` ejecuta todos, muestra resumen éxito/fallo | ✅ Hecho |
+| Detección de workspaces Cargo (`[workspace]` members en Cargo.toml) | ✅ Hecho |
+| Detección de workspaces npm/pnpm/yarn (array, objeto, patrones glob) | ✅ Hecho |
+| Detección multi-proyecto Gradle (`include()` en settings.gradle/kts) | ✅ Hecho |
+| Detección multi-módulo Go (archivos `go.mod` anidados) | ✅ Hecho |
+| `pm modules [nombre]` — mostrar módulos del workspace | ✅ Hecho |
+| Conteo de módulos en `pm info` | ✅ Hecho |
+| Autocompletado en shell para `modules`, `build --all`, `test --all` | ✅ Hecho |
 
 ---
 
