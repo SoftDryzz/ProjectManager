@@ -20,6 +20,7 @@
   - [Auditoría de Dependencias](#-auditoría-de-dependencias)
   - [Exportar e Importar](#-exportar-e-importar)
   - [Detección CI/CD](#-detección-cicd)
+  - [Linting y Formateo](#-linting-y-formateo)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -858,6 +859,75 @@ La información de CI/CD también se muestra automáticamente en `pm info`:
   CI/CD:
     ✓ GitHub Actions (2 workflows)
     ✓ Jenkins
+```
+
+---
+
+### 🔹 Linting y Formateo
+
+Ejecuta linters y formateadores auto-detectados para tu tipo de proyecto.
+
+#### Lint de un proyecto específico
+```bash
+pm lint backend
+```
+
+#### Lint de todos los proyectos
+```bash
+pm lint
+```
+
+#### Formatear un proyecto específico
+```bash
+pm fmt backend
+```
+
+#### Formatear todos los proyectos
+```bash
+pm fmt
+```
+
+**Herramientas de lint soportadas:**
+
+| Tipo de Proyecto | Herramienta | Detección |
+|---|---|---|
+| Node.js/pnpm/Bun/Yarn | ESLint | Archivo de configuración (`.eslintrc*`, `eslint.config.*`) |
+| Rust | Clippy | Siempre (toolchain) |
+| Go | go vet | Siempre (toolchain) |
+| Go | golangci-lint | Binario instalado |
+| Python | Ruff | Binario instalado |
+| Python | Flake8 | Binario instalado |
+| Flutter | dart analyze | Siempre (toolchain) |
+| .NET | dotnet format --verify | Siempre (toolchain) |
+| Maven | Checkstyle | Plugin en pom.xml |
+| Gradle | Checkstyle | Plugin en build.gradle |
+
+**Herramientas de formato soportadas:**
+
+| Tipo de Proyecto | Herramienta | Detección |
+|---|---|---|
+| Node.js/pnpm/Bun/Yarn | Prettier | Archivo de configuración (`.prettierrc*`, `prettier.config.*`) |
+| Rust | cargo fmt | Siempre (toolchain) |
+| Go | gofmt | Siempre (toolchain) |
+| Python | Ruff Format | Binario instalado |
+| Python | Black | Binario instalado |
+| Flutter | dart format | Siempre (toolchain) |
+| .NET | dotnet format | Siempre (toolchain) |
+| Maven | Spotless | Plugin en pom.xml |
+| Gradle | Spotless | Plugin en build.gradle |
+
+**Ejemplo de salida:**
+```
+Lint — backend
+──────────────
+
+  Running ESLint...
+  ────────────────────────────────────────
+  [salida de eslint...]
+  ────────────────────────────────────────
+  ✓ ESLint passed (3s)
+
+  Result: 1/1 tools passed
 ```
 
 ---
@@ -1825,6 +1895,12 @@ pm import pm-export.json                           # Importar proyectos desde ar
 # === CI/CD ===
 pm ci                                              # Mostrar CI/CD de todos los proyectos
 pm ci <nombre>                                     # Mostrar CI/CD de un proyecto específico
+
+# === LINT Y FORMATO ===
+pm lint                                            # Ejecutar linters en todos los proyectos
+pm lint <nombre>                                   # Ejecutar linters en un proyecto específico
+pm fmt                                             # Ejecutar formateadores en todos los proyectos
+pm fmt <nombre>                                    # Ejecutar formateadores en un proyecto específico
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

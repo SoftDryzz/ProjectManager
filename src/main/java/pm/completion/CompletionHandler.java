@@ -29,12 +29,12 @@ public final class CompletionHandler {
             "add", "list", "ls", "build", "run", "test", "scan",
             "commands", "cmd", "remove", "rm", "rename", "info",
             "env", "hooks", "refresh", "update", "doctor", "secure",
-            "audit", "ci", "export", "import", "help", "version", "completions"
+            "audit", "ci", "lint", "fmt", "export", "import", "help", "version", "completions"
     );
 
     /** Commands that take a project name as their next argument. */
     private static final Set<String> PROJECT_COMMANDS = Set.of(
-            "build", "run", "test", "scan", "remove", "rm", "rename", "info", "ci"
+            "build", "run", "test", "scan", "remove", "rm", "rename", "info", "ci", "lint", "fmt"
     );
 
     /** Commands that take a project name OR --all flag. */

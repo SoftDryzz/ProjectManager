@@ -187,6 +187,7 @@ pm run order-service
 - 🔍 **Dependency audit** - Scan dependencies for known vulnerabilities with `pm audit` using native tools (npm audit, cargo audit, govulncheck, pip-audit, dotnet)
 - 📤 **Export & Import** - Migrate setups between machines with `pm export` and `pm import`, supports selective export and path validation
 - 🔄 **CI/CD detection** - Detect GitHub Actions, GitLab CI, Jenkins, Travis CI, CircleCI with `pm ci` and in `pm info`
+- 🧹 **Linting & Formatting** - Run linters with `pm lint` and formatters with `pm fmt`, auto-detects ESLint, Clippy, Prettier, gofmt, Ruff, and more
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -254,6 +255,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm secure --fix` | Auto-fix .gitignore issues (add .env, *.pem, *.key entries) |
 | `pm audit` | Audit dependencies for known vulnerabilities |
 | `pm ci [name]` | Show CI/CD pipelines and dashboard URLs |
+| `pm lint [name]` | Run linters on project(s) |
+| `pm fmt [name]` | Run formatters on project(s) |
 | `pm export` | Export all projects to a portable JSON file |
 | `pm export <names...> [--file <path>]` | Export selected projects to a custom file |
 | `pm import <file>` | Import projects from an exported JSON file |
@@ -470,9 +473,10 @@ Projects are saved in:
 - **Audit** — `pm audit` checks dependencies for known vulnerabilities using native ecosystem tools
 - **Portability** — `pm export` / `pm import` for migrating setups between machines or sharing team configs
 - **CI/CD** — `pm ci` detects pipelines (GitHub Actions, GitLab CI, Jenkins, Travis, CircleCI) and shows dashboard URLs
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 609 tests
+- **Lint & Format** — `pm lint` / `pm fmt` auto-detect and run linters/formatters (ESLint, Prettier, Clippy, gofmt, Ruff, Black, Checkstyle, Spotless, and more)
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 658 tests
 
-> Latest release: **v1.6.5** (CI/CD Detection) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v1.6.6** (Linting & Formatting) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] `pm run-all` / `pm build-all` - Execute commands across all projects

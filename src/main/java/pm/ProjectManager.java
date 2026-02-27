@@ -2,6 +2,10 @@ package pm;
 
 import pm.ci.CIDetector;
 import pm.ci.CIProvider;
+import pm.lint.FormatDetector;
+import pm.lint.FormatTool;
+import pm.lint.LintDetector;
+import pm.lint.LintTool;
 import pm.cli.OutputFormatter;
 import pm.completion.CompletionHandler;
 import pm.completion.CompletionScripts;
@@ -122,6 +126,8 @@ public class ProjectManager {
                 case "secure" -> handleSecure(args);
                 case "audit" -> handleAudit(args);
                 case "ci" -> handleCI(args);
+                case "lint" -> handleLint(args);
+                case "fmt" -> handleFmt(args);
                 case "export" -> handleExport(args);
                 case "import" -> handleImport(args);
                 case "help", "-h", "--help" -> printHelp();
@@ -2306,6 +2312,188 @@ public class ProjectManager {
     }
 
     // ============================================================
+    // COMMAND: LINT (Run linters on project)
+    // ============================================================
+
+    private static void handleLint(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+        String projectName = parser.getPositional(1);
+
+        try {
+            if (projectName != null && !projectName.isBlank()) {
+                Project project = store.findProject(projectName);
+                if (project == null) {
+                    OutputFormatter.error("Project '" + projectName + "' not found");
+                    System.exit(1);
+                }
+
+                OutputFormatter.section("Lint \u2014 " + project.name());
+                runLintTools(project);
+            } else {
+                Map<String, Project> projects = store.load();
+                if (projects.isEmpty()) {
+                    OutputFormatter.section("Lint");
+                    System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                    System.out.println();
+                    return;
+                }
+
+                OutputFormatter.section("Lint");
+                for (Project project : projects.values()) {
+                    System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                            " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+
+                    if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+                        System.out.println("    " + OutputFormatter.RED + "Path not found" + OutputFormatter.RESET);
+                        System.out.println();
+                        continue;
+                    }
+
+                    runLintTools(project);
+                    System.out.println();
+                }
+            }
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    private static void runLintTools(Project project) {
+        List<LintTool> tools = LintDetector.detect(project.type(), project.path());
+
+        if (tools.isEmpty()) {
+            System.out.println("  " + OutputFormatter.GRAY + "No lint tools detected" + OutputFormatter.RESET);
+            return;
+        }
+
+        int passed = 0;
+        for (LintTool tool : tools) {
+            System.out.println();
+            System.out.println("  Running " + tool.displayName() + "...");
+            System.out.println("  " + "\u2500".repeat(40));
+
+            try {
+                CommandExecutor.ExecutionResult result;
+                if (System.console() != null) {
+                    result = executor.executeWithInheritedIO(tool.command(), project.path(), 300, project.envVars());
+                } else {
+                    result = executor.execute(tool.command(), project.path(), 300, project.envVars());
+                }
+
+                System.out.println("  " + "\u2500".repeat(40));
+                if (result.success()) {
+                    System.out.println("  " + OutputFormatter.GREEN + "\u2713" + OutputFormatter.RESET +
+                            " " + tool.displayName() + " passed (" + result.formattedDuration() + ")");
+                    passed++;
+                } else {
+                    System.out.println("  " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                            " " + tool.displayName() + " failed (exit code " + result.exitCode() + ")");
+                }
+            } catch (IOException | InterruptedException e) {
+                System.out.println("  " + "\u2500".repeat(40));
+                System.out.println("  " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                        " " + tool.displayName() + " error: " + e.getMessage());
+            }
+        }
+
+        System.out.println();
+        System.out.println("  Result: " + passed + "/" + tools.size() + " tools passed");
+    }
+
+    // ============================================================
+    // COMMAND: FMT (Run formatters on project)
+    // ============================================================
+
+    private static void handleFmt(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+        String projectName = parser.getPositional(1);
+
+        try {
+            if (projectName != null && !projectName.isBlank()) {
+                Project project = store.findProject(projectName);
+                if (project == null) {
+                    OutputFormatter.error("Project '" + projectName + "' not found");
+                    System.exit(1);
+                }
+
+                OutputFormatter.section("Format \u2014 " + project.name());
+                runFormatTools(project);
+            } else {
+                Map<String, Project> projects = store.load();
+                if (projects.isEmpty()) {
+                    OutputFormatter.section("Format");
+                    System.out.println("  " + OutputFormatter.GRAY + "No projects registered" + OutputFormatter.RESET);
+                    System.out.println();
+                    return;
+                }
+
+                OutputFormatter.section("Format");
+                for (Project project : projects.values()) {
+                    System.out.println("  " + OutputFormatter.BOLD + project.name() + OutputFormatter.RESET +
+                            " " + OutputFormatter.GRAY + "(" + project.type().displayName() + ")" + OutputFormatter.RESET);
+
+                    if (!Files.exists(project.path()) || !Files.isDirectory(project.path())) {
+                        System.out.println("    " + OutputFormatter.RED + "Path not found" + OutputFormatter.RESET);
+                        System.out.println();
+                        continue;
+                    }
+
+                    runFormatTools(project);
+                    System.out.println();
+                }
+            }
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    private static void runFormatTools(Project project) {
+        List<FormatTool> tools = FormatDetector.detect(project.type(), project.path());
+
+        if (tools.isEmpty()) {
+            System.out.println("  " + OutputFormatter.GRAY + "No format tools detected" + OutputFormatter.RESET);
+            return;
+        }
+
+        int passed = 0;
+        for (FormatTool tool : tools) {
+            System.out.println();
+            System.out.println("  Running " + tool.displayName() + "...");
+            System.out.println("  " + "\u2500".repeat(40));
+
+            try {
+                CommandExecutor.ExecutionResult result;
+                if (System.console() != null) {
+                    result = executor.executeWithInheritedIO(tool.command(), project.path(), 300, project.envVars());
+                } else {
+                    result = executor.execute(tool.command(), project.path(), 300, project.envVars());
+                }
+
+                System.out.println("  " + "\u2500".repeat(40));
+                if (result.success()) {
+                    System.out.println("  " + OutputFormatter.GREEN + "\u2713" + OutputFormatter.RESET +
+                            " " + tool.displayName() + " done (" + result.formattedDuration() + ")");
+                    passed++;
+                } else {
+                    System.out.println("  " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                            " " + tool.displayName() + " failed (exit code " + result.exitCode() + ")");
+                }
+            } catch (IOException | InterruptedException e) {
+                System.out.println("  " + "\u2500".repeat(40));
+                System.out.println("  " + OutputFormatter.RED + "\u2717" + OutputFormatter.RESET +
+                        " " + tool.displayName() + " error: " + e.getMessage());
+            }
+        }
+
+        System.out.println();
+        System.out.println("  Result: " + passed + "/" + tools.size() + " tools completed");
+    }
+
+    // ============================================================
     // COMMAND: EXPORT (Export projects to JSON file)
     // ============================================================
 
@@ -2478,6 +2666,8 @@ public class ProjectManager {
           secure [--fix]                              Scan projects for security misconfigurations
           audit                                     Audit dependencies for known vulnerabilities
           ci [name]                                   Show CI/CD pipelines and dashboard URLs
+          lint [name]                                 Run linters on project(s)
+          fmt [name]                                  Run formatters on project(s)
           export [names...] [--file <path>]           Export projects to JSON file
           import <file>                               Import projects from JSON file
           help                                      Show this help
