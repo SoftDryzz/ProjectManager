@@ -187,6 +187,7 @@ pm run servicio-pedidos
 - 🔍 **Auditoría de dependencias** - Escanea dependencias en busca de vulnerabilidades conocidas con `pm audit` usando herramientas nativas (npm audit, cargo audit, govulncheck, pip-audit, dotnet)
 - 📤 **Exportar e Importar** - Migra configuraciones entre máquinas con `pm export` y `pm import`, soporta exportación selectiva y validación de rutas
 - 🔄 **Detección CI/CD** - Detecta GitHub Actions, GitLab CI, Jenkins, Travis CI, CircleCI con `pm ci` y en `pm info`
+- 🧹 **Linting y Formateo** - Ejecuta linters con `pm lint` y formateadores con `pm fmt`, auto-detecta ESLint, Clippy, Prettier, gofmt, Ruff y más
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -254,6 +255,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm secure --fix` | Auto-corregir problemas de .gitignore (añadir .env, *.pem, *.key) |
 | `pm audit` | Auditar dependencias en busca de vulnerabilidades conocidas |
 | `pm ci [nombre]` | Mostrar pipelines CI/CD y URLs de dashboard |
+| `pm lint [nombre]` | Ejecutar linters en proyecto(s) |
+| `pm fmt [nombre]` | Ejecutar formateadores en proyecto(s) |
 | `pm export` | Exportar todos los proyectos a un archivo JSON portátil |
 | `pm export <nombres...> [--file <ruta>]` | Exportar proyectos seleccionados a un archivo personalizado |
 | `pm import <archivo>` | Importar proyectos desde un archivo JSON exportado |
@@ -470,9 +473,10 @@ Los proyectos se guardan en:
 - **Auditoría** — `pm audit` verifica dependencias en busca de vulnerabilidades usando herramientas nativas del ecosistema
 - **Portabilidad** — `pm export` / `pm import` para migrar configuraciones entre máquinas o compartir setups de equipo
 - **CI/CD** — `pm ci` detecta GitHub Actions, GitLab CI, Jenkins, Travis CI, CircleCI y muestra URLs de dashboard
-- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 609 tests
+- **Lint y Formato** — `pm lint` / `pm fmt` auto-detectan y ejecutan linters/formateadores (ESLint, Prettier, Clippy, gofmt, Ruff, Black, Checkstyle, Spotless y más)
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 658 tests
 
-> Última release: **v1.6.5** (Detección CI/CD) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v1.6.6** (Linting y Formateo) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] `pm run-all` / `pm build-all` - Ejecutar comandos en todos los proyectos

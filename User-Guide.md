@@ -20,6 +20,7 @@
   - [Dependency Audit](#-dependency-audit)
   - [Export & Import](#-export--import)
   - [CI/CD Detection](#-cicd-detection)
+  - [Linting & Formatting](#-linting--formatting)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -858,6 +859,75 @@ CI/CD information is also shown automatically in `pm info`:
   CI/CD:
     ✓ GitHub Actions (2 workflows)
     ✓ Jenkins
+```
+
+---
+
+### 🔹 Linting & Formatting
+
+Run linters and formatters auto-detected for your project type.
+
+#### Lint a specific project
+```bash
+pm lint backend
+```
+
+#### Lint all projects
+```bash
+pm lint
+```
+
+#### Format a specific project
+```bash
+pm fmt backend
+```
+
+#### Format all projects
+```bash
+pm fmt
+```
+
+**Supported lint tools:**
+
+| Project Type | Tool | Detection |
+|---|---|---|
+| Node.js/pnpm/Bun/Yarn | ESLint | Config file (`.eslintrc*`, `eslint.config.*`) |
+| Rust | Clippy | Always (toolchain) |
+| Go | go vet | Always (toolchain) |
+| Go | golangci-lint | Binary installed |
+| Python | Ruff | Binary installed |
+| Python | Flake8 | Binary installed |
+| Flutter | dart analyze | Always (toolchain) |
+| .NET | dotnet format --verify | Always (toolchain) |
+| Maven | Checkstyle | Plugin in pom.xml |
+| Gradle | Checkstyle | Plugin in build.gradle |
+
+**Supported format tools:**
+
+| Project Type | Tool | Detection |
+|---|---|---|
+| Node.js/pnpm/Bun/Yarn | Prettier | Config file (`.prettierrc*`, `prettier.config.*`) |
+| Rust | cargo fmt | Always (toolchain) |
+| Go | gofmt | Always (toolchain) |
+| Python | Ruff Format | Binary installed |
+| Python | Black | Binary installed |
+| Flutter | dart format | Always (toolchain) |
+| .NET | dotnet format | Always (toolchain) |
+| Maven | Spotless | Plugin in pom.xml |
+| Gradle | Spotless | Plugin in build.gradle |
+
+**Example output:**
+```
+Lint — backend
+──────────────
+
+  Running ESLint...
+  ────────────────────────────────────────
+  [eslint output...]
+  ────────────────────────────────────────
+  ✓ ESLint passed (3s)
+
+  Result: 1/1 tools passed
 ```
 
 ---
@@ -1825,6 +1895,12 @@ pm import pm-export.json                       # Import projects from file
 # === CI/CD ===
 pm ci                                          # Show CI/CD for all projects
 pm ci <name>                                   # Show CI/CD for a specific project
+
+# === LINT & FORMAT ===
+pm lint                                        # Run linters on all projects
+pm lint <name>                                 # Run linters on a specific project
+pm fmt                                         # Run formatters on all projects
+pm fmt <name>                                  # Run formatters on a specific project
 
 # === UPDATES ===
 pm update                                      # Update to latest version

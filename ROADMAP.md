@@ -282,17 +282,19 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
-## v1.6.6 — Linting & Formatting
+## v1.6.6 — Linting & Formatting ✅
 
 ### `pm lint` / `pm fmt` commands
-- Detect linters per project type:
-  - Rust: `cargo fmt`, `cargo clippy`
-  - Go: `gofmt`, `golangci-lint`
-  - Node.js: `eslint`, `prettier`
-  - Python: `ruff`, `black`, `flake8`
-  - Java: `checkstyle`, `spotless`
-- `pm lint` — run detected linter
-- `pm fmt` — run detected formatter
+
+| Feature | Status |
+|---------|--------|
+| `pm lint [name]` — run detected linters on project(s) | ✅ Done |
+| `pm fmt [name]` — run detected formatters on project(s) | ✅ Done |
+| 10 lint tools: ESLint, Clippy, go vet, golangci-lint, Ruff, Flake8, dart analyze, dotnet format, Checkstyle (Maven/Gradle) | ✅ Done |
+| 9 format tools: Prettier, cargo fmt, gofmt, Ruff Format, Black, dart format, dotnet format, Spotless (Maven/Gradle) | ✅ Done |
+| Three-tier detection: toolchain-bundled, config-file, binary-check | ✅ Done |
+| Run all detected tools in sequence with real-time output | ✅ Done |
+| Shell autocompletion for `pm lint` and `pm fmt` commands | ✅ Done |
 
 ---
 
