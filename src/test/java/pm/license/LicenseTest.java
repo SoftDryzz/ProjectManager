@@ -64,21 +64,21 @@ class LicenseTest {
         @Test
         @DisplayName("isPro returns true for PRO edition")
         void isProTrue() {
-            LicenseKey key = new LicenseKey("Acme", "PRO", "2026-01-01", "2027-01-01", "uuid-1");
+            LicenseKey key = new LicenseKey("Acme", "PRO", "2026-01-01", "2027-01-01", "uuid-1", 2);
             assertTrue(key.isPro());
         }
 
         @Test
         @DisplayName("isPro returns false for COMMUNITY edition")
         void isProFalse() {
-            LicenseKey key = new LicenseKey("Acme", "COMMUNITY", "2026-01-01", null, "uuid-2");
+            LicenseKey key = new LicenseKey("Acme", "COMMUNITY", "2026-01-01", null, "uuid-2", 2);
             assertFalse(key.isPro());
         }
 
         @Test
         @DisplayName("isPro is case-insensitive")
         void isProCaseInsensitive() {
-            LicenseKey key = new LicenseKey("Acme", "pro", "2026-01-01", "2027-01-01", "uuid-3");
+            LicenseKey key = new LicenseKey("Acme", "pro", "2026-01-01", "2027-01-01", "uuid-3", 2);
             assertTrue(key.isPro());
         }
 
@@ -87,6 +87,19 @@ class LicenseTest {
         void editionConstants() {
             assertEquals("PRO", LicenseKey.EDITION_PRO);
             assertEquals("COMMUNITY", LicenseKey.EDITION_COMMUNITY);
+        }
+
+        @Test
+        @DisplayName("maxActivations defaults to 2")
+        void maxActivationsDefault() {
+            assertEquals(2, LicenseKey.DEFAULT_MAX_ACTIVATIONS);
+        }
+
+        @Test
+        @DisplayName("maxActivations is accessible from record")
+        void maxActivationsAccessible() {
+            LicenseKey key = new LicenseKey("Acme", "PRO", "2026-01-01", "2027-01-01", "uuid-4", 3);
+            assertEquals(3, key.maxActivations());
         }
     }
 
@@ -101,7 +114,7 @@ class LicenseTest {
         @Test
         @DisplayName("valid key returns success with correct fields")
         void validKey() throws Exception {
-            LicenseKey original = new LicenseKey("Acme Corp", "PRO", "2026-01-01", "2099-12-31", "test-id-1");
+            LicenseKey original = new LicenseKey("Acme Corp", "PRO", "2026-01-01", "2099-12-31", "test-id-1", 2);
             String rawKey = createSignedKey(original);
 
             LicenseValidator.ValidationResult result = LicenseValidator.validate(rawKey, testPublicKeyBase64);
@@ -150,12 +163,12 @@ class LicenseTest {
         @Test
         @DisplayName("tampered payload fails signature verification")
         void tamperedPayload() throws Exception {
-            LicenseKey original = new LicenseKey("Acme", "PRO", "2026-01-01", "2099-12-31", "id-1");
+            LicenseKey original = new LicenseKey("Acme", "PRO", "2026-01-01", "2099-12-31", "id-1", 2);
             String rawKey = createSignedKey(original);
 
             // Tamper: replace payload with different holder, keep original signature
             String[] parts = rawKey.split("\\.", 2);
-            LicenseKey tampered = new LicenseKey("Evil Corp", "PRO", "2026-01-01", "2099-12-31", "id-1");
+            LicenseKey tampered = new LicenseKey("Evil Corp", "PRO", "2026-01-01", "2099-12-31", "id-1", 2);
             String tamperedPayload = Base64.getEncoder().encodeToString(
                     GSON.toJson(tampered).getBytes(StandardCharsets.UTF_8));
             String tamperedKey = tamperedPayload + "." + parts[1];
@@ -168,7 +181,7 @@ class LicenseTest {
         @Test
         @DisplayName("wrong public key fails verification")
         void wrongPublicKey() throws Exception {
-            LicenseKey key = new LicenseKey("Acme", "PRO", "2026-01-01", "2099-12-31", "id-1");
+            LicenseKey key = new LicenseKey("Acme", "PRO", "2026-01-01", "2099-12-31", "id-1", 2);
             String rawKey = createSignedKey(key);
 
             // Generate a different keypair
@@ -186,7 +199,7 @@ class LicenseTest {
         @Test
         @DisplayName("expired license returns expired result")
         void expiredLicense() throws Exception {
-            LicenseKey key = new LicenseKey("Acme", "PRO", "2020-01-01", "2020-12-31", "id-expired");
+            LicenseKey key = new LicenseKey("Acme", "PRO", "2020-01-01", "2020-12-31", "id-expired", 2);
             String rawKey = createSignedKey(key);
 
             LicenseValidator.ValidationResult result = LicenseValidator.validate(rawKey, testPublicKeyBase64);
@@ -199,7 +212,7 @@ class LicenseTest {
         @Test
         @DisplayName("null expiry means perpetual license")
         void perpetualLicense() throws Exception {
-            LicenseKey key = new LicenseKey("Acme", "PRO", "2026-01-01", null, "id-perpetual");
+            LicenseKey key = new LicenseKey("Acme", "PRO", "2026-01-01", null, "id-perpetual", 2);
             String rawKey = createSignedKey(key);
 
             LicenseValidator.ValidationResult result = LicenseValidator.validate(rawKey, testPublicKeyBase64);
@@ -307,7 +320,7 @@ class LicenseTest {
         @Test
         @DisplayName("activate with valid key succeeds and saves file")
         void activateValid() throws Exception {
-            LicenseKey key = new LicenseKey("Test Corp", "PRO", "2026-01-01", "2099-12-31", "mgr-id-1");
+            LicenseKey key = new LicenseKey("Test Corp", "PRO", "2026-01-01", "2099-12-31", "mgr-id-1", 2);
             String rawKey = createSignedKey(key);
             Path file = tempDir.resolve("license.json");
 
@@ -336,7 +349,7 @@ class LicenseTest {
         @DisplayName("deactivate removes file and reverts edition")
         void deactivate() throws Exception {
             // First activate
-            LicenseKey key = new LicenseKey("Test", "PRO", "2026-01-01", "2099-12-31", "mgr-id-2");
+            LicenseKey key = new LicenseKey("Test", "PRO", "2026-01-01", "2099-12-31", "mgr-id-2", 2);
             String rawKey = createSignedKey(key);
             Path file = tempDir.resolve("license.json");
             LicenseManager.activate(rawKey, file, testPublicKeyBase64);

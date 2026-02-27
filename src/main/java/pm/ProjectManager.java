@@ -3309,12 +3309,15 @@ public class ProjectManager {
                 if (result.success()) {
                     OutputFormatter.success(result.message());
                     LicenseKey key = result.key();
-                    System.out.println("  Holder:  " + key.holder());
-                    System.out.println("  Edition: " + key.edition());
+                    System.out.println("  Holder:       " + key.holder());
+                    System.out.println("  Edition:      " + key.edition());
+                    int maxAct = key.maxActivations() != null
+                            ? key.maxActivations() : LicenseKey.DEFAULT_MAX_ACTIVATIONS;
+                    System.out.println("  Activations:  " + maxAct + " machine(s) allowed");
                     if (key.expires() != null) {
-                        System.out.println("  Expires: " + key.expires());
+                        System.out.println("  Expires:      " + key.expires());
                     } else {
-                        System.out.println("  Expires: never");
+                        System.out.println("  Expires:      never");
                     }
                 } else {
                     OutputFormatter.error("Activation failed: " + result.message());
@@ -3334,16 +3337,19 @@ public class ProjectManager {
     private static void printLicenseInfo() {
         LicenseKey key = LicenseManager.getLicenseInfo();
         if (key != null) {
+            int maxAct = key.maxActivations() != null
+                    ? key.maxActivations() : LicenseKey.DEFAULT_MAX_ACTIVATIONS;
             System.out.println();
-            System.out.println("  Edition: " + OutputFormatter.GREEN + key.edition()
+            System.out.println("  Edition:      " + OutputFormatter.GREEN + key.edition()
                     + OutputFormatter.RESET);
-            System.out.println("  Holder:  " + key.holder());
-            System.out.println("  ID:      " + key.id());
-            System.out.println("  Issued:  " + key.issued());
+            System.out.println("  Holder:       " + key.holder());
+            System.out.println("  ID:           " + key.id());
+            System.out.println("  Issued:       " + key.issued());
+            System.out.println("  Activations:  " + maxAct + " machine(s) allowed");
             if (key.expires() != null) {
-                System.out.println("  Expires: " + key.expires());
+                System.out.println("  Expires:      " + key.expires());
             } else {
-                System.out.println("  Expires: never");
+                System.out.println("  Expires:      never");
             }
             System.out.println();
         } else {
