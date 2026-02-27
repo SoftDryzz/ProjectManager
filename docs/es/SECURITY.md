@@ -4,8 +4,8 @@
 
 | Versión | Soportada |
 |---------|-----------|
-| 1.3.x   | Sí        |
-| < 1.3.0 | No        |
+| 1.9.x   | Sí        |
+| < 1.9.0 | No        |
 
 Solo la última release recibe actualizaciones de seguridad. Recomendamos usar siempre la última versión mediante `pm update`.
 
@@ -38,8 +38,9 @@ ProjectManager es una **herramienta CLI local** que gestiona metadatos de proyec
 - Todos los datos se almacenan localmente en `~/.projectmanager/projects.json`
 - **Escritura atómica** (desde v1.3.7) — los datos se escriben primero en un archivo temporal y luego se renombran. Ninguna escritura parcial puede corromper tus datos.
 - **Backup automático** (desde v1.3.7) — se crea `projects.json.bak` antes de cada escritura. Si el archivo principal se corrompe, se restaura automáticamente desde el backup en el siguiente comando.
-- No se envían datos a servidores externos (excepto al API de GitHub para verificar actualizaciones)
-- Sin telemetría, analíticas ni rastreo de ningún tipo
+- No se envían datos de proyectos a servidores externos (excepto al API de GitHub para verificar actualizaciones)
+- **Telemetría opcional** (desde v1.8.0) — analíticas de uso anónimas (solo nombres de comandos, sin datos de proyectos) vía PostHog. Desactivada por defecto, requiere aceptación explícita mediante `pm config telemetry on`. Ver [Acceso a red](#acceso-a-red) para detalles.
+- **Datos de licencia** (desde v1.9.0) — `license.json` almacena la clave de licencia localmente. Se valida completamente offline.
 
 ### Ejecución de comandos
 
@@ -52,12 +53,13 @@ ProjectManager ejecuta comandos shell configurados por el usuario. Estos comando
 
 ### Acceso a red
 
-ProjectManager solo se conecta a internet para **dos propósitos**:
+ProjectManager solo se conecta a internet para **tres propósitos**:
 
 1. **Verificación de actualización** — En cada ejecución, consulta `https://api.github.com/repos/SoftDryzz/ProjectManager/releases/latest` para buscar nuevas versiones
 2. **Descarga de auto-update** — Cuando se usa `pm update`, descarga el JAR desde GitHub Releases
+3. **Telemetría** (desde v1.8.0, opt-in) — Si está habilitada, envía eventos anónimos de uso de comandos a PostHog (`us.i.posthog.com`). Solo se transmiten nombres de comandos — sin nombres de proyectos, rutas ni datos personales. La geolocalización por IP está desactivada (`$ip: null`). Activar/desactivar con `pm config telemetry on|off`.
 
-Ambas conexiones usan HTTPS. No se transmiten tokens de autenticación ni datos personales.
+Todas las conexiones usan HTTPS. No se transmiten tokens de autenticación ni datos personales. La validación de licencias se realiza completamente offline — no se requiere conexión a internet.
 
 **Medidas de seguridad de descarga (desde v1.3.9):**
 - La integridad del JAR descargado se valida contra el tamaño esperado desde la respuesta del API de GitHub.
@@ -69,6 +71,8 @@ Ambas conexiones usan HTTPS. No se transmiten tokens de autenticación ni datos 
 
 ProjectManager lee y escribe:
 - `~/.projectmanager/projects.json` — registro de proyectos
+- `~/.projectmanager/config.json` — configuración del usuario (preferencia de telemetría)
+- `~/.projectmanager/license.json` — clave de licencia (si está activada)
 - `~/.projectmanager/projectmanager.jar` — la aplicación en sí (durante actualizaciones)
 - Directorios de proyectos — solo para detectar tipos de proyecto (lee `pom.xml`, `package.json`, etc.). **Nunca modifica** archivos del proyecto.
 
@@ -97,6 +101,14 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 - **Consideración restante:** Sin verificación de hash criptográfico (SHA-256). La validación de tamaño detecta descargas parciales pero no manipulación dirigida. Para máxima seguridad, verificar el JAR manualmente (comparación con `sha256sum` de la página de releases).
 - **Instalación:** Para instrucciones detalladas de instalación y verificación, consulta la [Guía de Instalación](scripts/INSTALL.md)
 
+### Sistema de license keys
+- **Estado:** Introducido en v1.9.0
+- **Riesgo:** Ninguno — solo branding, ninguna funcionalidad está restringida
+- **Diseño:** Las license keys se validan offline usando firmas RSA-SHA256. La clave pública RSA (que solo puede *verificar*, no *crear* firmas) está incluida en el código fuente. La clave privada RSA **nunca** se incluye en el repositorio ni en el binario distribuido.
+- **Datos almacenados:** `license.json` contiene la cadena de license key. No se almacenan datos personales más allá del nombre del titular (según se introduce en la compra).
+- **Sin llamadas a red:** La activación y validación de licencias se realizan completamente offline. No se envían datos de licencia a ningún servidor.
+- **Cada licencia permite 2 activaciones.** Los usuarios pueden liberar un slot ejecutando `pm license deactivate` antes de cambiar de máquina.
+
 ### Permisos de archivos locales
 - **Estado:** Aceptable
 - **Riesgo:** Bajo — `projects.json` tiene permisos por defecto solo para el usuario. Sin embargo, en sistemas compartidos, otros usuarios con acceso a tu directorio home podrían leerlo o modificarlo.
@@ -111,7 +123,9 @@ No se descargan dependencias en tiempo de ejecución desde la red. La aplicació
 | v1.3.7 ✅ | Escritura atómica, backup automático, recuperación de datos corruptos, validación de campos al cargar, mensajes de error amigables (sin stack traces) |
 | v1.3.8 ✅ | Validación de directorio antes de ejecución; avisos de metacaracteres en comandos personalizados; error claro para directorios ausentes |
 | v1.3.9 ✅ | Validación de integridad de descarga (tamaño esperado del API); límite de loops de redirección (máx 5); clasificación de errores de red (sin conexión, timeout, firewall, SSL) |
-| v1.5.2  | Comando `pm secure` — escaneo de seguridad del sistema de archivos para buenas prácticas del proyecto |
+| v1.5.2 ✅ | Comando `pm secure` — escaneo de seguridad del sistema de archivos para buenas prácticas del proyecto |
+| v1.8.0 ✅ | Telemetría opt-in con salvaguardas de privacidad (anónima, sin datos de proyectos, geolocalización IP desactivada) |
+| v1.9.0 ✅ | Sistema de license keys con validación RSA-SHA256 offline (sin llamadas a red, clave privada nunca en el codebase) |
 
 ---
 

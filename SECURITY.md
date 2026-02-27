@@ -4,8 +4,8 @@
 
 | Version | Supported |
 |---------|-----------|
-| 1.3.x   | Yes       |
-| < 1.3.0 | No        |
+| 1.9.x   | Yes       |
+| < 1.9.0 | No        |
 
 Only the latest release receives security updates. We recommend always using the latest version via `pm update`.
 
@@ -38,8 +38,9 @@ ProjectManager is a **local CLI tool** that manages project metadata and execute
 - All data is stored locally in `~/.projectmanager/projects.json`
 - **Atomic writes** (since v1.3.7) — data is written to a temp file first, then renamed. No partial writes can corrupt your data.
 - **Automatic backup** (since v1.3.7) — `projects.json.bak` is created before every write. If the main file becomes corrupted, it is automatically restored from backup on the next command.
-- No data is sent to external servers (except the GitHub API for update checks)
-- No telemetry, analytics, or tracking of any kind
+- No project data is sent to external servers (except the GitHub API for update checks)
+- **Optional telemetry** (since v1.8.0) — anonymous usage analytics (command names only, no project data) via PostHog. Disabled by default, requires explicit opt-in via `pm config telemetry on`. See [Network access](#network-access) for details.
+- **License data** (since v1.9.0) — `license.json` stores the license key locally. Validated entirely offline.
 
 ### Command execution
 
@@ -52,12 +53,13 @@ ProjectManager executes shell commands configured by the user. These commands ru
 
 ### Network access
 
-ProjectManager only connects to the internet for **two purposes**:
+ProjectManager only connects to the internet for **three purposes**:
 
 1. **Update check** — On each run, it checks `https://api.github.com/repos/SoftDryzz/ProjectManager/releases/latest` for new versions
 2. **Auto-update download** — When `pm update` is used, it downloads the JAR from GitHub Releases
+3. **Telemetry** (since v1.8.0, opt-in) — If enabled, sends anonymous command usage events to PostHog (`us.i.posthog.com`). Only command names are transmitted — no project names, paths, or personal data. IP-based geolocation is disabled (`$ip: null`). Enable/disable with `pm config telemetry on|off`.
 
-Both connections use HTTPS. No authentication tokens or personal data are transmitted.
+All connections use HTTPS. No authentication tokens or personal data are transmitted. License validation is performed entirely offline — no network connection is required.
 
 **Download safety measures (since v1.3.9):**
 - Downloaded JAR integrity is validated against the expected file size from the GitHub API response.
@@ -69,6 +71,8 @@ Both connections use HTTPS. No authentication tokens or personal data are transm
 
 ProjectManager reads and writes:
 - `~/.projectmanager/projects.json` — project registry
+- `~/.projectmanager/config.json` — user configuration (telemetry preference)
+- `~/.projectmanager/license.json` — license key (if activated)
 - `~/.projectmanager/projectmanager.jar` — the application itself (during updates)
 - Project directories — only to detect project types (reads `pom.xml`, `package.json`, etc.). It **never modifies** project files.
 
@@ -97,6 +101,14 @@ No runtime dependencies are pulled from the network. The application is fully se
 - **Remaining consideration:** No cryptographic hash verification (SHA-256). Size validation catches partial downloads but not targeted tampering. For maximum assurance, verify the JAR manually (`sha256sum` comparison with the release page).
 - **Installation:** For detailed installation and verification steps, see the [Installation Guide](scripts/INSTALL.md)
 
+### License key system
+- **Status:** Introduced in v1.9.0
+- **Risk:** None — branding only, no features are gated
+- **Design:** License keys are validated offline using RSA-SHA256 signatures. The RSA public key (which can only *verify*, not *create* signatures) is embedded in the source code. The RSA private key is **never** included in the repository or distributed binary.
+- **Data stored:** `license.json` contains the raw license key string. No personal data beyond the license holder name (as entered during purchase) is stored.
+- **No network calls:** License activation and validation are performed entirely offline. No license data is sent to any server.
+- **Each license allows 2 activations.** Users can free a slot by running `pm license deactivate` before moving to a different machine.
+
 ### Local file permissions
 - **Status:** Acceptable
 - **Risk:** Low — `projects.json` has default user-only permissions. However, on shared systems, other users with access to your home directory could read or modify it.
@@ -111,7 +123,9 @@ No runtime dependencies are pulled from the network. The application is fully se
 | v1.3.7 ✅ | Atomic file writes, automatic backup, corrupted data recovery, field validation on load, user-friendly error messages (no stack traces) |
 | v1.3.8 ✅ | Directory validation before execution; metacharacter warnings for custom commands; clear error for missing directories |
 | v1.3.9 ✅ | Download integrity validation (expected size from API); redirect loop cap (max 5); network error classification (offline, timeout, firewall, SSL) |
-| v1.5.2  | `pm secure` command — filesystem security scan for project best practices |
+| v1.5.2 ✅ | `pm secure` command — filesystem security scan for project best practices |
+| v1.8.0 ✅ | Opt-in telemetry with privacy safeguards (anonymous, no project data, IP geolocation disabled) |
+| v1.9.0 ✅ | License key system with offline RSA-SHA256 validation (no network calls, private key never in codebase) |
 
 ---
 

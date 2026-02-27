@@ -1153,14 +1153,18 @@ pm license activate <key>
 
 Validates the license key offline using RSA-SHA256 signatures (no server calls required) and activates Pro branding. The license is stored at `~/.projectmanager/license.json`.
 
+Each license allows **2 activations** (e.g., desktop + laptop).
+
 #### Deactivate a license
 ```bash
 pm license deactivate
 ```
 
-Removes the current license and reverts to Community Edition.
+Removes the current license and reverts to Community Edition. This frees up one activation slot, allowing you to move the license to a different machine.
 
 > **Note**: License keys are validated entirely offline. No network connection is required for activation or validation.
+
+> **Changing machines?** Run `pm license deactivate` on the old machine first, then `pm license activate <key>` on the new one.
 
 ---
 

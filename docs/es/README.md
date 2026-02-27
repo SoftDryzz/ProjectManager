@@ -517,14 +517,18 @@ ProjectManager sigue un modelo **Open Core**. Por defecto, se ejecuta como **Com
 - Las license keys se validan offline usando firmas **RSA-SHA256** (sin llamadas a servidor)
 - Los datos de licencia se almacenan localmente en `~/.projectmanager/license.json`
 - **Solo branding** — ninguna funcionalidad está restringida
+- Cada licencia permite **2 activaciones** (ej: sobremesa + portátil)
+- Usa `pm license deactivate` para liberar un slot y mover la licencia a otro equipo
 
 ### Comandos
 ```bash
 pm license                     # Mostrar estado actual de la licencia
-pm license info                # Igual que arriba
+pm license info                # Igual que arriba (muestra edición, titular, activaciones)
 pm license activate <key>      # Activar una licencia Pro
-pm license deactivate          # Eliminar licencia, volver a Community Edition
+pm license deactivate          # Liberar este slot, volver a Community Edition
 ```
+
+> **¿Cambias de equipo?** Ejecuta `pm license deactivate` en el equipo viejo primero, luego `pm license activate <key>` en el nuevo.
 
 ---
 
