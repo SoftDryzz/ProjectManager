@@ -21,6 +21,7 @@
   - [Export & Import](#-export--import)
   - [CI/CD Detection](#-cicd-detection)
   - [Linting & Formatting](#-linting--formatting)
+  - [Multi-project Workspaces](#-multi-project-workspaces)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -928,6 +929,80 @@ Lint — backend
   ✓ ESLint passed (3s)
 
   Result: 1/1 tools passed
+```
+
+---
+
+### 🔹 Multi-project Workspaces
+
+Detect monorepo modules and manage multi-language projects.
+
+#### Show workspace modules for a project
+```bash
+pm modules backend
+```
+
+#### Show workspace modules for all projects
+```bash
+pm modules
+```
+
+**Supported workspace types:**
+
+| Project Type | Detection | Module Source |
+|---|---|---|
+| Rust | `[workspace]` in `Cargo.toml` | `members` list |
+| Node.js/pnpm/Yarn | `"workspaces"` in `package.json` | Array or object format, glob expansion |
+| Gradle | `include()` in `settings.gradle` / `settings.gradle.kts` | Include directives |
+| Go | Nested `go.mod` files | Subdirectories with `go.mod` (depth 3) |
+
+**Example output:**
+```
+Workspace Modules — backend (Rust)
+
+  Name          Path              Type
+  ─────────────────────────────────────
+  app           app/              Rust
+  lib-core      lib/core/         Rust
+  tools         tools/            Rust
+
+  3 modules detected
+```
+
+#### Multi-language detection
+
+When a project contains multiple technologies (e.g., `pom.xml` + `docker-compose.yml`), ProjectManager now detects all of them:
+
+```
+my-api (Maven)
+  Also detected: Docker
+```
+
+Secondary types are shown in `pm info` and persisted in `projects.json`. Use `pm refresh` to re-detect secondary types for existing projects.
+
+#### Build all projects
+```bash
+pm build --all
+```
+
+Builds every registered project. Projects without a `build` command are skipped. Shows a pass/fail summary at the end.
+
+#### Test all projects
+```bash
+pm test --all
+```
+
+Tests every registered project. Continues on failure and shows a summary.
+
+**Example output:**
+```
+=== Build All ===
+
+  ✓ backend (Maven) — 12s
+  ✓ frontend (Node.js) — 8s
+  ✗ legacy-api (Gradle) — exit code 1
+
+  Result: 2/3 projects built successfully
 ```
 
 ---
@@ -1901,6 +1976,12 @@ pm lint                                        # Run linters on all projects
 pm lint <name>                                 # Run linters on a specific project
 pm fmt                                         # Run formatters on all projects
 pm fmt <name>                                  # Run formatters on a specific project
+
+# === WORKSPACES ===
+pm modules                                     # Show workspace modules for all projects
+pm modules <name>                              # Show workspace modules for a project
+pm build --all                                 # Build all registered projects
+pm test --all                                  # Test all registered projects
 
 # === UPDATES ===
 pm update                                      # Update to latest version

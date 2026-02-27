@@ -188,6 +188,7 @@ pm run order-service
 - 📤 **Export & Import** - Migrate setups between machines with `pm export` and `pm import`, supports selective export and path validation
 - 🔄 **CI/CD detection** - Detect GitHub Actions, GitLab CI, Jenkins, Travis CI, CircleCI with `pm ci` and in `pm info`
 - 🧹 **Linting & Formatting** - Run linters with `pm lint` and formatters with `pm fmt`, auto-detects ESLint, Clippy, Prettier, gofmt, Ruff, and more
+- 📦 **Multi-project Workspaces** - Detect monorepo modules with `pm modules`, multi-language detection, `pm build --all` and `pm test --all`
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -257,6 +258,9 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm ci [name]` | Show CI/CD pipelines and dashboard URLs |
 | `pm lint [name]` | Run linters on project(s) |
 | `pm fmt [name]` | Run formatters on project(s) |
+| `pm modules [name]` | Show workspace modules |
+| `pm build --all` | Build all registered projects |
+| `pm test --all` | Test all registered projects |
 | `pm export` | Export all projects to a portable JSON file |
 | `pm export <names...> [--file <path>]` | Export selected projects to a custom file |
 | `pm import <file>` | Import projects from an exported JSON file |
@@ -432,6 +436,7 @@ ProjectManager/
 │   ├── detector/                 # Type detection
 │   ├── executor/                 # Command execution
 │   ├── storage/                  # JSON persistence
+│   ├── workspace/                # Workspace/monorepo detection
 │   └── util/                     # Utilities (Git, Adapters)
 ├── scripts/
 │   ├── install.ps1               # Windows installer
@@ -474,14 +479,13 @@ Projects are saved in:
 - **Portability** — `pm export` / `pm import` for migrating setups between machines or sharing team configs
 - **CI/CD** — `pm ci` detects pipelines (GitHub Actions, GitLab CI, Jenkins, Travis, CircleCI) and shows dashboard URLs
 - **Lint & Format** — `pm lint` / `pm fmt` auto-detect and run linters/formatters (ESLint, Prettier, Clippy, gofmt, Ruff, Black, Checkstyle, Spotless, and more)
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 658 tests
+- **Workspaces** — `pm modules` detects monorepo structures (Cargo, npm/pnpm/yarn, Gradle, Go), multi-language detection, `pm build --all` / `pm test --all`
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 697 tests
 
-> Latest release: **v1.6.6** (Linting & Formatting) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v1.7.0** (Multi-project Workspaces) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
-- [ ] `pm run-all` / `pm build-all` - Execute commands across all projects
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)
-- [ ] Shell autocompletion (bash/zsh/PowerShell tab completion)
 - [ ] Multi-ecosystem installers (npm, Cargo, Homebrew, Scoop, etc.)
 
 > See [ROADMAP.md](ROADMAP.md) for the full roadmap with detailed plans.

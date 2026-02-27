@@ -21,6 +21,7 @@
   - [Exportar e Importar](#-exportar-e-importar)
   - [Detección CI/CD](#-detección-cicd)
   - [Linting y Formateo](#-linting-y-formateo)
+  - [Espacios de Trabajo Multi-proyecto](#-espacios-de-trabajo-multi-proyecto)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -928,6 +929,80 @@ Lint — backend
   ✓ ESLint passed (3s)
 
   Result: 1/1 tools passed
+```
+
+---
+
+### 🔹 Espacios de Trabajo Multi-proyecto
+
+Detecta módulos monorepo y gestiona proyectos multi-lenguaje.
+
+#### Mostrar módulos del workspace de un proyecto
+```bash
+pm modules backend
+```
+
+#### Mostrar módulos de todos los proyectos
+```bash
+pm modules
+```
+
+**Tipos de workspace soportados:**
+
+| Tipo de Proyecto | Detección | Fuente de Módulos |
+|---|---|---|
+| Rust | `[workspace]` en `Cargo.toml` | Lista de `members` |
+| Node.js/pnpm/Yarn | `"workspaces"` en `package.json` | Formato array u objeto, expansión de globs |
+| Gradle | `include()` en `settings.gradle` / `settings.gradle.kts` | Directivas include |
+| Go | Archivos `go.mod` anidados | Subdirectorios con `go.mod` (profundidad 3) |
+
+**Ejemplo de salida:**
+```
+Workspace Modules — backend (Rust)
+
+  Name          Path              Type
+  ─────────────────────────────────────
+  app           app/              Rust
+  lib-core      lib/core/         Rust
+  tools         tools/            Rust
+
+  3 modules detected
+```
+
+#### Detección multi-lenguaje
+
+Cuando un proyecto contiene múltiples tecnologías (ej. `pom.xml` + `docker-compose.yml`), ProjectManager ahora detecta todas:
+
+```
+my-api (Maven)
+  Also detected: Docker
+```
+
+Los tipos secundarios se muestran en `pm info` y se persisten en `projects.json`. Usa `pm refresh` para re-detectar tipos secundarios en proyectos existentes.
+
+#### Compilar todos los proyectos
+```bash
+pm build --all
+```
+
+Compila todos los proyectos registrados. Los proyectos sin comando `build` se omiten. Muestra un resumen de éxito/fallo al final.
+
+#### Testear todos los proyectos
+```bash
+pm test --all
+```
+
+Testea todos los proyectos registrados. Continúa en caso de fallo y muestra un resumen.
+
+**Ejemplo de salida:**
+```
+=== Build All ===
+
+  ✓ backend (Maven) — 12s
+  ✓ frontend (Node.js) — 8s
+  ✗ legacy-api (Gradle) — exit code 1
+
+  Result: 2/3 projects built successfully
 ```
 
 ---
@@ -1901,6 +1976,12 @@ pm lint                                            # Ejecutar linters en todos l
 pm lint <nombre>                                   # Ejecutar linters en un proyecto específico
 pm fmt                                             # Ejecutar formateadores en todos los proyectos
 pm fmt <nombre>                                    # Ejecutar formateadores en un proyecto específico
+
+# === WORKSPACES ===
+pm modules                                         # Mostrar módulos de todos los proyectos
+pm modules <nombre>                                # Mostrar módulos de un proyecto
+pm build --all                                     # Compilar todos los proyectos registrados
+pm test --all                                      # Testear todos los proyectos registrados
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

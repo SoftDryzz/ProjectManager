@@ -298,23 +298,25 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
-## v1.7.0 — Multi-project Workspaces
+## v1.7.0 — Multi-project Workspaces ✅
 
-### Monorepo support
-- Detect monorepo structures:
-  - Cargo workspaces (`[workspace]` in Cargo.toml)
-  - npm/pnpm/yarn workspaces
-  - Go multi-module repos
-  - Gradle multi-project builds
-- `pm list-modules` — show all sub-projects
-- `pm build --all` — build all modules
-- `pm test --all` — test all modules
-- `pm run <module>` — run specific module
+### Monorepo & multi-language detection
 
-### Multi-language project detection
-- Detect projects that use multiple languages (e.g., Rust backend + Flutter frontend)
-- Show all detected types: `pm info` → "Types: RUST, FLUTTER, DOCKER"
-- Run commands per component: `pm build backend`, `pm test mobile`
+| Feature | Status |
+|---------|--------|
+| Multi-language detection: `detectAll()` finds all project types in a directory | ✅ Done |
+| Secondary types shown in `pm info` ("Also detected: Docker, Node.js") | ✅ Done |
+| Secondary types persisted in `projects.json` (backward compatible) | ✅ Done |
+| `pm build --all` — build all registered projects with summary | ✅ Done |
+| `pm test --all` — test all registered projects with summary | ✅ Done |
+| Continue-on-failure: `--all` runs every project, shows pass/fail summary | ✅ Done |
+| Cargo workspace detection (`[workspace]` members in Cargo.toml) | ✅ Done |
+| npm/pnpm/yarn workspace detection (array, object, glob patterns) | ✅ Done |
+| Gradle multi-project detection (`include()` in settings.gradle/kts) | ✅ Done |
+| Go multi-module detection (nested `go.mod` files) | ✅ Done |
+| `pm modules [name]` — show workspace modules for project(s) | ✅ Done |
+| Workspace module count shown in `pm info` | ✅ Done |
+| Shell autocompletion for `modules`, `build --all`, `test --all` | ✅ Done |
 
 ---
 
