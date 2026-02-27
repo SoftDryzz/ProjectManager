@@ -29,12 +29,12 @@ public final class CompletionHandler {
             "add", "list", "ls", "build", "run", "test", "scan",
             "commands", "cmd", "remove", "rm", "rename", "info",
             "env", "hooks", "refresh", "update", "doctor", "secure",
-            "audit", "ci", "lint", "fmt", "modules", "export", "import", "help", "version", "completions"
+            "audit", "ci", "lint", "fmt", "modules", "migrate", "export", "import", "help", "version", "completions"
     );
 
     /** Commands that take a project name as their next argument. */
     private static final Set<String> PROJECT_COMMANDS = Set.of(
-            "scan", "remove", "rm", "rename", "info", "ci", "lint", "fmt", "modules"
+            "scan", "remove", "rm", "rename", "info", "ci", "lint", "fmt", "modules", "migrate"
     );
 
     /** Commands that take a project name OR --all flag. */
@@ -44,7 +44,7 @@ public final class CompletionHandler {
 
     /** Env subcommands. */
     static final List<String> ENV_SUBCOMMANDS = List.of(
-            "set", "get", "list", "remove", "clear"
+            "set", "get", "list", "remove", "clear", "files", "show", "switch"
     );
 
     /** Subcommands for commands/hooks management. */
@@ -194,6 +194,10 @@ public final class CompletionHandler {
         // pm hooks <project> <TAB> → add, remove
         if ("hooks".equals(cmd)) {
             return new ArrayList<>(MANAGEMENT_SUBCOMMANDS);
+        }
+        // pm migrate <project> <TAB> → status
+        if ("migrate".equals(cmd)) {
+            return new ArrayList<>(List.of("status"));
         }
         // pm export <name> <TAB> → more project names + --file
         if ("export".equals(cmd)) {

@@ -320,35 +320,35 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
-## v1.7.1 — Project Templates
+## v1.7.1 — Environments, Secrets & Databases ✅
 
-### `pm init` command
-- `pm init <type>` — scaffold a new project from templates
-- Built-in templates: Java (Maven/Gradle), Node.js, Rust, Go, Python, .NET
-- Support custom templates from GitHub repos
+### Environment file detection
+| Feature | Status |
+|---------|--------|
+| `pm env files <name>` — list `.env` files in project directory | ✅ Done |
+| `pm env show <name> <file>` — show env file contents (masked) | ✅ Done |
+| `pm env show <name> <file> --show` — reveal all values | ✅ Done |
+| `pm env switch <name> <env-name>` — copy `.env.<name>` to `.env` | ✅ Done |
+| Show env files in `pm info` output | ✅ Done |
 
----
-
-## v1.8.0 — Environments, Secrets & Databases
-
-### Environment management
-- Detect `.env`, `.env.local`, `.env.production` files
-- `pm env` — show current environment variables (masked secrets)
-- `pm env switch <name>` — switch between environment files
-- Warn if `.env` is not in `.gitignore`
-
-### Secrets detection
-- Scan for common secret patterns (API keys, tokens, passwords)
-- Warn on `pm doctor` if secrets are committed
-- Optional [Vaultic](https://crates.io/crates/vaultic) detection (not a dependency — PM works fully without it):
-  - **Not installed** → recommend install options: `cargo install vaultic` (requires [Rust toolchain](https://rustup.rs)) or download binary from [GitHub Releases](https://github.com/SoftDryzz/Vaultic/releases). Always link to [Vaultic repo](https://github.com/SoftDryzz/Vaultic) for docs
-  - **Installed but not initialized** → suggest `vaultic init` with link to docs so the user understands what it does before running it
-  - **Installed and configured** → show enhanced secret management hints (e.g., `vaultic encrypt .env`)
+### Secret scanning
+| Feature | Status |
+|---------|--------|
+| Detect AWS access keys, GitHub tokens, Slack tokens in `.env` files | ✅ Done |
+| Generic secret detection (40+ char random values for sensitive keys) | ✅ Done |
+| Health check in `pm doctor` (6th check: no exposed secrets) | ✅ Done |
+| Security check in `pm secure` (secret-patterns + vaultic detection) | ✅ Done |
+| [Vaultic](https://github.com/SoftDryzz/Vaultic) integration: detect installation and `.vaultic/` dir | ✅ Done |
 
 ### Database migration awareness
-- Detect migration tools: SQLx, Flyway, Liquibase, Prisma, Diesel, Alembic
-- `pm migrate` — run pending migrations
-- `pm migrate status` — show migration state
+| Feature | Status |
+|---------|--------|
+| Detect 6 migration tools: Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx | ✅ Done |
+| `pm migrate` — list detected tools per project | ✅ Done |
+| `pm migrate <name>` — run migration with y/n confirmation | ✅ Done |
+| `pm migrate <name> status` — show migration state (read-only) | ✅ Done |
+| Show migration tools in `pm info` output | ✅ Done |
+| Shell completions for migrate command | ✅ Done |
 
 ---
 

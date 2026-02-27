@@ -320,35 +320,35 @@ Exporta todos o proyectos seleccionados a un archivo JSON portable e impórtalos
 
 ---
 
-## v1.7.1 — Plantillas de Proyecto
+## v1.7.1 — Entornos, Secretos y Bases de Datos ✅
 
-### Comando `pm init`
-- `pm init <tipo>` — crear un nuevo proyecto desde plantillas
-- Plantillas incluidas: Java (Maven/Gradle), Node.js, Rust, Go, Python, .NET
-- Soporte de plantillas personalizadas desde repos de GitHub
+### Detección de archivos de entorno
+| Funcionalidad | Estado |
+|---------------|--------|
+| `pm env files <nombre>` — listar archivos `.env` en directorio del proyecto | ✅ Hecho |
+| `pm env show <nombre> <archivo>` — mostrar contenido de archivo env (enmascarado) | ✅ Hecho |
+| `pm env show <nombre> <archivo> --show` — revelar todos los valores | ✅ Hecho |
+| `pm env switch <nombre> <nombre-env>` — copiar `.env.<nombre>` a `.env` | ✅ Hecho |
+| Mostrar archivos env en la salida de `pm info` | ✅ Hecho |
 
----
-
-## v1.8.0 — Entornos, Secretos y Bases de Datos
-
-### Gestión de entornos
-- Detectar archivos `.env`, `.env.local`, `.env.production`
-- `pm env` — mostrar variables de entorno actuales (secretos enmascarados)
-- `pm env switch <nombre>` — cambiar entre archivos de entorno
-- Avisar si `.env` no está en `.gitignore`
-
-### Detección de secretos
-- Escanear patrones comunes de secretos (API keys, tokens, contraseñas)
-- Avisar en `pm doctor` si hay secretos comiteados
-- Detección opcional de [Vaultic](https://crates.io/crates/vaultic) (no es una dependencia — PM funciona completamente sin él):
-  - **No instalado** → recomendar opciones de instalación: `cargo install vaultic` (requiere [toolchain de Rust](https://rustup.rs)) o descargar binario desde [GitHub Releases](https://github.com/SoftDryzz/Vaultic/releases). Siempre enlazar al [repo de Vaultic](https://github.com/SoftDryzz/Vaultic) para docs
-  - **Instalado pero no inicializado** → sugerir `vaultic init` con enlace a docs para que el usuario entienda qué hace antes de ejecutarlo
-  - **Instalado y configurado** → mostrar hints avanzados de gestión de secretos (ej. `vaultic encrypt .env`)
+### Escaneo de secretos
+| Funcionalidad | Estado |
+|---------------|--------|
+| Detectar claves AWS, tokens GitHub, tokens Slack en archivos `.env` | ✅ Hecho |
+| Detección genérica de secretos (valores aleatorios de 40+ caracteres para claves sensibles) | ✅ Hecho |
+| Verificación de salud en `pm doctor` (6ª verificación: sin secretos expuestos) | ✅ Hecho |
+| Verificación de seguridad en `pm secure` (patrones de secretos + detección de vaultic) | ✅ Hecho |
+| Integración [Vaultic](https://github.com/SoftDryzz/Vaultic): detectar instalación y directorio `.vaultic/` | ✅ Hecho |
 
 ### Conciencia de migraciones de base de datos
-- Detectar herramientas de migración: SQLx, Flyway, Liquibase, Prisma, Diesel, Alembic
-- `pm migrate` — ejecutar migraciones pendientes
-- `pm migrate status` — mostrar estado de migraciones
+| Funcionalidad | Estado |
+|---------------|--------|
+| Detectar 6 herramientas de migración: Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx | ✅ Hecho |
+| `pm migrate` — listar herramientas detectadas por proyecto | ✅ Hecho |
+| `pm migrate <nombre>` — ejecutar migración con confirmación y/n | ✅ Hecho |
+| `pm migrate <nombre> status` — mostrar estado de migración (solo lectura) | ✅ Hecho |
+| Mostrar herramientas de migración en la salida de `pm info` | ✅ Hecho |
+| Autocompletado en shell para comando migrate | ✅ Hecho |
 
 ---
 
