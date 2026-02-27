@@ -177,7 +177,7 @@ class TelemetryTest {
         void trackCommandWithNullConfig() {
             Telemetry.reset();
             // Should not throw
-            assertDoesNotThrow(() -> Telemetry.trackCommand("build"));
+            assertDoesNotThrow(() -> Telemetry.trackCommand("build", true, 100));
         }
 
         @Test

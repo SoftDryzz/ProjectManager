@@ -32,6 +32,7 @@ public record TelemetryEvent(String event, Map<String, Object> properties) {
 
         Map<String, Object> props = new HashMap<>(properties);
         props.put("$lib", "projectmanager");
+        props.put("$ip", null);
         payload.put("properties", props);
 
         return payload;

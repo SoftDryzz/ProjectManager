@@ -113,6 +113,8 @@ public class ProjectManager {
         }
 
         String command = args[0].toLowerCase();
+        long startTime = System.currentTimeMillis();
+        boolean success = true;
 
         try {
             switch (command) {
@@ -146,10 +148,12 @@ public class ProjectManager {
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
             }
-            Telemetry.trackCommand(command);
         } catch (Exception e) {
+            success = false;
             handleFatalError(e);
         } finally {
+            long elapsedMs = System.currentTimeMillis() - startTime;
+            Telemetry.trackCommand(command, success, elapsedMs);
             Telemetry.flush();
         }
     }

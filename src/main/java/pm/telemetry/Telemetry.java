@@ -5,6 +5,8 @@ import com.google.gson.reflect.TypeToken;
 import pm.util.Constants;
 
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -48,21 +50,30 @@ public final class Telemetry {
     /**
      * Tracks a command execution event (fire-and-forget).
      *
-     * @param command The command name (e.g., "build", "test")
+     * @param command     The command name (e.g., "build", "test")
+     * @param success     Whether the command completed without exception
+     * @param elapsedMs   Execution time in milliseconds
      */
-    public static void trackCommand(String command) {
+    public static void trackCommand(String command, boolean success, long elapsedMs) {
         if (config == null || !config.isTelemetryEnabled()) {
             return;
         }
         try {
-            TelemetryEvent event = new TelemetryEvent("command_executed", Map.of(
-                    "command", command,
-                    "version", Constants.VERSION,
-                    "os", System.getProperty("os.name"),
-                    "os_version", System.getProperty("os.version"),
-                    "java_version", System.getProperty("java.version"),
-                    "project_count", getProjectCount()
-            ));
+            Map<String, Object> props = new HashMap<>();
+            props.put("command", command);
+            props.put("version", Constants.VERSION);
+            props.put("os", System.getProperty("os.name"));
+            props.put("os_version", System.getProperty("os.version"));
+            props.put("java_version", System.getProperty("java.version"));
+            props.put("arch", System.getProperty("os.arch"));
+            props.put("locale", java.util.Locale.getDefault().toString());
+            props.put("terminal", System.getenv("TERM") != null ? System.getenv("TERM") : "unknown");
+            props.put("project_count", getProjectCount());
+            props.put("project_types", getProjectTypes());
+            props.put("success", success);
+            props.put("execution_ms", elapsedMs);
+
+            TelemetryEvent event = new TelemetryEvent("command_executed", props);
             TelemetryClient.send(event, Constants.POSTHOG_KEY, config.getDistinctId());
         } catch (Exception ignored) {
             // Telemetry tracking failure is non-critical
@@ -135,15 +146,40 @@ public final class Telemetry {
      */
     private static int getProjectCount() {
         try {
-            if (!Files.exists(Constants.PROJECTS_FILE)) {
-                return 0;
-            }
-            String json = Files.readString(Constants.PROJECTS_FILE);
-            Map<String, Object> projects = new Gson().fromJson(json,
-                    new TypeToken<Map<String, Object>>() {}.getType());
-            return projects != null ? projects.size() : 0;
+            return loadProjectsMap().size();
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    /**
+     * Extracts unique project types (e.g., ["Maven", "Rust", "Flutter"]).
+     * No project names or paths — only the type field.
+     */
+    private static List<String> getProjectTypes() {
+        try {
+            Map<String, Map<String, Object>> projects = loadProjectsMap();
+            return projects.values().stream()
+                    .map(p -> p.getOrDefault("type", "UNKNOWN").toString())
+                    .distinct()
+                    .sorted()
+                    .toList();
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
+    private static Map<String, Map<String, Object>> loadProjectsMap() {
+        try {
+            if (!Files.exists(Constants.PROJECTS_FILE)) {
+                return Map.of();
+            }
+            String json = Files.readString(Constants.PROJECTS_FILE);
+            Map<String, Map<String, Object>> projects = new Gson().fromJson(json,
+                    new TypeToken<Map<String, Map<String, Object>>>() {}.getType());
+            return projects != null ? projects : Map.of();
+        } catch (Exception e) {
+            return Map.of();
         }
     }
 
