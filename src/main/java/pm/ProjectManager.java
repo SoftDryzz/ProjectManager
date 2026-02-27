@@ -34,6 +34,7 @@ import pm.util.CommandConfigurator;
 import pm.util.Constants;
 import pm.util.GitIntegration;
 import pm.util.RuntimeChecker;
+import pm.telemetry.Telemetry;
 import pm.util.UpdateChecker;
 
 import java.io.IOException;
@@ -103,6 +104,9 @@ public class ProjectManager {
         // Check for updates in the background (non-blocking, 2s timeout)
         UpdateChecker.checkForUpdates();
 
+        // Initialize telemetry (first-run consent prompt if needed)
+        Telemetry.init();
+
         if (args.length == 0) {
             printHelp();
             return;
@@ -137,10 +141,12 @@ public class ProjectManager {
                 case "migrate" -> handleMigrate(args);
                 case "export" -> handleExport(args);
                 case "import" -> handleImport(args);
+                case "config" -> handleConfig(args);
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
             }
+            Telemetry.trackCommand(command);
         } catch (Exception e) {
             handleFatalError(e);
         }
@@ -3220,6 +3226,55 @@ public class ProjectManager {
             """.formatted(Constants.VERSION));
     }
 
+    // ============================================================
+    // COMMAND: CONFIG (User preferences)
+    // ============================================================
+
+    private static void handleConfig(String[] args) {
+        if (args.length < 2) {
+            printConfigHelp();
+            return;
+        }
+
+        String key = args[1].toLowerCase();
+        switch (key) {
+            case "telemetry" -> {
+                if (args.length < 3) {
+                    System.out.println("  Telemetry: " + (Telemetry.isEnabled() ? "on" : "off"));
+                    return;
+                }
+                String value = args[2].toLowerCase();
+                switch (value) {
+                    case "on" -> {
+                        Telemetry.setEnabled(true);
+                        OutputFormatter.success("Telemetry enabled.");
+                    }
+                    case "off" -> {
+                        Telemetry.setEnabled(false);
+                        OutputFormatter.success("Telemetry disabled.");
+                    }
+                    default -> {
+                        OutputFormatter.error("Invalid value: " + args[2]);
+                        System.out.println("Usage: pm config telemetry [on|off]");
+                    }
+                }
+            }
+            default -> {
+                OutputFormatter.error("Unknown config key: " + key);
+                printConfigHelp();
+            }
+        }
+    }
+
+    private static void printConfigHelp() {
+        System.out.println("""
+        Usage: pm config <key> [value]
+
+        Keys:
+          telemetry [on|off]     Enable/disable anonymous usage statistics
+        """);
+    }
+
     private static void printHelp() {
         System.out.println("""
         Usage: pm <command> [options]
@@ -3260,6 +3315,7 @@ public class ProjectManager {
           migrate <name> status                       Check migration status
           export [names...] [--file <path>]           Export projects to JSON file
           import <file>                               Import projects from JSON file
+          config telemetry [on|off]                    Manage telemetry settings
           help                                      Show this help
           version                                   Show version
 
