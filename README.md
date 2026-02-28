@@ -194,6 +194,7 @@ pm run order-service
 - 🔑 **Secret Scanning** - Detect hardcoded secrets (AWS keys, GitHub tokens, Slack tokens) in `.env` files, integrated in `pm doctor` and `pm secure`
 - 🗄️ **Database Migrations** - Detect migration tools (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx) with `pm migrate`, run and check status
 - 🔑 **License Key System** - Open Core model with `pm license`, RSA-SHA256 offline validation, Community/Pro branding (no feature restrictions)
+- 📈 **Performance Tracking** - Auto-record build/test/run times, view history and trends with `pm stats`, per-project averages and summaries
 - 🌐 **Multi-platform** - Works on Windows, Linux, and Mac
 
 ---
@@ -279,6 +280,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm license [info]` | Show current license status |
 | `pm license activate <key>` | Activate a Pro license key |
 | `pm license deactivate` | Remove license, revert to Community Edition |
+| `pm stats <name>` | Show build/test/run time history for a project |
+| `pm stats --all` | Show performance summary across all projects |
 | `pm help` | Show help |
 | `pm version` | Show version |
 
@@ -452,6 +455,7 @@ ProjectManager/
 │   ├── executor/                 # Command execution
 │   ├── storage/                  # JSON persistence
 │   ├── workspace/                # Workspace/monorepo detection
+│   ├── tracking/                 # Performance tracking (stats)
 │   └── util/                     # Utilities (Git, Adapters)
 ├── scripts/
 │   ├── install.ps1               # Windows installer
@@ -548,13 +552,13 @@ pm license deactivate          # Free this activation slot, revert to Community 
 - **Environments** — `pm env files/show/switch` for .env file discovery, secret scanning (AWS, GitHub, Slack tokens), `pm migrate` for database migration tools (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx)
 - **Telemetry** — Opt-in anonymous usage analytics via PostHog, `pm config telemetry on/off`, privacy-first design
 - **License Key** — Open Core model with `pm license`, RSA-SHA256 offline validation, Community/Pro branding (no feature restrictions)
-- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 789 tests
+- **Performance Tracking** — `pm stats` tracks build/test/run times automatically, shows averages, min/max, and history per project
+- **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 800+ tests
 
-> Latest release: **v1.9.0** (License Key System) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v2.0.0** (Performance Tracking) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)
-- [ ] Multi-ecosystem installers (npm, Cargo, Homebrew, Scoop, etc.)
 
 > See [ROADMAP.md](ROADMAP.md) for the full roadmap with detailed plans.
 

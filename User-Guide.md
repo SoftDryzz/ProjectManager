@@ -24,6 +24,7 @@
   - [Multi-project Workspaces](#-multi-project-workspaces)
   - [Database Migrations](#-database-migrations)
   - [License Key](#-license-key)
+  - [Performance Tracking](#-performance-tracking)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -1168,6 +1169,57 @@ Removes the current license and reverts to Community Edition. This frees up one 
 
 ---
 
+### 🔹 Performance Tracking
+
+ProjectManager automatically records execution times for `build`, `test`, and `run` commands. View historical data per project or across all projects.
+
+#### View stats for a project
+```bash
+pm stats my-api
+```
+
+Shows per-command details including last run time, average, fastest, and slowest execution times. Keeps the last 20 runs per command.
+
+**Example output:**
+```
+Performance Stats — my-api
+──────────────────────────
+
+  build (5 runs)
+    Last:    12s
+    Average: 14s
+    Fastest: 10s
+    Slowest: 18s
+
+  test (3 runs)
+    Last:    45s
+    Average: 42s
+    Fastest: 38s
+    Slowest: 45s
+```
+
+#### View stats for all projects
+```bash
+pm stats --all
+```
+
+Shows a summary table with build/test averages and total runs per project.
+
+**Example output:**
+```
+Performance Stats — All Projects
+─────────────────────────────────
+
+  Project        Build Avg   Test Avg   Total Runs
+  my-api         14s         42s        8
+  frontend       8s          12s        15
+  backend        22s         1m 5s      6
+```
+
+> **Note:** Stats are recorded automatically — no configuration needed. Data is stored in `~/.projectmanager/stats.json` and is non-critical (never blocks command execution).
+
+---
+
 ### 🔹 Help and Version
 
 #### View help
@@ -2163,6 +2215,10 @@ pm license                                     # Show license status
 pm license info                                # Show license status
 pm license activate <key>                      # Activate a Pro license key
 pm license deactivate                          # Remove license, revert to Community
+
+# === PERFORMANCE TRACKING ===
+pm stats <name>                                # Show build/test/run time history
+pm stats --all                                 # Show performance summary (all projects)
 
 # === UPDATES ===
 pm update                                      # Update to latest version

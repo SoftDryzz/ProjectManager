@@ -1,10 +1,101 @@
 # ProjectManager - Roadmap
 
-> Ideas and planned features for future versions.
+> Complete version history and planned features.
 >
 > Some ideas inspired by analyzing [FindMatch](https://github.com/AXIOM-ZER0/FindMatch), a real-world multi-stack project (Flutter + Rust + Docker + PostgreSQL + Redis).
 >
 > **Versioning:** Follows [Semantic Versioning](https://semver.org/). Each release corresponds to a GitHub Release with tag `vX.Y.Z` and asset `projectmanager-X.Y.Z.jar`.
+
+---
+
+## v1.0.0 — Initial Release ✅
+
+### Core CLI & project management
+First public release. Register, build, run, and test projects from a single CLI tool with automatic project type detection.
+
+| Feature | Status |
+|---------|--------|
+| `pm add <name> <path>` — register a project | ✅ Done |
+| `pm remove <name>` — unregister a project | ✅ Done |
+| `pm list` — list all registered projects | ✅ Done |
+| `pm info <name>` — show project details | ✅ Done |
+| `pm build <name>` — build a project | ✅ Done |
+| `pm run <name>` — run a project | ✅ Done |
+| `pm test <name>` — test a project | ✅ Done |
+| `pm clean <name>` — clean build artifacts | ✅ Done |
+| Auto-detect project types: Gradle, Maven, Node.js, .NET, Python | ✅ Done |
+| Git integration in `pm info` (branch, last commit, status) | ✅ Done |
+| Environment variables per project (`pm env set/get/list/remove/clear`) | ✅ Done |
+| Cross-platform install scripts (Windows PowerShell, Linux/Mac bash) | ✅ Done |
+| Bilingual documentation (English + Spanish) | ✅ Done |
+
+---
+
+## v1.1.0 — Runtime Checker, Doctor & Unit Tests ✅
+
+### Runtime verification & diagnostics
+
+| Feature | Status |
+|---------|--------|
+| Runtime checker: detect missing runtimes before executing commands | ✅ Done |
+| Friendly error messages with install instructions (winget + download URL) | ✅ Done |
+| `pm doctor` — diagnose environment (installed runtimes, project path validation) | ✅ Done |
+| 156 unit tests across 14 test classes | ✅ Done |
+
+---
+
+## v1.1.1 — RuntimeChecker Fix ✅
+
+| Feature | Status |
+|---------|--------|
+| Fix: RuntimeChecker now verifies `gradle` and `mvn` are installed (not just Java) | ✅ Done |
+| Friendly error with winget install command and download URL | ✅ Done |
+
+---
+
+## v1.2.0 — Environment Variable Management ✅
+
+### Enhanced `pm env` command
+
+| Feature | Status |
+|---------|--------|
+| `pm env set` — set environment variables (supports multiple: KEY=VALUE,KEY2=VALUE2) | ✅ Done |
+| `pm env get` — get a specific variable value | ✅ Done |
+| `pm env list` — list variables with sensitive value masking (`--show` to reveal) | ✅ Done |
+| `pm env remove` — remove a specific variable | ✅ Done |
+| `pm env clear` — remove all variables | ✅ Done |
+| Smart install scripts: auto-find JAR, copy to permanent path | ✅ Done |
+| 172 tests, 0 failures | ✅ Done |
+
+---
+
+## v1.3.0 — New Runtimes & Auto-Update ✅
+
+### 5 new project types + automatic updates
+
+| Feature | Status |
+|---------|--------|
+| Rust (Cargo) — auto-detect `Cargo.toml` | ✅ Done |
+| Go — auto-detect `go.mod` | ✅ Done |
+| pnpm — auto-detect `pnpm-lock.yaml` | ✅ Done |
+| Bun — auto-detect `bun.lockb` / `bun.lock` | ✅ Done |
+| Yarn — auto-detect `yarn.lock` | ✅ Done |
+| Smart detection: lock file takes priority over generic Node.js | ✅ Done |
+| Version check on startup with update notification | ✅ Done |
+| `pm update` — download and install latest JAR from GitHub Releases | ✅ Done |
+| `pm doctor` checks all 12 runtimes | ✅ Done |
+| 219 tests passing | ✅ Done |
+
+---
+
+## v1.3.1 — Flutter/Dart Support ✅
+
+| Feature | Status |
+|---------|--------|
+| Auto-detect Flutter projects via `pubspec.yaml` | ✅ Done |
+| Default commands: `flutter build/run/test/clean` | ✅ Done |
+| `pm doctor` checks Flutter SDK installation | ✅ Done |
+| 223 tests passing | ✅ Done |
 
 ---
 
@@ -384,38 +475,20 @@ Export all or selected projects to a portable JSON file and import them back on 
 
 ---
 
-## v2.0.0 — Dashboard & Analytics
+## v2.0.0 — Performance Tracking ✅
 
-### Interactive TUI dashboard
-- Real-time project status dashboard (using a TUI library)
-- Show: build status, test results, git status, dependencies
-- Navigate between registered projects
-- Quick actions (build, test, clean) from dashboard
+### Build & test time history
+Track execution times for `build`, `test`, and `run` commands automatically. View historical data and trends per project.
 
-### Performance tracking
-- Track build times across runs
-- `pm stats` — show build/test time trends
-- Identify slow builds and suggest optimizations
-
----
-
-## Future — Multi-ecosystem Install
-
-### Install scripts per ecosystem
-Create dedicated install scripts/commands so users can install ProjectManager using their preferred package manager:
-
-| Ecosystem | Install Method | Status |
-|-----------|---------------|--------|
-| npm/npx | `npx projectmanager` or `npm i -g projectmanager` | Planned |
-| pnpm | `pnpm add -g projectmanager` | Planned |
-| Cargo | `cargo install projectmanager` | Planned |
-| Homebrew | `brew install projectmanager` | Planned |
-| Scoop (Windows) | `scoop install projectmanager` | Planned |
-| Go | `go install github.com/SoftDryzz/ProjectManager@latest` | Planned |
-| Bun | `bun add -g projectmanager` | Planned |
-| Yarn | `yarn global add projectmanager` | Planned |
-
-> **Note:** Each ecosystem install would wrap the JAR (or compile a native binary via GraalVM).
+| Feature | Status |
+|---------|--------|
+| Auto-record execution time for build/test/run commands | ✅ Done |
+| Store history in `~/.projectmanager/stats.json` | ✅ Done |
+| `pm stats [name]` — show time history for a project | ✅ Done |
+| `pm stats --all` — show summary across all projects | ✅ Done |
+| Average, min, max, last run time per command | ✅ Done |
+| Last N runs history (configurable, default 20) | ✅ Done |
+| Shell autocompletion for `pm stats` command | ✅ Done |
 
 ---
 

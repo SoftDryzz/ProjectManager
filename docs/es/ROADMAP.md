@@ -1,10 +1,101 @@
 # ProjectManager - Hoja de Ruta
 
-> Ideas y funcionalidades planificadas para futuras versiones.
+> Historial completo de versiones y funcionalidades planificadas.
 >
 > Algunas ideas inspiradas en el análisis de [FindMatch](https://github.com/AXIOM-ZER0/FindMatch), un proyecto real multi-stack (Flutter + Rust + Docker + PostgreSQL + Redis).
 >
 > **Versionado:** Sigue [Semantic Versioning](https://semver.org/). Cada release corresponde a un GitHub Release con tag `vX.Y.Z` y asset `projectmanager-X.Y.Z.jar`.
+
+---
+
+## v1.0.0 — Lanzamiento Inicial ✅
+
+### CLI base y gestión de proyectos
+Primera versión pública. Registra, compila, ejecuta y testea proyectos desde una única herramienta CLI con detección automática de tipo de proyecto.
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| `pm add <nombre> <ruta>` — registrar un proyecto | ✅ Hecho |
+| `pm remove <nombre>` — desregistrar un proyecto | ✅ Hecho |
+| `pm list` — listar todos los proyectos registrados | ✅ Hecho |
+| `pm info <nombre>` — mostrar detalles del proyecto | ✅ Hecho |
+| `pm build <nombre>` — compilar un proyecto | ✅ Hecho |
+| `pm run <nombre>` — ejecutar un proyecto | ✅ Hecho |
+| `pm test <nombre>` — testear un proyecto | ✅ Hecho |
+| `pm clean <nombre>` — limpiar artefactos de build | ✅ Hecho |
+| Auto-detectar tipos de proyecto: Gradle, Maven, Node.js, .NET, Python | ✅ Hecho |
+| Integración Git en `pm info` (rama, último commit, estado) | ✅ Hecho |
+| Variables de entorno por proyecto (`pm env set/get/list/remove/clear`) | ✅ Hecho |
+| Scripts de instalación multiplataforma (Windows PowerShell, Linux/Mac bash) | ✅ Hecho |
+| Documentación bilingüe (inglés + español) | ✅ Hecho |
+
+---
+
+## v1.1.0 — Runtime Checker, Doctor y Tests Unitarios ✅
+
+### Verificación de runtimes y diagnósticos
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| Runtime checker: detectar runtimes faltantes antes de ejecutar comandos | ✅ Hecho |
+| Mensajes de error amigables con instrucciones de instalación (winget + URL de descarga) | ✅ Hecho |
+| `pm doctor` — diagnosticar entorno (runtimes instalados, validación de rutas) | ✅ Hecho |
+| 156 tests unitarios en 14 clases de test | ✅ Hecho |
+
+---
+
+## v1.1.1 — Corrección de RuntimeChecker ✅
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| Fix: RuntimeChecker ahora verifica que `gradle` y `mvn` estén instalados (no solo Java) | ✅ Hecho |
+| Error amigable con comando winget y URL de descarga | ✅ Hecho |
+
+---
+
+## v1.2.0 — Gestión de Variables de Entorno ✅
+
+### Comando `pm env` mejorado
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| `pm env set` — establecer variables de entorno (soporta múltiples: KEY=VALUE,KEY2=VALUE2) | ✅ Hecho |
+| `pm env get` — obtener el valor de una variable específica | ✅ Hecho |
+| `pm env list` — listar variables con enmascaramiento de valores sensibles (`--show` para revelar) | ✅ Hecho |
+| `pm env remove` — eliminar una variable específica | ✅ Hecho |
+| `pm env clear` — eliminar todas las variables | ✅ Hecho |
+| Scripts de instalación inteligentes: auto-buscar JAR, copiar a ruta permanente | ✅ Hecho |
+| 172 tests, 0 fallos | ✅ Hecho |
+
+---
+
+## v1.3.0 — Nuevos Runtimes y Auto-Update ✅
+
+### 5 nuevos tipos de proyecto + actualizaciones automáticas
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| Rust (Cargo) — auto-detectar `Cargo.toml` | ✅ Hecho |
+| Go — auto-detectar `go.mod` | ✅ Hecho |
+| pnpm — auto-detectar `pnpm-lock.yaml` | ✅ Hecho |
+| Bun — auto-detectar `bun.lockb` / `bun.lock` | ✅ Hecho |
+| Yarn — auto-detectar `yarn.lock` | ✅ Hecho |
+| Detección inteligente: lockfile tiene prioridad sobre Node.js genérico | ✅ Hecho |
+| Verificación de versión al inicio con notificación de actualización | ✅ Hecho |
+| `pm update` — descargar e instalar último JAR desde GitHub Releases | ✅ Hecho |
+| `pm doctor` verifica los 12 runtimes | ✅ Hecho |
+| 219 tests pasando | ✅ Hecho |
+
+---
+
+## v1.3.1 — Soporte Flutter/Dart ✅
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| Auto-detectar proyectos Flutter via `pubspec.yaml` | ✅ Hecho |
+| Comandos por defecto: `flutter build/run/test/clean` | ✅ Hecho |
+| `pm doctor` verifica instalación de Flutter SDK | ✅ Hecho |
+| 223 tests pasando | ✅ Hecho |
 
 ---
 
@@ -384,38 +475,20 @@ Exporta todos o proyectos seleccionados a un archivo JSON portable e impórtalos
 
 ---
 
-## v2.0.0 — Dashboard y Analíticas
+## v2.0.0 — Seguimiento de Rendimiento ✅
 
-### Dashboard TUI interactivo
-- Dashboard de estado de proyectos en tiempo real (usando una librería TUI)
-- Mostrar: estado de build, resultados de tests, estado de git, dependencias
-- Navegar entre proyectos registrados
-- Acciones rápidas (build, test, clean) desde el dashboard
+### Historial de tiempos de build y test
+Registra automáticamente los tiempos de ejecución de los comandos `build`, `test` y `run`. Visualiza datos históricos y tendencias por proyecto.
 
-### Seguimiento de rendimiento
-- Rastrear tiempos de build entre ejecuciones
-- `pm stats` — mostrar tendencias de tiempo de build/test
-- Identificar builds lentos y sugerir optimizaciones
-
----
-
-## Futuro — Instalación Multi-ecosistema
-
-### Scripts de instalación por ecosistema
-Crear scripts/comandos dedicados para que los usuarios puedan instalar ProjectManager con su gestor de paquetes preferido:
-
-| Ecosistema | Método de Instalación | Estado |
-|------------|----------------------|--------|
-| npm/npx | `npx projectmanager` o `npm i -g projectmanager` | Planificado |
-| pnpm | `pnpm add -g projectmanager` | Planificado |
-| Cargo | `cargo install projectmanager` | Planificado |
-| Homebrew | `brew install projectmanager` | Planificado |
-| Scoop (Windows) | `scoop install projectmanager` | Planificado |
-| Go | `go install github.com/SoftDryzz/ProjectManager@latest` | Planificado |
-| Bun | `bun add -g projectmanager` | Planificado |
-| Yarn | `yarn global add projectmanager` | Planificado |
-
-> **Nota:** Cada instalación por ecosistema envolvería el JAR (o compilaría un binario nativo via GraalVM).
+| Funcionalidad | Estado |
+|---------------|--------|
+| Registro automático de tiempo de ejecución para comandos build/test/run | ✅ Hecho |
+| Almacenar historial en `~/.projectmanager/stats.json` | ✅ Hecho |
+| `pm stats [nombre]` — mostrar historial de tiempos para un proyecto | ✅ Hecho |
+| `pm stats --all` — mostrar resumen de todos los proyectos | ✅ Hecho |
+| Promedio, mínimo, máximo y último tiempo por comando | ✅ Hecho |
+| Historial de últimas N ejecuciones (configurable, por defecto 20) | ✅ Hecho |
+| Autocompletado en shell para comando `pm stats` | ✅ Hecho |
 
 ---
 
