@@ -15,7 +15,7 @@ import java.nio.file.Paths;
  * (utility class pattern).
  *
  * @author SoftDryzz
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.0.0
  */
 public final class Constants {
@@ -38,7 +38,7 @@ public final class Constants {
      * Current version of ProjectManager.
      * Follows Semantic Versioning (MAJOR.MINOR.PATCH).
      */
-    public static final String VERSION = "1.9.0";
+    public static final String VERSION = "2.0.0";
 
     // ============================================================
     // SYSTEM DIRECTORIES AND FILES
@@ -144,6 +144,19 @@ public final class Constants {
             + "jbhSeITsWAU+Rcp6/XjxBt/lzt50FCRk5mMyZjbqzKuRqMrLKgQiLxIKV/EmcxZe"
             + "accr4OQzJOMba+slZrImlTVGLDN3G6AwLQX2BWJCnGnNzTfrbakZstXu6l45/uHO"
             + "KoQIDAQAB";
+
+    // ============================================================
+    // STATS (Performance Tracking)
+    // ============================================================
+
+    /**
+     * Stats file for tracking command execution times.
+     * Path: ~/.projectmanager/stats.json
+     */
+    public static final Path STATS_FILE = CONFIG_DIR.resolve("stats.json");
+
+    /** Maximum number of execution records to keep per command per project. */
+    public static final int STATS_MAX_ENTRIES = 20;
 
     // ============================================================
     // DEFAULT COMMANDS - GRADLE
