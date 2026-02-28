@@ -24,6 +24,7 @@
   - [Espacios de Trabajo Multi-proyecto](#-espacios-de-trabajo-multi-proyecto)
   - [Migraciones de Base de Datos](#-migraciones-de-base-de-datos)
   - [License Key](#-license-key)
+  - [Seguimiento de Rendimiento](#-seguimiento-de-rendimiento)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -1168,6 +1169,57 @@ Elimina la licencia actual y vuelve a Community Edition. Esto libera un slot de 
 
 ---
 
+### 🔹 Seguimiento de Rendimiento
+
+ProjectManager registra automáticamente los tiempos de ejecución de los comandos `build`, `test` y `run`. Visualiza datos históricos por proyecto o de todos los proyectos.
+
+#### Ver estadísticas de un proyecto
+```bash
+pm stats mi-api
+```
+
+Muestra detalles por comando incluyendo último tiempo, promedio, más rápido y más lento. Mantiene las últimas 20 ejecuciones por comando.
+
+**Ejemplo de salida:**
+```
+Performance Stats — mi-api
+──────────────────────────
+
+  build (5 ejecuciones)
+    Last:    12s
+    Average: 14s
+    Fastest: 10s
+    Slowest: 18s
+
+  test (3 ejecuciones)
+    Last:    45s
+    Average: 42s
+    Fastest: 38s
+    Slowest: 45s
+```
+
+#### Ver estadísticas de todos los proyectos
+```bash
+pm stats --all
+```
+
+Muestra una tabla resumen con promedios de build/test y total de ejecuciones por proyecto.
+
+**Ejemplo de salida:**
+```
+Performance Stats — All Projects
+─────────────────────────────────
+
+  Project        Build Avg   Test Avg   Total Runs
+  mi-api         14s         42s        8
+  frontend       8s          12s        15
+  backend        22s         1m 5s      6
+```
+
+> **Nota:** Las estadísticas se registran automáticamente — no requiere configuración. Los datos se almacenan en `~/.projectmanager/stats.json` y son no-críticos (nunca bloquean la ejecución de comandos).
+
+---
+
 ### 🔹 Ayuda y Versión
 
 #### Ver ayuda
@@ -2163,6 +2215,10 @@ pm license                                         # Mostrar estado de licencia
 pm license info                                    # Mostrar estado de licencia
 pm license activate <key>                          # Activar licencia Pro
 pm license deactivate                              # Eliminar licencia, volver a Community
+
+# === SEGUIMIENTO DE RENDIMIENTO ===
+pm stats <nombre>                                  # Historial de tiempos build/test/run
+pm stats --all                                     # Resumen de rendimiento (todos los proyectos)
 
 # === ACTUALIZACIONES ===
 pm update                                          # Actualizar a última versión

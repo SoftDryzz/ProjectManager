@@ -30,7 +30,7 @@ public final class CompletionHandler {
             "commands", "cmd", "remove", "rm", "rename", "info",
             "env", "hooks", "refresh", "update", "doctor", "secure",
             "audit", "ci", "lint", "fmt", "modules", "migrate", "export", "import",
-            "config", "license", "help", "version", "completions"
+            "config", "license", "stats", "help", "version", "completions"
     );
 
     /** Commands that take a project name as their next argument. */
@@ -40,7 +40,7 @@ public final class CompletionHandler {
 
     /** Commands that take a project name OR --all flag. */
     private static final Set<String> PROJECT_OR_ALL_COMMANDS = Set.of(
-            "build", "run", "test", "commands", "cmd", "hooks", "refresh"
+            "build", "run", "test", "commands", "cmd", "hooks", "refresh", "stats"
     );
 
     /** Env subcommands. */

@@ -194,6 +194,7 @@ pm run servicio-pedidos
 - 🔑 **Escaneo de secretos** - Detecta secretos hardcodeados (claves AWS, tokens GitHub, tokens Slack) en archivos `.env`, integrado en `pm doctor` y `pm secure`
 - 🗄️ **Migraciones de base de datos** - Detecta herramientas de migración (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx) con `pm migrate`, ejecuta y comprueba estado
 - 🔑 **Sistema de License Key** - Modelo Open Core con `pm license`, validación offline RSA-SHA256, branding Community/Pro (sin restricciones de funcionalidades)
+- 📈 **Seguimiento de Rendimiento** - Registro automático de tiempos de build/test/run, historial y tendencias con `pm stats`, promedios y resúmenes por proyecto
 - 🌐 **Multi-plataforma** - Funciona en Windows, Linux y Mac
 
 ---
@@ -279,6 +280,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm license [info]` | Mostrar estado actual de la licencia |
 | `pm license activate <key>` | Activar una licencia Pro |
 | `pm license deactivate` | Eliminar licencia, volver a Community Edition |
+| `pm stats <nombre>` | Mostrar historial de tiempos build/test/run de un proyecto |
+| `pm stats --all` | Mostrar resumen de rendimiento de todos los proyectos |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
 
@@ -452,6 +455,7 @@ ProjectManager/
 │   ├── executor/                 # Ejecución de comandos
 │   ├── storage/                  # Persistencia JSON
 │   ├── workspace/                # Detección de workspaces/monorepos
+│   ├── tracking/                 # Seguimiento de rendimiento (stats)
 │   └── util/                     # Utilidades (Git, Adapters)
 ├── scripts/
 │   ├── install.ps1               # Instalador Windows
@@ -548,13 +552,13 @@ pm license deactivate          # Liberar este slot, volver a Community Edition
 - **Entornos** — `pm env files/show/switch` para descubrir archivos .env, escaneo de secretos (tokens AWS, GitHub, Slack), `pm migrate` para herramientas de migración (Prisma, Alembic, Diesel, Flyway, Liquibase, SQLx)
 - **Telemetría** — Analíticas de uso anónimas opt-in vía PostHog, `pm config telemetry on/off`, diseño privacy-first
 - **License Key** — Modelo Open Core con `pm license`, validación offline RSA-SHA256, branding Community/Pro (sin restricciones de funcionalidades)
-- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 789 tests
+- **Seguimiento de Rendimiento** — `pm stats` registra tiempos de build/test/run automáticamente, muestra promedios, mín/máx e historial por proyecto
+- **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 800+ tests
 
-> Última release: **v1.9.0** (Sistema de License Key) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v2.0.0** (Seguimiento de Rendimiento) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] Grupos de proyectos (`pm group create backend api-users product-service`, `pm run-group backend`)
-- [ ] Instaladores multi-ecosistema (npm, Cargo, Homebrew, Scoop, etc.)
 
 > Ver [ROADMAP.md](ROADMAP.md) para el roadmap completo con planes detallados.
 
