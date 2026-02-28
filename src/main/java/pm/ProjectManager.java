@@ -37,6 +37,7 @@ import pm.util.CommandConfigurator;
 import pm.util.Constants;
 import pm.util.GitIntegration;
 import pm.util.RuntimeChecker;
+import pm.tracking.StatsStore;
 import pm.telemetry.Telemetry;
 import pm.util.UpdateChecker;
 
@@ -89,6 +90,7 @@ public class ProjectManager {
     private static final ProjectStore store = new ProjectStore();
     private static final ProjectTypeDetector detector = new ProjectTypeDetector();
     private static final CommandExecutor executor = new CommandExecutor();
+    private static final StatsStore statsStore = new StatsStore();
 
     /**
      * Application entry point.
@@ -148,6 +150,7 @@ public class ProjectManager {
                 case "import" -> handleImport(args);
                 case "config" -> handleConfig(args);
                 case "license" -> handleLicense(args);
+                case "stats" -> handleStats(args);
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
@@ -407,6 +410,8 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
+            statsStore.record(projectName, "build", result.durationMs(), result.success());
+
             if (result.success()) {
                 if (!executeHooks(project, "post-build")) {
                     OutputFormatter.warning("Post-build hook failed.");
@@ -570,6 +575,8 @@ public class ProjectManager {
             System.out.println("─".repeat(60));
             System.out.println();
 
+            statsStore.record(projectName, "run", result.durationMs(), result.success());
+
             if (result.success()) {
                 // Run post-run hooks
                 if (!executeHooks(project, "post-run")) {
@@ -666,6 +673,8 @@ public class ProjectManager {
             System.out.println();
             System.out.println("─".repeat(60));
             System.out.println();
+
+            statsStore.record(projectName, "test", result.durationMs(), result.success());
 
             if (result.success()) {
                 if (!executeHooks(project, "post-test")) {
@@ -3381,6 +3390,143 @@ public class ProjectManager {
         """);
     }
 
+    // ============================================================
+    // STATS COMMAND
+    // ============================================================
+
+    private static void handleStats(String[] args) {
+        ArgsParser parser = new ArgsParser(args);
+        boolean showAll = parser.hasFlag("all");
+        String projectName = parser.getPositional(1);
+
+        if (showAll) {
+            showAllStats();
+        } else if (projectName != null && !projectName.isBlank()) {
+            showProjectStats(projectName);
+        } else {
+            OutputFormatter.error("Project name or --all flag is required");
+            System.out.println("Usage: pm stats <name>");
+            System.out.println("       pm stats --all");
+            System.exit(1);
+        }
+    }
+
+    private static void showProjectStats(String projectName) {
+        try {
+            Project project = store.findProject(projectName);
+            if (project == null) {
+                OutputFormatter.error("Project '" + projectName + "' not found");
+                System.exit(1);
+            }
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load project: " + e.getMessage());
+            System.exit(1);
+        }
+
+        var stats = statsStore.getStats(projectName);
+
+        System.out.println();
+        OutputFormatter.info("Stats: " + projectName);
+        System.out.println();
+
+        String[] commands = {"build", "test", "run"};
+        for (String cmd : commands) {
+            java.util.List<pm.tracking.StatsRecord> records =
+                    (stats != null) ? stats.get(cmd) : null;
+
+            if (records == null || records.isEmpty()) {
+                System.out.println("  " + cmd + " — no data yet");
+            } else {
+                System.out.println("  " + cmd + " (" + records.size() + " runs)");
+
+                pm.tracking.StatsRecord last = records.get(records.size() - 1);
+                String status = last.success() ? "success" : "failed";
+                String ts = last.timestamp();
+                if (ts.length() > 16) {
+                    ts = ts.substring(0, 10) + " " + ts.substring(11, 16);
+                }
+                System.out.println("    Last:    " + last.formattedDuration()
+                        + " (" + status + ")  —  " + ts);
+
+                long avg = records.stream()
+                        .mapToLong(pm.tracking.StatsRecord::durationMs).sum() / records.size();
+                long min = records.stream()
+                        .mapToLong(pm.tracking.StatsRecord::durationMs).min().orElse(0);
+                long max = records.stream()
+                        .mapToLong(pm.tracking.StatsRecord::durationMs).max().orElse(0);
+
+                System.out.println("    Average: " + formatDuration(avg));
+                System.out.println("    Fastest: " + formatDuration(min));
+                System.out.println("    Slowest: " + formatDuration(max));
+            }
+            System.out.println();
+        }
+    }
+
+    private static void showAllStats() {
+        Map<String, Project> projects;
+        try {
+            projects = store.load();
+        } catch (IOException e) {
+            OutputFormatter.error("Failed to load projects: " + e.getMessage());
+            System.exit(1);
+            return;
+        }
+
+        if (projects.isEmpty()) {
+            OutputFormatter.warning("No projects registered");
+            return;
+        }
+
+        var allStats = statsStore.getAllStats();
+
+        System.out.println();
+        System.out.printf("  %-20s %-14s %-14s %s%n", "Project", "build (avg)", "test (avg)", "runs");
+        System.out.println("  " + "─".repeat(58));
+
+        for (String name : new java.util.TreeSet<>(projects.keySet())) {
+            var projectStats = allStats.get(name);
+
+            String buildAvg = "—";
+            String testAvg = "—";
+            int totalRuns = 0;
+
+            if (projectStats != null) {
+                var builds = projectStats.get("build");
+                if (builds != null && !builds.isEmpty()) {
+                    long avg = builds.stream()
+                            .mapToLong(pm.tracking.StatsRecord::durationMs).sum() / builds.size();
+                    buildAvg = formatDuration(avg);
+                    totalRuns += builds.size();
+                }
+                var tests = projectStats.get("test");
+                if (tests != null && !tests.isEmpty()) {
+                    long avg = tests.stream()
+                            .mapToLong(pm.tracking.StatsRecord::durationMs).sum() / tests.size();
+                    testAvg = formatDuration(avg);
+                    totalRuns += tests.size();
+                }
+                var runs = projectStats.get("run");
+                if (runs != null) {
+                    totalRuns += runs.size();
+                }
+            }
+
+            System.out.printf("  %-20s %-14s %-14s %d%n", name, buildAvg, testAvg, totalRuns);
+        }
+        System.out.println();
+    }
+
+    private static String formatDuration(long durationMs) {
+        long seconds = durationMs / 1000;
+        if (seconds < 60) {
+            return seconds + "s";
+        }
+        long minutes = seconds / 60;
+        long remainingSeconds = seconds % 60;
+        return minutes + "m " + remainingSeconds + "s";
+    }
+
     private static void printHelp() {
         System.out.println("""
         Usage: pm <command> [options]
@@ -3425,6 +3571,8 @@ public class ProjectManager {
           license [info]                              Show license status
           license activate <key>                      Activate a Pro license
           license deactivate                          Deactivate license
+          stats <name>                                Show execution time history
+          stats --all                                 Show stats summary for all projects
           help                                      Show this help
           version                                   Show version
 
