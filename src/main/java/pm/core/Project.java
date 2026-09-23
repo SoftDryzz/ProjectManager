@@ -175,6 +175,23 @@ public final class Project {
         return lastModified;
     }
 
+    /**
+     * Restores the modification timestamp read from storage.
+     *
+     * <p>Only for persistence: rebuilding a loaded project calls setters such
+     * as {@link #addCommand}, which stamp the current time. The stored value
+     * must be restored after them, or every load would look like a change.
+     *
+     * @param instant timestamp to restore (cannot be null)
+     * @throws IllegalArgumentException if instant is null
+     */
+    public void restoreLastModified(Instant instant) {
+        if (instant == null) {
+            throw new IllegalArgumentException("Last modified cannot be null");
+        }
+        this.lastModified = instant;
+    }
+
     // ============================================================
     // COMMAND MANAGEMENT
     // ============================================================

@@ -10,6 +10,7 @@ import pm.detector.ProjectType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,78 @@ class ProjectStoreErrorHandlingTest {
         assertEquals("npm run build", project.getCommand("build"));
         assertEquals("3000", project.getEnvVar("PORT"));
         assertTrue(warnings.isEmpty());
+    }
+
+    // Regression: loading used to reset lastModified to the load time, so
+    // `pm list` always showed "0 seconds ago" and every save overwrote the
+    // stored dates of all projects.
+
+    @Test
+    @DisplayName("toProjectSafe keeps the stored lastModified")
+    void toProjectSafeKeepsLastModified() {
+        ProjectStore.ProjectDTO dto = new ProjectStore.ProjectDTO();
+        dto.name = "my-app";
+        dto.path = "/tmp/my-app";
+        dto.type = "NODEJS";
+        dto.commands = Map.of("build", "npm run build");
+        dto.envVars = Map.of("PORT", "3000");
+        dto.hooks = Map.of("pre-build", List.of("npm run lint"));
+        dto.lastModified = "2026-03-01T03:11:50.942661100Z";
+
+        List<String> warnings = new ArrayList<>();
+        Project project = dto.toProjectSafe("my-app", warnings);
+
+        assertEquals(Instant.parse("2026-03-01T03:11:50.942661100Z"), project.lastModified());
+        assertTrue(warnings.isEmpty());
+    }
+
+    @Test
+    @DisplayName("lastModified survives a save/load round trip")
+    void lastModifiedRoundTrip() {
+        Project original = new Project("my-app", Path.of("/tmp/my-app"), ProjectType.MAVEN);
+        original.addCommand("build", "mvn package");
+        Instant stored = Instant.parse("2025-12-24T18:30:00Z");
+        original.restoreLastModified(stored);
+
+        String json = gson.toJson(ProjectStore.ProjectDTO.fromProject(original));
+        ProjectStore.ProjectDTO dto = gson.fromJson(json, ProjectStore.ProjectDTO.class);
+        Project loaded = dto.toProjectSafe("my-app", new ArrayList<>());
+
+        assertEquals(stored, loaded.lastModified());
+    }
+
+    @Test
+    @DisplayName("toProjectSafe uses the current time when lastModified is missing")
+    void toProjectSafeMissingLastModified() {
+        ProjectStore.ProjectDTO dto = new ProjectStore.ProjectDTO();
+        dto.name = "old";
+        dto.path = "/tmp/old";
+        dto.type = "MAVEN";
+
+        Instant before = Instant.now();
+        List<String> warnings = new ArrayList<>();
+        Project project = dto.toProjectSafe("old", warnings);
+
+        assertFalse(project.lastModified().isBefore(before));
+        assertTrue(warnings.isEmpty());
+    }
+
+    @Test
+    @DisplayName("toProjectSafe warns and uses the current time for an invalid lastModified")
+    void toProjectSafeInvalidLastModified() {
+        ProjectStore.ProjectDTO dto = new ProjectStore.ProjectDTO();
+        dto.name = "odd";
+        dto.path = "/tmp/odd";
+        dto.type = "MAVEN";
+        dto.lastModified = "last tuesday";
+
+        Instant before = Instant.now();
+        List<String> warnings = new ArrayList<>();
+        Project project = dto.toProjectSafe("odd", warnings);
+
+        assertFalse(project.lastModified().isBefore(before));
+        assertEquals(1, warnings.size());
+        assertTrue(warnings.get(0).contains("lastModified"));
     }
 
     @Test
