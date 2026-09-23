@@ -76,7 +76,7 @@ pm version
 
 You should see something like:
 ```
-ProjectManager 1.3.4
+ProjectManager 2.0.1
 Java 25.0.1
 ```
 
@@ -97,8 +97,8 @@ pm add web-api --path C:\Users\User\projects\web-api
 **Expected Output:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.3.4         ║
-║  Manage your projects          ║
+║  ProjectManager v2.0.1         ║
+║  Community Edition             ║
 ╚════════════════════════════════╝
 
 ℹ️  Detecting project type...
@@ -1593,8 +1593,8 @@ pm info web-api
 **Output:**
 ```
 ╔════════════════════════════════╗
-║  ProjectManager v1.3.4         ║
-║  Manage your projects          ║
+║  ProjectManager v2.0.1         ║
+║  Community Edition             ║
 ╚════════════════════════════════╝
 
 

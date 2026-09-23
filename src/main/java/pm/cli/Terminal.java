@@ -24,6 +24,7 @@ import java.util.Map;
  * that Java cannot detect, such as Git Bash (mintty) on Windows.
  *
  * @author SoftDryzz
+ * @version 2.0.1
  * @since 2.0.1
  */
 public final class Terminal {
