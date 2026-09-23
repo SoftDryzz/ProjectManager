@@ -36,7 +36,7 @@ import static pm.util.Constants.PROJECTS_FILE;
  * <p>If the JSON file is corrupted on load, the backup is automatically restored.
  *
  * @author SoftDryzz
- * @version 1.3.7
+ * @version 2.0.1
  * @since 1.0.0
  */
 public class ProjectStore {

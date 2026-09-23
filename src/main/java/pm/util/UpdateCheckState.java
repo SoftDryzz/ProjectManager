@@ -22,6 +22,7 @@ import java.time.format.DateTimeParseException;
  * @param succeeded     whether that attempt reached GitHub and parsed a version
  * @param latestVersion latest release version seen (without 'v'), or null if unknown
  * @author SoftDryzz
+ * @version 2.0.1
  * @since 2.0.1
  */
 record UpdateCheckState(String lastChecked, boolean succeeded, String latestVersion) {
