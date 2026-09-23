@@ -1,28 +1,59 @@
 package pm.tracking;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class StatsStoreTest {
 
-    @TempDir
-    Path tempDir;
+    // Not @TempDir: these tests rewrite and rename stats.json many times in a
+    // row, and on Windows antivirus/indexing can still hold the last file when
+    // JUnit deletes the directory, failing a test that passed. Cleanup here
+    // retries instead.
+    private Path tempDir;
     private Path statsFile;
     private StatsStore store;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        tempDir = Files.createTempDirectory("pm-stats-test");
         statsFile = tempDir.resolve("stats.json");
         store = new StatsStore(statsFile);
+    }
+
+    @AfterEach
+    void tearDown() throws InterruptedException {
+        for (int attempt = 0; attempt < 5; attempt++) {
+            if (deleteRecursively(tempDir)) {
+                return;
+            }
+            Thread.sleep(100);
+        }
+        // Still locked: leave it to the OS temp cleanup rather than fail the test
+    }
+
+    private static boolean deleteRecursively(Path dir) {
+        if (!Files.exists(dir)) {
+            return true;
+        }
+        try (Stream<Path> paths = Files.walk(dir)) {
+            for (Path p : paths.sorted(Comparator.reverseOrder()).toList()) {
+                Files.deleteIfExists(p);
+            }
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     @Test
