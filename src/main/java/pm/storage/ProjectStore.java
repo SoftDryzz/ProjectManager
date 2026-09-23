@@ -10,6 +10,8 @@ import pm.detector.ProjectType;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -374,7 +376,26 @@ public class ProjectStore {
                 }
             }
 
+            // Last: the setters above stamp the current time
+            restoreLastModified(project, safeName, warnings);
+
             return project;
+        }
+
+        /**
+         * Restores the stored timestamp. Missing keeps the current time
+         * (older files); unparseable also does, with a warning.
+         */
+        private void restoreLastModified(Project project, String projectName, List<String> warnings) {
+            if (lastModified == null || lastModified.isBlank()) {
+                return;
+            }
+            try {
+                project.restoreLastModified(Instant.parse(lastModified));
+            } catch (DateTimeParseException e) {
+                warnings.add("Project '" + projectName + "': invalid lastModified '" + lastModified
+                        + "', using current time");
+            }
         }
 
         /**
@@ -402,6 +423,8 @@ public class ProjectStore {
                     }
                 });
             }
+
+            restoreLastModified(project, name, new ArrayList<>());
 
             return project;
         }
