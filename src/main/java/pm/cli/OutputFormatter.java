@@ -49,15 +49,23 @@ import java.util.stream.Collectors;
  */
 public class OutputFormatter {
 
-    // ANSI color codes
-    public static final String GREEN = "\u001B[32m";
-    public static final String RED = "\u001B[31m";
-    public static final String YELLOW = "\u001B[33m";
-    public static final String BLUE = "\u001B[34m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String GRAY = "\u001B[90m";
-    public static final String BOLD = "\u001B[1m";
-    public static final String RESET = "\u001B[0m";
+    /** Whether colors are emitted; decided once, before the codes below. */
+    static final boolean COLORS = Terminal.colorsEnabled(Terminal.isTerminal(), System.getenv());
+
+    // ANSI color codes. Empty when output is redirected or NO_COLOR is set,
+    // so every caller gets plain text without checking anything itself.
+    public static final String GREEN = ansi("\u001B[32m");
+    public static final String RED = ansi("\u001B[31m");
+    public static final String YELLOW = ansi("\u001B[33m");
+    public static final String BLUE = ansi("\u001B[34m");
+    public static final String CYAN = ansi("\u001B[36m");
+    public static final String GRAY = ansi("\u001B[90m");
+    public static final String BOLD = ansi("\u001B[1m");
+    public static final String RESET = ansi("\u001B[0m");
+
+    private static String ansi(String code) {
+        return COLORS ? code : "";
+    }
 
     /** Command names that are considered "default" (auto-configured by CommandConfigurator). */
     private static final Set<String> DEFAULT_COMMANDS = Set.of("build", "run", "test", "clean", "stop");
