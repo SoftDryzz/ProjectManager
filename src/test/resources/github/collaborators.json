@@ -1,0 +1,4 @@
+[
+  {"login": "octo-user", "role_name": "admin"},
+  {"login": "teammate", "role_name": "write"}
+]

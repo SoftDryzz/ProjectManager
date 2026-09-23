@@ -490,7 +490,7 @@ public final class UpdateChecker {
      * @param e the exception to classify
      * @return human-readable error description
      */
-    static String describeNetworkError(Exception e) {
+    public static String describeNetworkError(Exception e) {
         if (e instanceof UnknownHostException) {
             return "No internet connection.";
         }
