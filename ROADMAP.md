@@ -492,6 +492,23 @@ Track execution times for `build`, `test`, and `run` commands automatically. Vie
 
 ---
 
+## v2.0.1 — Bug Fixes ✅
+
+### Faster startup, clean redirected output, reliable project data
+Fixes found while using v2.0.0 day to day. No new commands.
+
+| Fix | Status |
+|-----|--------|
+| Update check cached: GitHub is queried at most once a day (1 hour after a failure) instead of on every command | ✅ Done |
+| No ANSI color codes when output is redirected to a file or another program | ✅ Done |
+| `NO_COLOR` and `FORCE_COLOR` environment variables supported | ✅ Done |
+| Redirected output written as UTF-8 (box characters no longer become `?` on Windows) | ✅ Done |
+| `pm list` / `pm info` show the real modification time (it was reset to "0 seconds ago" on every load) | ✅ Done |
+| `pm list` / `pm info` report a moved or deleted project directory with a `pm rename` hint | ✅ Done |
+| `pm help` descriptions aligned in a single column | ✅ Done |
+
+---
+
 ## Contributing
 
 Have an idea? Open an issue at [GitHub Issues](https://github.com/SoftDryzz/ProjectManager/issues) with the `enhancement` label.

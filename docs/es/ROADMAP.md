@@ -492,6 +492,23 @@ Registra automáticamente los tiempos de ejecución de los comandos `build`, `te
 
 ---
 
+## v2.0.1 — Corrección de Errores ✅
+
+### Arranque más rápido, salida limpia al redirigir, datos de proyecto fiables
+Errores encontrados usando la v2.0.0 en el día a día. Sin comandos nuevos.
+
+| Corrección | Estado |
+|------------|--------|
+| Comprobación de actualizaciones en caché: GitHub se consulta como mucho una vez al día (una hora después de un fallo) en vez de en cada comando | ✅ Hecho |
+| Sin códigos de color ANSI cuando la salida se redirige a un fichero o a otro programa | ✅ Hecho |
+| Soporte de las variables de entorno `NO_COLOR` y `FORCE_COLOR` | ✅ Hecho |
+| La salida redirigida se escribe en UTF-8 (los caracteres de caja ya no salen como `?` en Windows) | ✅ Hecho |
+| `pm list` / `pm info` muestran la fecha de modificación real (se reiniciaba a "0 seconds ago" en cada carga) | ✅ Hecho |
+| `pm list` / `pm info` avisan de una carpeta de proyecto movida o borrada, con la pista de `pm rename` | ✅ Hecho |
+| Descripciones de `pm help` alineadas en una sola columna | ✅ Hecho |
+
+---
+
 ## Contribuir
 
 ¿Tienes una idea? Abre un issue en [GitHub Issues](https://github.com/SoftDryzz/ProjectManager/issues) con la etiqueta `enhancement`.
