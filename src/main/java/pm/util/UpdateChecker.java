@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import javax.net.ssl.SSLException;
 
 /**
@@ -18,7 +19,7 @@ import javax.net.ssl.SSLException;
  *
  * <p>Two modes of operation:
  * <ul>
- * <li>{@link #checkForUpdates()} - Quick, non-blocking check shown at startup</li>
+ * <li>{@link #checkForUpdates()} - Quick check shown at startup, cached for 24 hours</li>
  * <li>{@link #performUpdate()} - Downloads and installs the latest JAR</li>
  * </ul>
  *
@@ -75,32 +76,45 @@ public final class UpdateChecker {
 
     /**
      * Checks if a newer version is available on GitHub.
-     * Designed to be fast and non-blocking — if anything fails, it silently returns.
-     * Called automatically at startup.
+     * Called automatically at startup; if anything fails, it returns silently.
      *
      * <p>Since v1.3.9: shows a brief message when offline instead of failing silently.
+     *
+     * <p>Since v2.0.1: the result is cached in {@link Constants#UPDATE_CHECK_FILE}.
+     * GitHub is queried at most once every 24 hours (1 hour after a failure), so
+     * most commands never wait on the network. A known newer version is still
+     * announced on every run, from the cache.
      */
     public static void checkForUpdates() {
-        try {
-            ReleaseInfo release = fetchLatestVersion(CHECK_TIMEOUT_MS);
-            if (release == null) {
-                return;
-            }
+        Path stateFile = Constants.UPDATE_CHECK_FILE;
+        UpdateCheckState state = UpdateCheckState.load(stateFile);
+        Instant now = Instant.now();
 
-            if (isNewerVersion(release.version(), Constants.VERSION)) {
-                System.out.println("  " + OutputFormatter.YELLOW + "Update available: " +
-                        Constants.VERSION + " -> " + release.version() + OutputFormatter.RESET);
-                System.out.println("  Run: " + OutputFormatter.CYAN + "pm update" +
-                        OutputFormatter.RESET + " to update");
+        if (state.isCheckDue(now)) {
+            try {
+                ReleaseInfo release = fetchLatestVersion(CHECK_TIMEOUT_MS);
+                state = release != null
+                        ? UpdateCheckState.success(now, release.version())
+                        : state.failure(now);
+            } catch (UnknownHostException e) {
+                state = state.failure(now);
+                // Shown at most once per retry interval, not on every command
+                System.out.println("  " + OutputFormatter.YELLOW +
+                        "Update check skipped (no internet connection)" + OutputFormatter.RESET);
                 System.out.println();
+            } catch (Exception e) {
+                // Silently ignore other errors — never block the user's command
+                state = state.failure(now);
             }
-        } catch (UnknownHostException e) {
-            // Brief offline notification — non-blocking, does not interrupt user's command
-            System.out.println("  " + OutputFormatter.YELLOW +
-                    "Update check skipped (no internet connection)" + OutputFormatter.RESET);
+            state.save(stateFile);
+        }
+
+        if (isNewerVersion(state.latestVersion(), Constants.VERSION)) {
+            System.out.println("  " + OutputFormatter.YELLOW + "Update available: " +
+                    Constants.VERSION + " -> " + state.latestVersion() + OutputFormatter.RESET);
+            System.out.println("  Run: " + OutputFormatter.CYAN + "pm update" +
+                    OutputFormatter.RESET + " to update");
             System.out.println();
-        } catch (Exception e) {
-            // Silently ignore other errors — never block the user's command
         }
     }
 
@@ -133,6 +147,9 @@ public final class UpdateChecker {
             System.exit(1);
             return;
         }
+
+        // A fresh answer from GitHub also refreshes the startup check cache
+        UpdateCheckState.success(Instant.now(), release.version()).save(Constants.UPDATE_CHECK_FILE);
 
         System.out.println("  Current version: " + Constants.VERSION);
         System.out.println("  Latest version:  " + release.version());

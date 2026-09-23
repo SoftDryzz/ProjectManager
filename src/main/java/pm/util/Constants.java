@@ -107,6 +107,12 @@ public final class Constants {
      */
     public static final Path CONFIG_FILE = CONFIG_DIR.resolve("config.json");
 
+    /**
+     * Cached result of the last update check, so GitHub is queried at most once a day.
+     * Path: ~/.projectmanager/update-check.json
+     */
+    public static final Path UPDATE_CHECK_FILE = CONFIG_DIR.resolve("update-check.json");
+
     // ============================================================
     // TELEMETRY (PostHog)
     // ============================================================

@@ -106,7 +106,7 @@ public class ProjectManager {
 
         printBanner();
 
-        // Check for updates in the background (non-blocking, 2s timeout)
+        // Check for updates: queries GitHub at most once a day (2s timeout), otherwise uses the cache
         UpdateChecker.checkForUpdates();
 
         // Initialize telemetry (first-run consent prompt if needed)
