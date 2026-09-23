@@ -11,6 +11,7 @@ import pm.util.GitIntegration;
 import pm.workspace.WorkspaceDetector;
 import pm.workspace.WorkspaceModule;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -153,6 +154,17 @@ public class OutputFormatter {
         // Show hooks
         if (project.hookCount() > 0) {
             System.out.println("  Hooks: " + project.hookCount());
+        }
+
+        // A moved or deleted directory: say so, and skip the checks below,
+        // which would only report "not a repository" / "not configured"
+        if (!Files.isDirectory(project.path())) {
+            System.out.println();
+            System.out.println("  " + RED + "Path not found" + RESET +
+                    " (moved or deleted?). To update it, run:");
+            System.out.println("    pm rename " + project.name() + " --path <new-path>");
+            System.out.println();
+            return;
         }
 
         // Show Git information (if it's a repo)

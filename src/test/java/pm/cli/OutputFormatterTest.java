@@ -4,11 +4,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.io.TempDir;
 import pm.core.Project;
 import pm.detector.ProjectType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
@@ -357,6 +359,53 @@ class OutputFormatterTest {
         String output = getOutput();
 
         assertTrue(output.contains("not a repository"));
+    }
+
+    // Regression: a moved or deleted directory was reported as
+    // "Git: not a repository", hiding the real problem.
+
+    @Test
+    @DisplayName("printProject reports a missing directory with a rename hint")
+    void printProjectReportsMissingPath(@TempDir Path tempDir) {
+        Project project = new Project("moved-app", tempDir.resolve("gone"), ProjectType.NODEJS);
+        OutputFormatter.printProject(project);
+        String output = getOutput();
+
+        assertTrue(output.contains("Path not found"));
+        assertTrue(output.contains("pm rename moved-app --path <new-path>"));
+    }
+
+    @Test
+    @DisplayName("printProject skips directory checks when the directory is missing")
+    void printProjectSkipsChecksForMissingPath(@TempDir Path tempDir) {
+        Project project = new Project("moved-app", tempDir.resolve("gone"), ProjectType.NODEJS);
+        OutputFormatter.printProject(project);
+        String output = getOutput();
+
+        assertFalse(output.contains("Git: not a repository"));
+        assertFalse(output.contains("CI/CD: not configured"));
+    }
+
+    @Test
+    @DisplayName("printProject still shows stored data when the directory is missing")
+    void printProjectShowsStoredDataForMissingPath(@TempDir Path tempDir) {
+        Project project = new Project("moved-app", tempDir.resolve("gone"), ProjectType.NODEJS);
+        project.addCommand("build", "npm run build");
+        project.addEnvVar("PORT", "3000");
+        OutputFormatter.printProject(project);
+        String output = getOutput();
+
+        assertTrue(output.contains("Commands: 1"));
+        assertTrue(output.contains("Environment Variables: 1"));
+    }
+
+    @Test
+    @DisplayName("printProject does not report an existing directory as missing")
+    void printProjectExistingPath(@TempDir Path tempDir) {
+        Project project = new Project("here", tempDir, ProjectType.NODEJS);
+        OutputFormatter.printProject(project);
+
+        assertFalse(getOutput().contains("Path not found"));
     }
 
     // ============================================================
