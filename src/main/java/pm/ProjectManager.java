@@ -3527,52 +3527,52 @@ public class ProjectManager {
         return minutes + "m " + remainingSeconds + "s";
     }
 
-    private static void printHelp() {
+    static void printHelp() {
         System.out.println("""
         Usage: pm <command> [options]
 
         Commands:
-          add <name> --path <path> [--env <vars>]  Register a new project
+          add <name> --path <path> [--env <vars>]   Register a new project
           list, ls                                  List all projects
-          build <name> [--all]                       Build project (or all with --all)
+          build <name> [--all]                      Build project (or all with --all)
           run <name>                                Run project
-          test <name> [--all]                        Run tests (or all with --all)
+          test <name> [--all]                       Run tests (or all with --all)
           <cmd> <name>                              Run any registered command
           scan <name>                               Scan for commands in code
           commands, cmd <name>                      List available commands
-          commands <name> add <cmd> "<line>"         Add a custom command
-          commands <name> remove <cmd>               Remove a command
-          commands --all                              List commands for all projects
+          commands <name> add <cmd> "<line>"        Add a custom command
+          commands <name> remove <cmd>              Remove a command
+          commands --all                            List commands for all projects
           hooks <name>                              List hooks for a project
-          hooks <name> add <slot> "<script>"         Add a pre-/post-command hook
-          hooks <name> remove <slot> "<script>"      Remove a hook
-          hooks --all                                List hooks for all projects
+          hooks <name> add <slot> "<script>"        Add a pre-/post-command hook
+          hooks <name> remove <slot> "<script>"     Remove a hook
+          hooks --all                               List hooks for all projects
           remove, rm <name>                         Remove project
-          rename <name> [new-name] [--path <path>]   Rename project or update path
+          rename <name> [new-name] [--path <path>]  Rename project or update path
           info <name>                               Show project details
           env <subcommand> <name> [options]         Manage environment variables
           refresh <name>                            Re-detect type and update commands
           refresh --all                             Refresh all registered projects
           completions <shell>                       Generate completion script (bash/zsh/fish/powershell)
           update                                    Update to the latest version
-          doctor [--score]                            Check environment, runtimes, and project health (A/B/C/D/F)
-          secure [--fix]                              Scan projects for security misconfigurations
+          doctor [--score]                          Check environment, runtimes, and project health (A/B/C/D/F)
+          secure [--fix]                            Scan projects for security misconfigurations
           audit                                     Audit dependencies for known vulnerabilities
-          ci [name]                                   Show CI/CD pipelines and dashboard URLs
-          lint [name]                                 Run linters on project(s)
-          fmt [name]                                  Run formatters on project(s)
-          modules [name]                              Show workspace modules
-          migrate                                     List detected migration tools
-          migrate <name>                              Run database migration (with confirmation)
-          migrate <name> status                       Check migration status
-          export [names...] [--file <path>]           Export projects to JSON file
-          import <file>                               Import projects from JSON file
-          config telemetry [on|off]                    Manage telemetry settings
-          license [info]                              Show license status
-          license activate <key>                      Activate a Pro license
-          license deactivate                          Deactivate license
-          stats <name>                                Show execution time history
-          stats --all                                 Show stats summary for all projects
+          ci [name]                                 Show CI/CD pipelines and dashboard URLs
+          lint [name]                               Run linters on project(s)
+          fmt [name]                                Run formatters on project(s)
+          modules [name]                            Show workspace modules
+          migrate                                   List detected migration tools
+          migrate <name>                            Run database migration (with confirmation)
+          migrate <name> status                     Check migration status
+          export [names...] [--file <path>]         Export projects to JSON file
+          import <file>                             Import projects from JSON file
+          config telemetry [on|off]                 Manage telemetry settings
+          license [info]                            Show license status
+          license activate <key>                    Activate a Pro license
+          license deactivate                        Deactivate license
+          stats <name>                              Show execution time history
+          stats --all                               Show stats summary for all projects
           help                                      Show this help
           version                                   Show version
 
