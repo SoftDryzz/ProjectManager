@@ -2114,6 +2114,21 @@ pm add nombre-proyecto --path C:\ruta --type GRADLE
 
 ---
 
+### La salida no tiene colores
+
+**Causa:** ProjectManager solo usa colores cuando escribe en una terminal interactiva. Cuando la salida va a un fichero o a otro programa (`pm list > proyectos.txt`, `pm list | findstr api`), se escribe como texto UTF-8 sin códigos de color.
+
+Los colores se controlan con dos variables de entorno estándar:
+
+| Variable | Efecto |
+|----------|--------|
+| `NO_COLOR=1` | No usar nunca colores ([no-color.org](https://no-color.org)) |
+| `FORCE_COLOR=1` | Usar siempre colores, aunque la salida esté redirigida |
+
+**Git Bash (mintty) en Windows:** Java no puede detectar esta terminal, así que los colores están desactivados por defecto. Añade `export FORCE_COLOR=1` a tu `~/.bashrc` para recuperarlos.
+
+---
+
 ## 📝 Cheatsheet Rápido
 ```bash
 # === GESTIÓN ===

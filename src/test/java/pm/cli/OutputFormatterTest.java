@@ -37,6 +37,35 @@ class OutputFormatterTest {
     }
 
     // ============================================================
+    // COLOR SWITCH
+    // ============================================================
+
+    @Test
+    @DisplayName("escape codes appear only when colors are enabled")
+    void escapeCodesFollowColorSwitch() {
+        OutputFormatter.success("ok");
+        OutputFormatter.error("bad");
+        OutputFormatter.warning("careful");
+        OutputFormatter.info("note");
+
+        // Tests run with output redirected, so this checks the plain-text path
+        // unless FORCE_COLOR is set in the environment
+        assertEquals(OutputFormatter.COLORS, getOutput().contains("\u001B"));
+    }
+
+    @Test
+    @DisplayName("color constants are empty when colors are disabled")
+    void constantsEmptyWithoutColors() {
+        if (!OutputFormatter.COLORS) {
+            assertEquals("", OutputFormatter.GREEN);
+            assertEquals("", OutputFormatter.RESET);
+        } else {
+            assertEquals("\u001B[32m", OutputFormatter.GREEN);
+            assertEquals("\u001B[0m", OutputFormatter.RESET);
+        }
+    }
+
+    // ============================================================
     // MESSAGE METHODS
     // ============================================================
 

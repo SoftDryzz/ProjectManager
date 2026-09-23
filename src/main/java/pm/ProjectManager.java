@@ -12,6 +12,7 @@ import pm.scanner.EnvFileDetector;
 import pm.workspace.WorkspaceDetector;
 import pm.workspace.WorkspaceModule;
 import pm.cli.OutputFormatter;
+import pm.cli.Terminal;
 import pm.completion.CompletionHandler;
 import pm.completion.CompletionScripts;
 import pm.core.Project;
@@ -103,6 +104,9 @@ public class ProjectManager {
             CompletionHandler.handle(args);
             return;
         }
+
+        // Files and pipes get UTF-8, so box characters don't turn into '?'
+        Terminal.useUtf8WhenRedirected();
 
         printBanner();
 

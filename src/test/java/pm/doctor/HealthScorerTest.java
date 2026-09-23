@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import pm.cli.OutputFormatter;
 import pm.core.Project;
 import pm.detector.ProjectType;
 
@@ -484,34 +485,37 @@ class HealthScorerTest {
     @DisplayName("Grade colors")
     class GradeColors {
 
+        // Compared with the OutputFormatter constants rather than raw codes:
+        // the constants are empty when output is redirected (as in tests)
+
         @Test
         @DisplayName("A is green")
         void aIsGreen() {
-            assertTrue(HealthScorer.gradeColor('A').contains("32"));
+            assertEquals(OutputFormatter.GREEN, HealthScorer.gradeColor('A'));
         }
 
         @Test
         @DisplayName("B is green")
         void bIsGreen() {
-            assertTrue(HealthScorer.gradeColor('B').contains("32"));
+            assertEquals(OutputFormatter.GREEN, HealthScorer.gradeColor('B'));
         }
 
         @Test
         @DisplayName("C is yellow")
         void cIsYellow() {
-            assertTrue(HealthScorer.gradeColor('C').contains("33"));
+            assertEquals(OutputFormatter.YELLOW, HealthScorer.gradeColor('C'));
         }
 
         @Test
         @DisplayName("D is red")
         void dIsRed() {
-            assertTrue(HealthScorer.gradeColor('D').contains("31"));
+            assertEquals(OutputFormatter.RED, HealthScorer.gradeColor('D'));
         }
 
         @Test
         @DisplayName("F is red")
         void fIsRed() {
-            assertTrue(HealthScorer.gradeColor('F').contains("31"));
+            assertEquals(OutputFormatter.RED, HealthScorer.gradeColor('F'));
         }
     }
 
