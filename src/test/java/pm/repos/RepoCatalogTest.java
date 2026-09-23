@@ -139,6 +139,21 @@ class RepoCatalogTest {
     }
 
     @Test
+    @DisplayName("unknown repo cloned twice is one entry")
+    void unknownRepoClonedTwiceIsOneEntry() {
+        LocalClone x = clone("x/else", "someone", "else");
+        LocalClone y = clone("y/else", "someone", "else");
+        LocalClone noKey = new LocalClone(tmp.resolve("aaa/nokey"), null, null);
+        List<RepoGroup> groups = RepoCatalog.build("octo-user", List.of(), List.of(y, x, noKey), Map.of(), false, false);
+        assertEquals(List.of(RepoGroup.Kind.LOCAL_ONLY), kinds(groups));
+        assertEquals(2, groups.get(0).entries().size());
+        CatalogEntry noKeyEntry = groups.get(0).entries().get(0);
+        assertEquals(List.of(noKey), noKeyEntry.clones());
+        CatalogEntry elseEntry = groups.get(0).entries().get(1);
+        assertEquals(List.of(x, y), elseEntry.clones());
+    }
+
+    @Test
     @DisplayName("find by name, by owner/name, and ambiguity")
     void find() {
         List<RemoteRepo> remotes = List.of(

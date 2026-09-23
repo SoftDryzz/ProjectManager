@@ -76,10 +76,26 @@ public final class RepoCatalog {
         }
 
         List<CatalogEntry> localOnly = new ArrayList<>();
+        Map<String, List<LocalClone>> localByKey = new HashMap<>();
+        List<LocalClone> noKey = new ArrayList<>();
+
         for (LocalClone clone : clones) {
-            if (clone.githubKey() == null || !remoteKeys.contains(clone.githubKey())) {
-                localOnly.add(new CatalogEntry(null, List.of(clone), projectFor(List.of(clone), projectByPath)));
+            if (clone.githubKey() == null) {
+                noKey.add(clone);
+            } else if (!remoteKeys.contains(clone.githubKey())) {
+                localByKey.computeIfAbsent(clone.githubKey(), k -> new ArrayList<>()).add(clone);
             }
+        }
+
+        // Group clones with the same githubKey into one entry
+        for (List<LocalClone> groupClones : localByKey.values()) {
+            List<LocalClone> sorted = sortedByPath(groupClones);
+            localOnly.add(new CatalogEntry(null, sorted, projectFor(sorted, projectByPath)));
+        }
+
+        // Each clone with no key gets its own entry
+        for (LocalClone clone : noKey) {
+            localOnly.add(new CatalogEntry(null, List.of(clone), projectFor(List.of(clone), projectByPath)));
         }
 
         List<RepoGroup> groups = new ArrayList<>();
