@@ -555,7 +555,7 @@ pm license deactivate          # Liberar este slot, volver a Community Edition
 - **Seguimiento de Rendimiento** — `pm stats` registra tiempos de build/test/run automáticamente, muestra promedios, mín/máx e historial por proyecto
 - **Fiabilidad** — Escritura atómica, backup/recuperación, validación de directorio, integridad de descarga, 800+ tests
 
-> Última release: **v2.0.0** (Seguimiento de Rendimiento) — Historial completo en [ROADMAP.md](ROADMAP.md)
+> Última release: **v2.0.1** (Corrección de errores) — Historial completo en [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Ideas Futuras
 - [ ] Grupos de proyectos (`pm group create backend api-users product-service`, `pm run-group backend`)
