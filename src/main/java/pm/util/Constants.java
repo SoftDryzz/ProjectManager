@@ -113,6 +113,12 @@ public final class Constants {
      */
     public static final Path UPDATE_CHECK_FILE = CONFIG_DIR.resolve("update-check.json");
 
+    /**
+     * Folders where {@code pm repos} looks for cloned repositories.
+     * Path: ~/.projectmanager/repos.json
+     */
+    public static final Path REPOS_FILE = CONFIG_DIR.resolve("repos.json");
+
     // ============================================================
     // TELEMETRY (PostHog)
     // ============================================================
