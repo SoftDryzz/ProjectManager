@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -3317,7 +3318,7 @@ public class ProjectManager {
         }
     }
 
-    private static void handleConfigRepos(String[] args) throws IOException {
+    static void handleConfigRepos(String[] args) throws IOException {
         RepoRoots roots = RepoRoots.standard();
         if (args.length < 3) {
             List<Path> configured = roots.load();
@@ -3335,7 +3336,13 @@ public class ProjectManager {
             OutputFormatter.error("Usage: pm config repos [add|remove <folder>]");
             return;
         }
-        Path folder = Paths.get(args[3]).toAbsolutePath().normalize();
+        Path folder;
+        try {
+            folder = Paths.get(args[3]).toAbsolutePath().normalize();
+        } catch (InvalidPathException e) {
+            OutputFormatter.error("Invalid folder: " + args[3].replace("\0", ""));
+            return;
+        }
         if (action.equals("add")) {
             if (!Files.isDirectory(folder)) {
                 OutputFormatter.error("Not a folder: " + folder);
