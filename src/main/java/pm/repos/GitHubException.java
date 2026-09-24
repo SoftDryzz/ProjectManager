@@ -8,6 +8,7 @@ import java.util.Optional;
  * token or response bodies.
  *
  * @author SoftDryzz
+ * @version 2.1.0
  * @since 2.1.0
  */
 public final class GitHubException extends Exception {

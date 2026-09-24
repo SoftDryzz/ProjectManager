@@ -10,6 +10,7 @@ package pm.repos;
  * {@code pm repos} prints goes through {@link #clean}.
  *
  * @author SoftDryzz
+ * @version 2.1.0
  * @since 2.1.0
  */
 public final class Sanitizer {

@@ -19,7 +19,7 @@ import java.util.Set;
  * <p>Must NOT print banner, NOT check updates, NOT use ANSI colors.
  *
  * @author SoftDryzz
- * @version 1.6.0
+ * @version 2.1.0
  * @since 1.6.0
  */
 public final class CompletionHandler {
