@@ -65,6 +65,20 @@ class RepoPrinterTest {
     }
 
     @Test
+    @DisplayName("local-only group shows extra clone count")
+    void localOnlyShowsExtraCloneCount() {
+        String githubKey = "someone/else";
+        LocalClone a = new LocalClone(HOME.resolve("x/else"), "https://github.com/someone/else.git", githubKey);
+        LocalClone b = new LocalClone(HOME.resolve("y/else"), "https://github.com/someone/else.git", githubKey);
+        CatalogEntry entry = new CatalogEntry(null, List.of(a, b), null);
+        printer.printList(List.of(new RepoGroup(RepoGroup.Kind.LOCAL_ONLY, null, List.of(entry))));
+        String out = output();
+        assertTrue(out.contains("Local only"));
+        assertTrue(out.contains("(+1 more)"));
+        assertTrue(out.contains("not in your repos"));
+    }
+
+    @Test
     @DisplayName("collaboration rows show the owner; organization headers say organization")
     void ownersAndOrganizations() {
         CatalogEntry shared = new CatalogEntry(repo("other-user", false, "shared", null), List.of(), null);
@@ -106,6 +120,7 @@ class RepoPrinterTest {
         assertFalse(out.contains("\u001B]0;"));
         assertFalse(out.contains("\u0007"));
         assertFalse(out.contains("‮"));
+        assertFalse(out.contains("\u001B[1m"));
     }
 
     @Test
