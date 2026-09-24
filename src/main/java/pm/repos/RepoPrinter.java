@@ -22,7 +22,7 @@ import java.util.Map;
 public final class RepoPrinter {
 
     static final int NAME_WIDTH_CAP = 32;
-    private static final int HEADER_WIDTH = 50;
+    private static final int HEADER_WIDTH = 48;
 
     private final PrintStream out;
     private final Path home;
@@ -64,17 +64,19 @@ public final class RepoPrinter {
             counts += " · " + group.clonedCount() + " cloned";
         }
         out.println();
-        out.println(OutputFormatter.BOLD + pad(title, HEADER_WIDTH) + OutputFormatter.RESET + counts);
+        out.println(OutputFormatter.BOLD + pad(title, HEADER_WIDTH) + OutputFormatter.RESET + "  " + counts);
 
         int width = Math.min(NAME_WIDTH_CAP,
                 group.entries().stream().mapToInt(e -> clean(e.name()).length()).max().orElse(0));
+        int ownerWidth = group.entries().stream().filter(e -> e.remote() != null)
+                .mapToInt(e -> clean(e.remote().owner()).length()).max().orElse(0);
         for (CatalogEntry entry : group.entries()) {
-            out.println(row(group.kind(), entry, width));
+            out.println(row(group.kind(), entry, width, ownerWidth));
         }
         out.println();
     }
 
-    private String row(RepoGroup.Kind kind, CatalogEntry entry, int width) {
+    private String row(RepoGroup.Kind kind, CatalogEntry entry, int width, int ownerWidth) {
         StringBuilder line = new StringBuilder("  ");
         line.append(entry.cloned() ? OutputFormatter.GREEN + "●" : OutputFormatter.GRAY + "○")
                 .append(OutputFormatter.RESET).append(' ')
@@ -89,7 +91,7 @@ public final class RepoPrinter {
         } else {
             RemoteRepo remote = entry.remote();
             if (kind == RepoGroup.Kind.COLLABORATIONS) {
-                line.append(clean(remote.owner())).append("  ");
+                line.append(pad(clean(remote.owner()), ownerWidth)).append("  ");
             }
             line.append(pad(remote.isPrivate() ? "private" : "public", 7)).append("  ");
             if (entry.cloned()) {
@@ -264,6 +266,6 @@ public final class RepoPrinter {
     }
 
     private static String pad(String text, int width) {
-        return text.length() >= width ? text + " " : text + " ".repeat(width - text.length());
+        return text.length() >= width ? text : text + " ".repeat(width - text.length());
     }
 }

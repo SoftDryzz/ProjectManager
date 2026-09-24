@@ -20,6 +20,8 @@ class RepoPrinterTest {
     private static final Path HOME = Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath().resolve("home");
     private static final Instant NOW = Instant.parse("2026-09-23T12:00:00Z");
 
+    private static final String ANSI = "\u001B\\[[0-9;]*m";
+
     private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     private final RepoPrinter printer = new RepoPrinter(new PrintStream(buffer, true, StandardCharsets.UTF_8), HOME);
 
@@ -99,6 +101,58 @@ class RepoPrinterTest {
         printer.printList(List.of(new RepoGroup(RepoGroup.Kind.OWN, "octo-user", List.of(entry))));
         assertTrue(output().contains("a".repeat(RepoPrinter.NAME_WIDTH_CAP - 1) + "…"));
         assertFalse(output().contains("a".repeat(RepoPrinter.NAME_WIDTH_CAP + 1)));
+    }
+
+    private static RemoteRepo repo(String owner, boolean org, String name, boolean isPrivate) {
+        return new RemoteRepo(owner, org, name, isPrivate, null, "main",
+                NOW.minus(Duration.ofDays(2)), false, false, "https://github.com/" + owner + "/" + name, "admin");
+    }
+
+    private List<String> plainLines() {
+        return output().replaceAll(ANSI, "").lines().toList();
+    }
+
+    private static int columnOf(List<String> lines, String rowStart, String marker) {
+        String line = lines.stream().filter(l -> l.startsWith(rowStart)).findFirst().orElseThrow();
+        int index = line.indexOf(marker);
+        assertTrue(index > 0, "missing " + marker + " in " + line);
+        return index;
+    }
+
+    @Test
+    @DisplayName("rows of a group keep the path column aligned (public, private, longest name)")
+    void columnsAligned() {
+        String sep = java.io.File.separator;
+        CatalogEntry pub = new CatalogEntry(repo("octo-user", false, "pub", false),
+                List.of(clone("r/pub", "octo-user", "pub")), null);
+        CatalogEntry priv = new CatalogEntry(repo("octo-user", false, "priv", true),
+                List.of(clone("r/priv", "octo-user", "priv")), null);
+        CatalogEntry longest = new CatalogEntry(repo("octo-user", false, "the-longest-name", false), List.of(), null);
+        printer.printList(List.of(new RepoGroup(RepoGroup.Kind.OWN, "octo-user", List.of(pub, priv, longest))));
+
+        List<String> lines = plainLines();
+        int pubColumn = columnOf(lines, "  ● pub ", "~" + sep);
+        assertEquals(pubColumn, columnOf(lines, "  ● priv ", "~" + sep));
+        assertEquals(pubColumn, columnOf(lines, "  ○ the-longest-name", "not cloned"));
+    }
+
+    @Test
+    @DisplayName("collaboration rows align the owner column")
+    void collaborationOwnersAligned() {
+        CatalogEntry a = new CatalogEntry(repo("al", false, "one", false), List.of(), null);
+        CatalogEntry b = new CatalogEntry(repo("a-much-longer-owner", false, "two", false), List.of(), null);
+        printer.printList(List.of(new RepoGroup(RepoGroup.Kind.COLLABORATIONS, null, List.of(a, b))));
+        List<String> lines = plainLines();
+        assertEquals(columnOf(lines, "  ○ one", "public"), columnOf(lines, "  ○ two", "public"));
+    }
+
+    @Test
+    @DisplayName("a long organization title still has a space before the counts")
+    void longHeaderSeparated() {
+        String org = "o".repeat(60);
+        CatalogEntry entry = new CatalogEntry(repo(org, true, "x", false), List.of(), null);
+        printer.printList(List.of(new RepoGroup(RepoGroup.Kind.ORGANIZATION, org, List.of(entry))));
+        assertTrue(output().replaceAll(ANSI, "").contains("(organization)  1 repo"));
     }
 
     @Test
