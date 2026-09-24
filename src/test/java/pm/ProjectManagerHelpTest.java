@@ -61,4 +61,13 @@ class ProjectManagerHelpTest {
         assertTrue(misaligned.isEmpty(),
                 "expected descriptions at column " + column + ", misaligned rows:\n" + String.join("\n", misaligned));
     }
+
+    @Test
+    @DisplayName("help lists the repos command")
+    void listsRepos() {
+        ProjectManager.printHelp();
+        String help = captured.toString(StandardCharsets.UTF_8);
+        assertTrue(help.contains("repos [name]"));
+        assertTrue(help.contains("repos --user <login>"));
+    }
 }

@@ -365,4 +365,24 @@ class CompletionHandlerTest {
         assertTrue(result.contains("activate"));
         assertTrue(result.contains("deactivate"));
     }
+
+    // ============================================================
+    // REPOS COMPLETIONS
+    // ============================================================
+
+    @Test
+    @DisplayName("repos is a top-level command with its options")
+    void reposCompletions() {
+        assertTrue(CompletionHandler.computeCompletions(new String[]{"pm", ""}, 1).contains("repos"));
+        assertEquals(List.of("--archived", "--user"),
+                CompletionHandler.computeCompletions(new String[]{"pm", "repos", ""}, 2));
+    }
+
+    @Test
+    @DisplayName("config repos offers add and remove")
+    void configReposCompletions() {
+        assertTrue(CompletionHandler.computeCompletions(new String[]{"pm", "config", ""}, 2).contains("repos"));
+        assertEquals(List.of("add", "remove"),
+                CompletionHandler.computeCompletions(new String[]{"pm", "config", "repos", ""}, 3));
+    }
 }
