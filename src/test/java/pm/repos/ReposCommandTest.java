@@ -186,4 +186,27 @@ class ReposCommandTest {
         assertEquals(1, signedIn().run(new String[]{"--nope"}));
         assertTrue(output().contains("Usage: pm repos"));
     }
+
+    @Test
+    @DisplayName("detail: local-only folders with the same name are listed by path and open by path")
+    void localOnlySameName() throws IOException {
+        RepoFixtures.repo(root.resolve("a/api"), null);
+        RepoFixtures.repo(root.resolve("b/api"), null);
+        String sep = java.io.File.separator;
+        String first = "~" + sep + "repos" + sep + "a" + sep + "api";
+        String second = "~" + sep + "repos" + sep + "b" + sep + "api";
+
+        assertEquals(1, signedIn().run(new String[]{"api"}));
+        String out = output();
+        assertTrue(out.contains(first), out);
+        assertTrue(out.contains(second), out);
+        assertTrue(out.contains("by path"), out);
+
+        buffer.reset();
+        assertEquals(0, signedIn().run(new String[]{second}));
+        out = output();
+        assertTrue(out.contains("local only"), out);
+        assertTrue(out.contains(second), out);
+        assertFalse(out.contains(first), out);
+    }
 }

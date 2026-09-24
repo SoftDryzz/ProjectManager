@@ -244,7 +244,8 @@ public final class RepoPrinter {
         return n + " " + unit + (n == 1 ? "" : "s") + " ago";
     }
 
-    private String shortPath(Path path) {
+    /** Path for display, with the home folder shown as {@code ~}; sanitized. */
+    String shortPath(Path path) {
         Path normalized = path.toAbsolutePath().normalize();
         if (normalized.startsWith(home)) {
             Path relative = home.relativize(normalized);

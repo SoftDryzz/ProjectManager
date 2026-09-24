@@ -1,5 +1,6 @@
 package pm.repos;
 
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -110,14 +111,54 @@ public final class RepoCatalog {
         return List.copyOf(groups);
     }
 
-    /** Entries whose name (or {@code owner/name} when the query has a slash) matches, ignoring case. */
-    public static List<CatalogEntry> find(List<RepoGroup> groups, String query) {
+    /**
+     * Entries matching the query, ignoring case: by name; with a slash, by
+     * {@code owner/name} first. A query that looks like a path (contains a
+     * separator or starts with {@code ~}) is then compared with the clone
+     * paths. Pure matching against the catalog: the query is never read from
+     * disk (spec S8).
+     *
+     * @param home folder that a leading {@code ~} stands for
+     */
+    public static List<CatalogEntry> find(List<RepoGroup> groups, String query, Path home) {
         String q = query.strip();
-        return groups.stream().flatMap(g -> g.entries().stream())
-                .filter(e -> q.contains("/")
+        List<CatalogEntry> entries = groups.stream().flatMap(g -> g.entries().stream()).toList();
+        boolean slash = q.contains("/");
+        List<CatalogEntry> matches = entries.stream()
+                .filter(e -> slash
                         ? e.remote() != null && e.remote().fullName().equalsIgnoreCase(q)
                         : e.name().equalsIgnoreCase(q))
                 .toList();
+        if (!matches.isEmpty() || !looksLikePath(q)) {
+            return matches;
+        }
+        String key = pathKey(q, home);
+        if (key == null) {
+            return List.of();
+        }
+        return entries.stream()
+                .filter(e -> e.clones().stream().anyMatch(c -> PathKey.of(c.path()).equals(key)))
+                .toList();
+    }
+
+    private static boolean looksLikePath(String query) {
+        return query.contains("/") || query.contains("\\") || query.startsWith("~");
+    }
+
+    private static String pathKey(String query, Path home) {
+        try {
+            Path path;
+            if (query.equals("~")) {
+                path = home;
+            } else if (query.startsWith("~/") || query.startsWith("~\\")) {
+                path = home.resolve(query.substring(2));
+            } else {
+                path = Path.of(query);
+            }
+            return PathKey.of(path);
+        } catch (InvalidPathException e) {
+            return null;
+        }
     }
 
     /** Up to five entries whose name contains the query, ignoring case. */

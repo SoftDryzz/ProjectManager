@@ -36,6 +36,7 @@ public final class ReposCommand {
     private final LocalGitInfo gitInfo;
     private final PrintStream out;
     private final RepoPrinter printer;
+    private final Path home;
     private final Clock clock;
 
     public ReposCommand(Function<Token, GitHubClient> clientFactory, Supplier<Optional<Token>> tokenSource,
@@ -49,6 +50,7 @@ public final class ReposCommand {
         this.gitInfo = gitInfo;
         this.out = out;
         this.printer = new RepoPrinter(out, home);
+        this.home = home.toAbsolutePath().normalize();
         this.clock = clock;
     }
 
@@ -136,7 +138,7 @@ public final class ReposCommand {
 
     private int printDetail(List<RepoGroup> groups, String name, GitHubClient client, boolean reached,
                             boolean publicMode) {
-        List<CatalogEntry> matches = RepoCatalog.find(groups, name);
+        List<CatalogEntry> matches = RepoCatalog.find(groups, name, home);
         if (matches.isEmpty()) {
             error("Repository not found: " + Sanitizer.clean(name));
             List<String> suggestions = RepoCatalog.suggest(groups, name);
@@ -147,10 +149,24 @@ public final class ReposCommand {
         }
         if (matches.size() > 1) {
             error("Several repositories are called " + Sanitizer.clean(name) + ":");
+            CatalogEntry remoteExample = null;
+            CatalogEntry localExample = null;
             for (CatalogEntry entry : matches) {
-                out.println("    " + Sanitizer.clean(entry.displayId()));
+                if (entry.isLocalOnly()) {
+                    out.println("    " + printer.shortPath(entry.clones().get(0).path()));
+                    localExample = localExample == null ? entry : localExample;
+                } else {
+                    out.println("    " + Sanitizer.clean(entry.displayId()));
+                    remoteExample = remoteExample == null ? entry : remoteExample;
+                }
             }
-            out.println("  Use owner/name, e.g. pm repos " + Sanitizer.clean(matches.get(0).displayId()));
+            if (remoteExample != null) {
+                out.println("  Use owner/name, e.g. pm repos " + Sanitizer.clean(remoteExample.displayId()));
+            }
+            if (localExample != null) {
+                out.println("  Local-only folders can be opened by path, e.g. pm repos \""
+                        + printer.shortPath(localExample.clones().get(0).path()) + "\"");
+            }
             return 1;
         }
 

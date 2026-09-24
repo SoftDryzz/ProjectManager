@@ -161,10 +161,28 @@ class RepoCatalogTest {
                 repo("acme-org", true, "app", null, false),
                 repo("acme-org", true, "FindMatch", null, false));
         List<RepoGroup> groups = RepoCatalog.build("octo-user", remotes, List.of(), Map.of(), true, false);
-        assertEquals(2, RepoCatalog.find(groups, "APP").size());
-        assertEquals("acme-org/app", RepoCatalog.find(groups, "Acme-Org/App").get(0).displayId());
-        assertEquals(1, RepoCatalog.find(groups, "findmatch").size());
-        assertTrue(RepoCatalog.find(groups, "nothing").isEmpty());
+        assertEquals(2, RepoCatalog.find(groups, "APP", tmp).size());
+        assertEquals("acme-org/app", RepoCatalog.find(groups, "Acme-Org/App", tmp).get(0).displayId());
+        assertEquals(1, RepoCatalog.find(groups, "findmatch", tmp).size());
+        assertTrue(RepoCatalog.find(groups, "nothing", tmp).isEmpty());
         assertEquals(List.of("acme-org/FindMatch"), RepoCatalog.suggest(groups, "match"));
+    }
+
+    @Test
+    @DisplayName("local-only clones with the same name can be found by path")
+    void findLocalOnlyByPath() {
+        LocalClone a = new LocalClone(tmp.resolve("a/api"), null, null);
+        LocalClone b = new LocalClone(tmp.resolve("b/api"), null, null);
+        List<RemoteRepo> remotes = List.of(repo("octo-user", false, "api", null, false));
+        List<RepoGroup> groups = RepoCatalog.build("octo-user", remotes, List.of(a, b), Map.of(), false, false);
+        assertEquals(3, RepoCatalog.find(groups, "api", tmp).size());
+
+        assertEquals(List.of(a), RepoCatalog.find(groups, tmp.resolve("a/api").toString(), tmp).get(0).clones());
+        assertEquals(List.of(b), RepoCatalog.find(groups, "~/b/api", tmp).get(0).clones());
+        String sep = java.io.File.separator;
+        assertEquals(List.of(b), RepoCatalog.find(groups, "~" + sep + "b" + sep + "api" + sep, tmp).get(0).clones());
+        assertEquals(1, RepoCatalog.find(groups, tmp.resolve("a/./x/../api").toString(), tmp).size());
+        assertEquals("octo-user/api", RepoCatalog.find(groups, "octo-user/api", tmp).get(0).displayId());
+        assertTrue(RepoCatalog.find(groups, "~/c/api", tmp).isEmpty());
     }
 }
