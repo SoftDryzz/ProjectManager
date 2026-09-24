@@ -282,6 +282,8 @@ chmod +x scripts/install.sh && ./scripts/install.sh
 | `pm license deactivate` | Eliminar licencia, volver a Community Edition |
 | `pm stats <nombre>` | Mostrar historial de tiempos build/test/run de un proyecto |
 | `pm stats --all` | Mostrar resumen de rendimiento de todos los proyectos |
+| `pm repos [nombre]` | Mostrar tus repositorios de GitHub agrupados por cuenta, organización y colaboraciones, con sus clones locales |
+| `pm config repos add <carpeta>` | Añadir una carpeta donde `pm repos` busca clones |
 | `pm help` | Mostrar ayuda |
 | `pm version` | Mostrar versión |
 

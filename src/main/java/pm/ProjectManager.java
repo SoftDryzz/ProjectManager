@@ -8,6 +8,8 @@ import pm.lint.LintDetector;
 import pm.lint.LintTool;
 import pm.migration.MigrationDetector;
 import pm.migration.MigrationTool;
+import pm.repos.RepoRoots;
+import pm.repos.ReposCommand;
 import pm.scanner.EnvFileDetector;
 import pm.workspace.WorkspaceDetector;
 import pm.workspace.WorkspaceModule;
@@ -46,6 +48,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -155,6 +158,7 @@ public class ProjectManager {
                 case "config" -> handleConfig(args);
                 case "license" -> handleLicense(args);
                 case "stats" -> handleStats(args);
+                case "repos" -> handleRepos(args);
                 case "help", "-h", "--help" -> printHelp();
                 case "version", "-v", "--version" -> printVersion();
                 default -> handleGenericCommand(command, args);
@@ -3254,7 +3258,7 @@ public class ProjectManager {
     // COMMAND: CONFIG (User preferences)
     // ============================================================
 
-    private static void handleConfig(String[] args) {
+    private static void handleConfig(String[] args) throws IOException {
         if (args.length < 2) {
             printConfigHelp();
             return;
@@ -3262,6 +3266,7 @@ public class ProjectManager {
 
         String key = args[1].toLowerCase();
         switch (key) {
+            case "repos" -> handleConfigRepos(args);
             case "telemetry" -> {
                 if (args.length < 3) {
                     System.out.println("  Telemetry: " + (Telemetry.isEnabled() ? "on" : "off"));
@@ -3295,8 +3300,64 @@ public class ProjectManager {
         Usage: pm config <key> [value]
 
         Keys:
-          telemetry [on|off]     Enable/disable anonymous usage statistics
+          telemetry [on|off]            Enable/disable anonymous usage statistics
+          repos [add|remove <folder>]   Folders where 'pm repos' looks for clones
         """);
+    }
+
+    // ============================================================
+    // COMMAND: REPOS (GitHub repositories and local clones)
+    // ============================================================
+
+    private static void handleRepos(String[] args) throws IOException {
+        Map<String, Path> projectPaths = new java.util.LinkedHashMap<>();
+        store.load().forEach((name, project) -> projectPaths.put(name, project.path()));
+        int code = ReposCommand.standard(projectPaths).run(Arrays.copyOfRange(args, 1, args.length));
+        if (code != 0) {
+            System.exit(code);
+        }
+    }
+
+    static void handleConfigRepos(String[] args) throws IOException {
+        RepoRoots roots = RepoRoots.standard();
+        if (args.length < 3) {
+            List<Path> configured = roots.load();
+            if (configured.isEmpty()) {
+                System.out.println("  No folders configured for 'pm repos'.");
+                System.out.println("  Add one with: pm config repos add <folder>");
+            } else {
+                System.out.println("  Folders scanned by 'pm repos':");
+                configured.forEach(p -> System.out.println("    " + p));
+            }
+            return;
+        }
+        String action = args[2].toLowerCase();
+        if (args.length < 4 || !(action.equals("add") || action.equals("remove"))) {
+            OutputFormatter.error("Usage: pm config repos [add|remove <folder>]");
+            return;
+        }
+        Path folder;
+        try {
+            folder = Paths.get(args[3]).toAbsolutePath().normalize();
+        } catch (InvalidPathException e) {
+            OutputFormatter.error("Invalid folder: " + args[3].replace("\0", ""));
+            return;
+        }
+        if (action.equals("add")) {
+            if (!Files.isDirectory(folder)) {
+                OutputFormatter.error("Not a folder: " + folder);
+                return;
+            }
+            if (roots.add(folder)) {
+                OutputFormatter.success("Added: " + folder);
+            } else {
+                OutputFormatter.info("Already configured: " + folder);
+            }
+        } else if (roots.remove(folder)) {
+            OutputFormatter.success("Removed: " + folder);
+        } else {
+            OutputFormatter.warning("Not configured: " + folder);
+        }
     }
 
     // ============================================================
@@ -3577,6 +3638,8 @@ public class ProjectManager {
           license deactivate                        Deactivate license
           stats <name>                              Show execution time history
           stats --all                               Show stats summary for all projects
+          repos [name]                              Show your GitHub repositories and local clones
+          repos --user <login>                      Show public repositories of a GitHub account
           help                                      Show this help
           version                                   Show version
 

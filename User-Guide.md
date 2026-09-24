@@ -25,6 +25,7 @@
   - [Database Migrations](#-database-migrations)
   - [License Key](#-license-key)
   - [Performance Tracking](#-performance-tracking)
+  - [Repository Overview](#-repository-overview)
   - [Help and Version](#-help-and-version)
 - [Environment Variables](#-environment-variables)
   - [What Are They?](#what-are-they)
@@ -1245,6 +1246,50 @@ or
 pm --version
 pm -v
 ```
+
+### 🔹 Repository Overview
+
+See all your GitHub repositories in one place, and where each one is cloned on disk.
+
+#### Sign in (for private repositories and collaborators)
+
+`pm repos` uses your GitHub CLI session (`gh auth login`) or the `GH_TOKEN` / `GITHUB_TOKEN` environment variable. pm never stores the token.
+
+#### Tell pm where your clones live
+
+```bash
+pm config repos add C:\Users\me\source\repos
+pm config repos                 # list configured folders
+pm config repos remove <folder>
+```
+
+pm looks up to 4 levels deep, so `repos\Personal\app` is found. Registered projects are always included.
+
+#### List
+
+```bash
+pm repos
+pm repos --archived             # include archived repositories
+pm repos --user <login>         # public repositories of any account, no sign-in needed
+```
+
+Repositories are grouped by your account, each organization, collaborations and "Local only" (clones whose remote is not one of your GitHub repositories). `●` cloned, `○` not cloned, `[pm]` registered in pm.
+
+#### Detail
+
+```bash
+pm repos FindMatch
+pm repos acme-org/FindMatch     # when the name exists under several owners
+```
+
+Shows owner, visibility, description, last push, your permission, collaborators and their roles (GitHub only shows them if you have push access), each local clone with its branch and status, and the pm project.
+
+#### Security
+
+- The token is sent only to `api.github.com` over HTTPS; redirects and links to other hosts are refused.
+- Text from GitHub is cleaned of terminal control characters before printing.
+- Credentials embedded in remote URLs are hidden.
+- `gh` and `git` are run from your `PATH` only, never from the current folder.
 
 ---
 

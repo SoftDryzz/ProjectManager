@@ -507,6 +507,19 @@ Fixes found while using v2.0.0 day to day. No new commands.
 | `pm list` / `pm info` report a moved or deleted project directory with a `pm rename` hint | ✅ Done |
 | `pm help` descriptions aligned in a single column | ✅ Done |
 
+## v2.1.0 — Repository Overview ✅
+
+### Your GitHub repositories and local clones in one view
+
+| Feature | Status |
+|---------|--------|
+| `pm repos` — repositories grouped by account, organization, collaborations and local only | ✅ Done |
+| `pm repos <name>` — detail with collaborators, permission, clones and pm project | ✅ Done |
+| `pm repos --user <login>` — public repositories without signing in | ✅ Done |
+| `pm config repos add/remove` — folders scanned for clones (4 levels deep) | ✅ Done |
+| Token from `gh` or `GH_TOKEN`/`GITHUB_TOKEN`, never stored | ✅ Done |
+| Security: no redirects or cross-host links with the token, terminal-safe output, redacted remote URLs, PATH-only executables | ✅ Done |
+
 ---
 
 ## Contributing

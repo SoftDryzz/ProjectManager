@@ -1,0 +1,22 @@
+[
+  {"name": "ProjectManager", "owner": {"login": "octo-user", "type": "User"}, "private": false,
+   "description": "Multi-stack project manager", "default_branch": "main",
+   "pushed_at": "2026-09-20T10:00:00Z", "archived": false, "fork": false,
+   "html_url": "https://github.com/octo-user/ProjectManager",
+   "permissions": {"admin": true, "maintain": true, "push": true, "triage": true, "pull": true}},
+  {"name": "Spectra", "owner": {"login": "octo-user", "type": "User"}, "private": true,
+   "description": null, "default_branch": "main",
+   "pushed_at": "2026-08-01T10:00:00Z", "archived": false, "fork": false,
+   "html_url": "https://github.com/octo-user/Spectra",
+   "permissions": {"admin": true, "maintain": true, "push": true, "triage": true, "pull": true}},
+  {"name": "FindMatch", "owner": {"login": "acme-org", "type": "Organization"}, "private": false,
+   "description": "Matchmaking \u001b[31mapp\u001b[0m", "default_branch": "main",
+   "pushed_at": "2026-09-21T10:00:00Z", "archived": false, "fork": false,
+   "html_url": "https://github.com/acme-org/FindMatch",
+   "permissions": {"admin": false, "maintain": false, "push": true, "triage": true, "pull": true}},
+  {"name": "hyperionsmc.com", "owner": {"login": "other-user", "type": "User"}, "private": true,
+   "description": "Server website", "default_branch": "master",
+   "pushed_at": "2026-07-01T10:00:00Z", "archived": false, "fork": false,
+   "html_url": "https://github.com/other-user/hyperionsmc.com",
+   "permissions": {"admin": false, "maintain": false, "push": true, "triage": true, "pull": true}}
+]

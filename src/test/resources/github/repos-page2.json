@@ -1,0 +1,7 @@
+[
+  {"name": "old-tool", "owner": {"login": "acme-org", "type": "Organization"}, "private": true,
+   "description": "Retired", "default_branch": "main",
+   "pushed_at": "2024-01-01T10:00:00Z", "archived": true, "fork": false,
+   "html_url": "https://github.com/acme-org/old-tool",
+   "permissions": {"admin": false, "maintain": false, "push": false, "triage": false, "pull": true}}
+]

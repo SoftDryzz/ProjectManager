@@ -30,7 +30,7 @@ public final class CompletionHandler {
             "commands", "cmd", "remove", "rm", "rename", "info",
             "env", "hooks", "refresh", "update", "doctor", "secure",
             "audit", "ci", "lint", "fmt", "modules", "migrate", "export", "import",
-            "config", "license", "stats", "help", "version", "completions"
+            "config", "license", "stats", "repos", "help", "version", "completions"
     );
 
     /** Commands that take a project name as their next argument. */
@@ -54,7 +54,7 @@ public final class CompletionHandler {
     );
 
     /** Config subcommands. */
-    static final List<String> CONFIG_SUBCOMMANDS = List.of("telemetry");
+    static final List<String> CONFIG_SUBCOMMANDS = List.of("telemetry", "repos");
 
     /** Telemetry values. */
     static final List<String> TELEMETRY_VALUES = List.of("on", "off");
@@ -190,6 +190,7 @@ public final class CompletionHandler {
             case "completions" -> new ArrayList<>(SHELL_NAMES);
             case "doctor" -> new ArrayList<>(List.of("--score"));
             case "secure" -> new ArrayList<>(List.of("--fix"));
+            case "repos" -> new ArrayList<>(List.of("--archived", "--user"));
             default -> List.of();
         };
     }
@@ -214,6 +215,10 @@ public final class CompletionHandler {
         // pm config telemetry <TAB> → on, off
         if ("config".equals(cmd) && "telemetry".equals(arg2.toLowerCase())) {
             return new ArrayList<>(TELEMETRY_VALUES);
+        }
+        // pm config repos <TAB> → add, remove
+        if ("config".equals(cmd) && "repos".equals(arg2.toLowerCase())) {
+            return new ArrayList<>(List.of("add", "remove"));
         }
         // pm export <name> <TAB> → more project names + --file
         if ("export".equals(cmd)) {
