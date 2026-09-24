@@ -174,6 +174,49 @@ class GitHubClientTest {
         assertThrows(IllegalArgumentException.class, () -> new GitHubClient("ftp://api.github.com", TOKEN));
         assertDoesNotThrow(() -> new GitHubClient("https://api.github.com", TOKEN));
         assertDoesNotThrow(() -> new GitHubClient("http://127.0.0.1:9", TOKEN));
+        assertDoesNotThrow(() -> new GitHubClient("http://localhost:9", TOKEN));
+        assertDoesNotThrow(() -> new GitHubClient("http://[::1]:9", TOKEN));
+        assertThrows(IllegalArgumentException.class, () -> new GitHubClient("http://127.0.0.1.evil.com", TOKEN));
+        assertThrows(IllegalArgumentException.class, () -> new GitHubClient("http://localhost.evil.com:9", TOKEN));
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> new GitHubClient("https://user:hunter2@api.github.com", TOKEN));
+        assertFalse(e.getMessage().contains("hunter2"), "base URL echoed in the message");
+    }
+
+    @Test
+    @DisplayName("same origin requires the same scheme, host (any case) and port, and no userinfo")
+    void sameOrigin() {
+        java.net.URI base = java.net.URI.create("https://api.github.com");
+        assertTrue(GitHubClient.sameOrigin(base, java.net.URI.create("https://api.github.com/user/repos?page=2")));
+        assertTrue(GitHubClient.sameOrigin(base, java.net.URI.create("https://API.GitHub.com/user/repos?page=2")));
+        assertTrue(GitHubClient.sameOrigin(base, java.net.URI.create("https://api.github.com:443/user")));
+        assertFalse(GitHubClient.sameOrigin(base, java.net.URI.create("https://evil.example/user")));
+        assertFalse(GitHubClient.sameOrigin(base, java.net.URI.create("https://api.github.com.evil.example/user")));
+        assertFalse(GitHubClient.sameOrigin(base, java.net.URI.create("http://api.github.com/user")));
+        assertFalse(GitHubClient.sameOrigin(base, java.net.URI.create("http://api.github.com:443/user")));
+        assertFalse(GitHubClient.sameOrigin(base, java.net.URI.create("https://user:pw@api.github.com/user")));
+        assertFalse(GitHubClient.sameOrigin(base, java.net.URI.create("https://api.github.com:8443/user")));
+        assertFalse(GitHubClient.sameOrigin(base, java.net.URI.create("/user/repos?page=2")));
+        assertFalse(GitHubClient.sameOrigin(base, java.net.URI.create("//evil.example/user")));
+    }
+
+    @Test
+    @DisplayName("refuses a pagination link to another host on the same port")
+    void refusesSamePortOtherHost() {
+        String sameport = github.baseUrl().replace("127.0.0.1", "localhost");
+        github.on(MY_REPOS, Reply.json("[]").header("Link", "<" + sameport + "/steal>; rel=\"next\""));
+        GitHubException e = assertThrows(GitHubException.class, () -> client().myRepos());
+        assertEquals(GitHubException.Kind.REFUSED, e.kind());
+        assertEquals(List.of(MY_REPOS), github.requests());
+    }
+
+    @Test
+    @DisplayName("refuses a relative pagination link")
+    void refusesRelativeLink() {
+        github.on(MY_REPOS, Reply.json("[]").header("Link", "</steal>; rel=\"next\""));
+        GitHubException e = assertThrows(GitHubException.class, () -> client().myRepos());
+        assertEquals(GitHubException.Kind.REFUSED, e.kind());
+        assertEquals(List.of(MY_REPOS), github.requests());
     }
 
     @Test

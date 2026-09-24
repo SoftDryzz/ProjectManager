@@ -58,7 +58,9 @@ public final class GitHubClient {
         String trimmed = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         URI uri = URI.create(trimmed);
         if (!isAllowedBase(uri)) {
-            throw new IllegalArgumentException("GitHub API URL must use https: " + baseUrl);
+            // the URL itself is not echoed: it may carry credentials
+            throw new IllegalArgumentException(
+                    "GitHub API URL must use https (http only on loopback) and contain no credentials");
         }
         this.base = uri;
         this.token = token;
@@ -148,7 +150,7 @@ public final class GitHubClient {
     }
 
     private Response get(URI uri) throws GitHubException {
-        if (!sameOrigin(uri)) {
+        if (!sameOrigin(base, uri)) {
             throw new GitHubException(GitHubException.Kind.REFUSED,
                     "Refused to send a request outside the GitHub API", null, null);
         }
@@ -259,7 +261,8 @@ public final class GitHubClient {
         return (int) Arrays.stream(list.split(",")).map(String::trim).filter(s -> !s.isEmpty()).count();
     }
 
-    private boolean sameOrigin(URI uri) {
+    /** Spec S1: same scheme, host (ignoring case) and port as the base URL, and no userinfo. */
+    static boolean sameOrigin(URI base, URI uri) {
         return uri.getScheme() != null && uri.getScheme().equalsIgnoreCase(base.getScheme())
                 && uri.getHost() != null && uri.getHost().equalsIgnoreCase(base.getHost())
                 && uri.getUserInfo() == null
@@ -276,7 +279,7 @@ public final class GitHubClient {
     private static boolean isAllowedBase(URI uri) {
         String scheme = uri.getScheme();
         String host = uri.getHost();
-        if (host == null || scheme == null) {
+        if (host == null || scheme == null || uri.getRawUserInfo() != null) {
             return false;
         }
         if (scheme.equalsIgnoreCase("https")) {
