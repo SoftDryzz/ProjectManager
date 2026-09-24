@@ -1,10 +1,12 @@
 package pm.repos;
 
 import java.io.IOException;
+import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -16,7 +18,7 @@ import java.util.Map;
  * Finds git repositories under the configured root folders.
  *
  * <p>A repository may sit at most {@value #MAX_DEPTH} levels below a root
- * ({@code root/Personal/app} is level 2). Symbolic links are not followed,
+ * ({@code root/Personal/app} is level 2). Symbolic links and junctions are not followed,
  * hidden folders and {@code node_modules} are skipped, unreadable folders are
  * ignored, and the scan never descends into a repository. Only files are
  * read; no process is started.
@@ -68,17 +70,46 @@ public final class LocalRepoScanner {
             for (Path child : stream) {
                 children.add(child);
             }
-        } catch (IOException | SecurityException e) {
+        } catch (IOException | DirectoryIteratorException | SecurityException e) {
             return; // unreadable folder: skip it
+        }
+        Path realDir;
+        try {
+            realDir = dir.toRealPath();
+        } catch (IOException | SecurityException e) {
+            return;
         }
         for (Path child : children) {
             String name = child.getFileName().toString();
             if (name.startsWith(".") || name.equals("node_modules")) {
                 continue;
             }
-            if (Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS)) {
+            if (isPlainDirectory(child, realDir)) {
                 walk(child, depth + 1, found);
             }
+        }
+    }
+
+    /**
+     * True for a real directory: not a symbolic link, not another reparse
+     * point such as a Windows junction (which Java reports as a directory
+     * with NOFOLLOW_LINKS), so the scan never leaves the roots (spec S11).
+     * A reparse point is detected because its real path is not the real path
+     * of its parent plus its own name.
+     *
+     * @param realParent real path of the folder that contains {@code child}
+     */
+    static boolean isPlainDirectory(Path child, Path realParent) {
+        try {
+            BasicFileAttributes attributes =
+                    Files.readAttributes(child, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+            if (!attributes.isDirectory() || attributes.isSymbolicLink() || attributes.isOther()) {
+                return false;
+            }
+            Path expected = realParent.resolve(child.getFileName().toString());
+            return PathKey.of(child.toRealPath()).equals(PathKey.of(expected));
+        } catch (IOException | SecurityException e) {
+            return false;
         }
     }
 

@@ -1,7 +1,10 @@
 package pm.repos;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
@@ -110,5 +113,40 @@ class LocalRepoScannerTest {
         ScanResult result = scanner.scan(List.of(root), List.of(registered, inRoot, notARepo));
         assertEquals(Set.of("registered", "inroot"), foundNames(result));
         assertEquals(2, result.clones().size());
+    }
+
+    @Test
+    @DisplayName("does not follow a symbolic link out of the root")
+    void skipsSymlink(@TempDir Path outside) throws IOException {
+        RepoFixtures.repo(outside.resolve("target/secret"), null);
+        RepoFixtures.repo(root.resolve("real"), null);
+        try {
+            Files.createSymbolicLink(root.resolve("link"), outside.resolve("target"));
+        } catch (IOException | UnsupportedOperationException | SecurityException e) {
+            Assumptions.abort("cannot create symbolic links here: " + e);
+        }
+        assertEquals(Set.of("real"), foundNames(scanner.scan(List.of(root), List.of())));
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    @DisplayName("does not follow a Windows junction out of the root")
+    void skipsJunction(@TempDir Path outside) throws Exception {
+        RepoFixtures.repo(outside.resolve("target/secret"), null);
+        RepoFixtures.repo(root.resolve("real"), null);
+        String cmd = System.getenv("ComSpec");
+        Assumptions.assumeTrue(cmd != null && Path.of(cmd).isAbsolute(), "ComSpec not set");
+        Process process = new ProcessBuilder(cmd, "/c", "mklink", "/J",
+                root.resolve("junction").toString(), outside.resolve("target").toString())
+                .redirectErrorStream(true).start();
+        process.getInputStream().readAllBytes();
+        Path junction = root.resolve("junction");
+        try {
+            Assumptions.assumeTrue(process.waitFor() == 0 && Files.isDirectory(junction.resolve("secret")),
+                    "could not create a junction");
+            assertEquals(Set.of("real"), foundNames(scanner.scan(List.of(root), List.of())));
+        } finally {
+            Files.deleteIfExists(junction); // removes the link only, before the temp folders are cleaned
+        }
     }
 }
