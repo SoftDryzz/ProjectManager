@@ -183,8 +183,8 @@ public final class RepoPrinter {
         if (entry.pmProject() != null) {
             out.println("  pm project: " + clean(entry.pmProject()));
         } else if (entry.cloned()) {
-            out.println("  pm project: not registered — pm add " + clean(entry.name())
-                    + " --path \"" + clean(entry.clones().get(0).path().toString()) + "\"");
+            out.println("  pm project: not registered — pm add \"" + clean(entry.name())
+                    + "\" --path \"" + clean(entry.clones().get(0).path().toString()) + "\"");
         } else {
             out.println("  pm project: not registered");
         }

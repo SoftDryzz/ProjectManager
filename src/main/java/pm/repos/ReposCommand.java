@@ -78,7 +78,13 @@ public final class ReposCommand {
         }
 
         List<Path> configuredRoots = roots.load();
-        ScanResult scan = scanner.scan(configuredRoots, pmProjects.values());
+        ScanResult scan;
+        try {
+            scan = scanner.scan(configuredRoots, pmProjects.values());
+        } catch (RuntimeException e) {
+            warn("Scan failed: " + Sanitizer.clean(String.valueOf(e.getMessage())));
+            scan = new ScanResult(List.of(), List.of());
+        }
         for (Path missing : scan.missingRoots()) {
             warn("Folder not found: " + Sanitizer.clean(missing.toString()));
         }
@@ -87,19 +93,15 @@ public final class ReposCommand {
         String login = options.user();
         List<RemoteRepo> remotes = List.of();
         GitHubClient client = null;
-        boolean reached = false;
 
         Optional<Token> token = tokenSource.get();
-        if (publicMode || token.isPresent()) {
-            client = clientFactory.apply(token.orElse(null));
-        } else {
+        if (!publicMode && token.isEmpty()) {
             warn("Not signed in to GitHub: showing local clones only.");
             out.println("  To see your repositories: gh auth login  (or set GH_TOKEN)");
             out.println("  Public repositories of an account: pm repos --user <login>");
-        }
-
-        if (client != null) {
+        } else {
             try {
+                client = clientFactory.apply(token.orElse(null));
                 Listing listing;
                 if (publicMode) {
                     listing = client.publicRepos(login);
@@ -108,7 +110,6 @@ public final class ReposCommand {
                     listing = client.myRepos();
                 }
                 remotes = listing.repos();
-                reached = true;
                 if (listing.truncated()) {
                     warn("Showing the first " + remotes.size() + " repositories (listing limit reached).");
                 }
@@ -118,6 +119,10 @@ public final class ReposCommand {
                 }
             } catch (GitHubException e) {
                 reportGitHubProblem(e, publicMode, login);
+            } catch (RuntimeException e) {
+                // never a stack trace: keep going with what we have
+                remotes = List.of();
+                warn("GitHub error: " + Sanitizer.clean(String.valueOf(e.getMessage())) + " Showing local clones only.");
             }
         }
 
@@ -133,11 +138,10 @@ public final class ReposCommand {
             printer.printList(groups);
             return 0;
         }
-        return printDetail(groups, options.name(), client, reached, publicMode);
+        return printDetail(groups, options.name(), client, publicMode);
     }
 
-    private int printDetail(List<RepoGroup> groups, String name, GitHubClient client, boolean reached,
-                            boolean publicMode) {
+    private int printDetail(List<RepoGroup> groups, String name, GitHubClient client, boolean publicMode) {
         List<CatalogEntry> matches = RepoCatalog.find(groups, name, home);
         if (matches.isEmpty()) {
             error("Repository not found: " + Sanitizer.clean(name));
@@ -173,11 +177,10 @@ public final class ReposCommand {
         CatalogEntry entry = matches.get(0);
         List<Collaborator> collaborators = null;
         String note = null;
+        // An entry has a remote only when the listing succeeded, so client is set here
         if (entry.remote() != null) {
             if (publicMode) {
                 note = "not available with --user";
-            } else if (client == null || !client.isAuthenticated() || !reached) {
-                note = "sign in to GitHub to see them";
             } else {
                 try {
                     collaborators = client.collaborators(entry.remote().owner(), entry.remote().name());
@@ -185,7 +188,7 @@ public final class ReposCommand {
                     note = (e.kind() == GitHubException.Kind.FORBIDDEN || e.kind() == GitHubException.Kind.NOT_FOUND)
                             ? "not visible (requires push access)"
                             : "unavailable (" + e.getMessage() + ")";
-                } catch (IllegalArgumentException e) {
+                } catch (RuntimeException e) {
                     note = "unavailable";
                 }
             }

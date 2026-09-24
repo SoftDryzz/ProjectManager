@@ -12,11 +12,14 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -127,6 +130,7 @@ public final class GitHubClient {
 
     private Listing listRepos(URI first) throws GitHubException {
         List<RemoteRepo> repos = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
         int ssoHidden = 0;
         URI next = first;
         int pages = 0;
@@ -138,7 +142,7 @@ public final class GitHubClient {
             }
             for (RepoJson item : items) {
                 RemoteRepo repo = toRemote(item);
-                if (repo != null) {
+                if (repo != null && seen.add(repo.key())) { // sort=pushed pages can repeat a repo
                     repos.add(repo);
                 }
             }
@@ -198,9 +202,11 @@ public final class GitHubClient {
             return new GitHubException(GitHubException.Kind.UNAUTHORIZED, "GitHub rejected the token (HTTP 401)", null, null);
         }
         if (code == 403 || code == 429) {
-            Instant retryAt = rateLimitReset(conn.getHeaderField("X-RateLimit-Remaining"),
+            String remaining = conn.getHeaderField("X-RateLimit-Remaining");
+            Instant retryAt = rateLimitReset(remaining,
                     conn.getHeaderField("X-RateLimit-Reset"), conn.getHeaderField("Retry-After"), Instant.now());
-            if (retryAt != null || code == 429) {
+            boolean exhausted = remaining != null && remaining.trim().equals("0");
+            if (retryAt != null || exhausted || code == 429) {
                 return new GitHubException(GitHubException.Kind.RATE_LIMITED, "GitHub rate limit reached", retryAt, null);
             }
             return new GitHubException(GitHubException.Kind.FORBIDDEN, "GitHub denied access (HTTP 403)", null, null);
@@ -224,8 +230,8 @@ public final class GitHubClient {
             if (remaining != null && remaining.trim().equals("0") && reset != null) {
                 return Instant.ofEpochSecond(Long.parseLong(reset.trim()));
             }
-        } catch (NumberFormatException ignored) {
-            // malformed header: treat as not rate limited
+        } catch (NumberFormatException | DateTimeException | ArithmeticException ignored) {
+            // malformed or out-of-range header: no reset time
         }
         return null;
     }

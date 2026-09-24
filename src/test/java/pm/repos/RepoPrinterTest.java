@@ -206,7 +206,7 @@ class RepoPrinterTest {
         String out = output();
         assertTrue(out.contains("not visible (requires push access)"));
         assertTrue(out.contains("dev, 3 changed, 2 unpushed"));
-        assertTrue(out.contains("pm add app --path"));
+        assertTrue(out.contains("pm add \"app\" --path \""), out);
     }
 
     @Test

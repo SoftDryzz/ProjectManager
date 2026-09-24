@@ -129,6 +129,38 @@ class GitHubClientTest {
     }
 
     @Test
+    @DisplayName("hostile rate-limit headers still give RATE_LIMITED, without a reset time")
+    void hostileRateLimitHeaders() {
+        github.on("/user", Reply.status(403).header("X-RateLimit-Remaining", "0")
+                .header("X-RateLimit-Reset", "9223372036854775807"));
+        GitHubException e = assertThrows(GitHubException.class, () -> client().currentLogin());
+        assertEquals(GitHubException.Kind.RATE_LIMITED, e.kind());
+        assertTrue(e.retryAt().isEmpty());
+
+        github.on("/user", Reply.status(429).header("Retry-After", "9223372036854775807"));
+        e = assertThrows(GitHubException.class, () -> client().currentLogin());
+        assertEquals(GitHubException.Kind.RATE_LIMITED, e.kind());
+
+        Instant now = Instant.parse("2026-09-23T12:00:00Z");
+        assertNull(GitHubClient.rateLimitReset(null, null, "9223372036854775807", now));
+        assertNull(GitHubClient.rateLimitReset("0", "9223372036854775807", null, now));
+        assertNull(GitHubClient.rateLimitReset("0", "-9223372036854775808", null, now));
+    }
+
+    @Test
+    @DisplayName("a repo returned on two pages is listed once")
+    void duplicatesAcrossPages() throws GitHubException {
+        String repo = """
+                [{"name":"app","owner":{"login":"octo-user","type":"User"}}]""";
+        String dupe = """
+                [{"name":"App","owner":{"login":"Octo-User","type":"User"}},
+                 {"name":"other","owner":{"login":"octo-user","type":"User"}}]""";
+        github.on(MY_REPOS, Reply.json(repo).header("Link", "<" + github.baseUrl() + "/user/repos?page=2>; rel=\"next\""));
+        github.on("/user/repos?page=2", Reply.json(dupe));
+        assertEquals(List.of("app", "other"), client().myRepos().repos().stream().map(RemoteRepo::name).toList());
+    }
+
+    @Test
     @DisplayName("maps other 403 and 404 responses")
     void forbiddenAndNotFound() {
         github.on("/repos/acme-org/FindMatch/collaborators?per_page=100", Reply.status(403));

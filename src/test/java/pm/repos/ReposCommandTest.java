@@ -209,4 +209,39 @@ class ReposCommandTest {
         assertTrue(out.contains(second), out);
         assertFalse(out.contains(first), out);
     }
+
+    @Test
+    @DisplayName("an unexpected GitHub failure becomes a warning and the list still prints")
+    void unexpectedGitHubFailure() {
+        ReposCommand command = new ReposCommand(t -> {
+            throw new IllegalStateException("boom\u001B[31m");
+        }, () -> Optional.of(TOKEN), roots, Map.of(), new LocalRepoScanner(), new LocalGitInfo(Optional.empty()),
+                new PrintStream(buffer, true, StandardCharsets.UTF_8), tmp,
+                Clock.fixed(Instant.parse("2026-09-23T12:00:00Z"), ZoneOffset.UTC));
+        assertEquals(0, command.run(new String[0]));
+        String out = output();
+        assertTrue(out.contains("GitHub error: boom"), out);
+        assertFalse(out.contains("\u001B[31m"));
+        assertTrue(out.contains("Local only"));
+    }
+
+    @Test
+    @DisplayName("an unexpected scan failure becomes a warning and GitHub repos still print")
+    void unexpectedScanFailure() {
+        LocalRepoScanner broken = new LocalRepoScanner() {
+            @Override
+            public ScanResult scan(java.util.List<Path> roots, java.util.Collection<Path> registeredPaths) {
+                throw new IllegalStateException("disk\u001B[2J");
+            }
+        };
+        ReposCommand command = new ReposCommand(t -> new GitHubClient(github.baseUrl(), t, 2000, 1024 * 1024),
+                () -> Optional.of(TOKEN), roots, Map.of(), broken, new LocalGitInfo(Optional.empty()),
+                new PrintStream(buffer, true, StandardCharsets.UTF_8), tmp,
+                Clock.fixed(Instant.parse("2026-09-23T12:00:00Z"), ZoneOffset.UTC));
+        assertEquals(0, command.run(new String[0]));
+        String out = output();
+        assertTrue(out.contains("Scan failed: disk"), out);
+        assertFalse(out.contains("\u001B[2J"));
+        assertTrue(out.contains("octo-user (your account)"));
+    }
 }

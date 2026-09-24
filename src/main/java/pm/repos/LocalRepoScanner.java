@@ -26,7 +26,7 @@ import java.util.Map;
  * @author SoftDryzz
  * @since 2.1.0
  */
-public final class LocalRepoScanner {
+public class LocalRepoScanner {
 
     static final int MAX_DEPTH = 4;
 
