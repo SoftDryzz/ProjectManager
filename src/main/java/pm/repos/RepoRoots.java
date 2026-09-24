@@ -21,6 +21,7 @@ import java.util.List;
  * telemetry settings with only their own fields, which would erase these.
  *
  * @author SoftDryzz
+ * @version 2.1.0
  * @since 2.1.0
  */
 public final class RepoRoots {

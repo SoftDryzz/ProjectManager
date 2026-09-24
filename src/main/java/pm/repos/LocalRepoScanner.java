@@ -24,6 +24,7 @@ import java.util.Map;
  * read; no process is started.
  *
  * @author SoftDryzz
+ * @version 2.1.0
  * @since 2.1.0
  */
 public class LocalRepoScanner {

@@ -557,7 +557,7 @@ pm license deactivate          # Free this activation slot, revert to Community 
 - **Performance Tracking** — `pm stats` tracks build/test/run times automatically, shows averages, min/max, and history per project
 - **Reliability** — Atomic writes, backup/recovery, directory validation, download integrity, 800+ tests
 
-> Latest release: **v2.0.1** (Bug fixes) — Full version history in [ROADMAP.md](ROADMAP.md)
+> Latest release: **v2.1.0** (Repository Overview) — Full version history in [ROADMAP.md](ROADMAP.md)
 
 ### 💡 Future Ideas
 - [ ] Project groups (`pm group create backend api-users product-service`, `pm run-group backend`)

@@ -19,6 +19,7 @@ import java.util.function.Supplier;
  * {@code System.exit}, so the whole flow can be tested.
  *
  * @author SoftDryzz
+ * @version 2.1.0
  * @since 2.1.0
  */
 public final class ReposCommand {

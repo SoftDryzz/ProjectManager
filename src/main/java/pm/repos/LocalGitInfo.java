@@ -20,6 +20,7 @@ import java.util.Optional;
  * command; git's safe.directory check stays on (spec S7).
  *
  * @author SoftDryzz
+ * @version 2.1.0
  * @since 2.1.0
  */
 public final class LocalGitInfo {

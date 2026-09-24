@@ -34,7 +34,7 @@ import javax.net.ssl.SSLException;
  * </ul>
  *
  * @author SoftDryzz
- * @version 2.0.1
+ * @version 2.1.0
  * @since 1.2.0
  */
 public final class UpdateChecker {

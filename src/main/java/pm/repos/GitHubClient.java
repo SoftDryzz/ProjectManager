@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
  * validated and encoded; bodies are capped and parsed into fixed DTOs.
  *
  * @author SoftDryzz
+ * @version 2.1.0
  * @since 2.1.0
  */
 public final class GitHubClient {
