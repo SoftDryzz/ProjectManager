@@ -24,6 +24,7 @@ class RemoteUrlTest {
             "ssh://git@github.com:22/octo-user/ProjectManager.git",
             "git://github.com/octo-user/ProjectManager.git",
             "https://x-access-token:secret123@github.com/octo-user/ProjectManager.git",
+            "https://user:p@ss@github.com/octo-user/ProjectManager.git",
             "  https://github.com/octo-user/ProjectManager.git  "
     })
     @DisplayName("normalizes every GitHub URL form to owner/name")
@@ -75,6 +76,17 @@ class RemoteUrlTest {
                 RemoteUrl.redact("https://x-access-token:ghp_secret@github.com/o/r.git"));
         assertEquals("https://gitlab.example/o/r.git",
                 RemoteUrl.redact("https://user:pass@gitlab.example/o/r.git"));
+    }
+
+    @Test
+    @DisplayName("redact removes userinfo up to the last @, even with @ or / in the password")
+    void redactRemovesAllUserinfo() {
+        assertEquals("https://github.com/o/r.git", RemoteUrl.redact("https://user:p@ss@github.com/o/r.git"));
+        String slashed = RemoteUrl.redact("https://user:pa/ss@host/o/r");
+        assertFalse(slashed.contains("pa"), slashed);
+        assertFalse(slashed.contains("ss@"), slashed);
+        assertFalse(slashed.contains("user"), slashed);
+        assertTrue(slashed.startsWith("https://"), slashed);
     }
 
     @Test

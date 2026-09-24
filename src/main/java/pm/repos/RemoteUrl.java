@@ -15,12 +15,12 @@ public final class RemoteUrl {
 
     /** HTTPS/SSH/git URLs and scp-like {@code git@github.com:owner/name}. */
     private static final Pattern GITHUB = Pattern.compile(
-            "^(?:(?:https?|git|ssh)://(?:[^@/]+@)?github\\.com(?::\\d+)?/|git@github\\.com:)"
+            "^(?:(?:https?|git|ssh)://(?:[^/]*@)?github\\.com(?::\\d+)?/|git@github\\.com:)"
                     + "([A-Za-z0-9-]+)/([A-Za-z0-9._-]+?)(?:\\.git)?/?$",
             Pattern.CASE_INSENSITIVE);
 
-    /** {@code scheme://user:password@} at the start of a URL. */
-    private static final Pattern USERINFO = Pattern.compile("^([A-Za-z][A-Za-z0-9+.-]*://)[^@/]+@");
+    /** {@code scheme://} at the start of a URL. */
+    private static final Pattern SCHEME = Pattern.compile("^[A-Za-z][A-Za-z0-9+.-]*://");
 
     private RemoteUrl() {
     }
@@ -50,11 +50,23 @@ public final class RemoteUrl {
      * Removes credentials embedded in a URL, e.g.
      * {@code https://x-access-token:SECRET@github.com/o/r} becomes
      * {@code https://github.com/o/r}. Used before any remote URL is printed.
+     * Everything between {@code scheme://} and the last {@code @} is removed,
+     * so passwords containing {@code @} or {@code /} never leak; removing too
+     * much is acceptable because the result is only displayed.
      */
     public static String redact(String url) {
         if (url == null) {
             return "";
         }
-        return USERINFO.matcher(url.trim()).replaceFirst("$1");
+        String text = url.trim();
+        Matcher scheme = SCHEME.matcher(text);
+        if (!scheme.find()) {
+            return text;
+        }
+        int at = text.lastIndexOf('@');
+        if (at < scheme.end()) {
+            return text;
+        }
+        return text.substring(0, scheme.end()) + text.substring(at + 1);
     }
 }
