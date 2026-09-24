@@ -507,6 +507,19 @@ Errores encontrados usando la v2.0.0 en el día a día. Sin comandos nuevos.
 | `pm list` / `pm info` avisan de una carpeta de proyecto movida o borrada, con la pista de `pm rename` | ✅ Hecho |
 | Descripciones de `pm help` alineadas en una sola columna | ✅ Hecho |
 
+## v2.1.0 — Vista de Repositorios ✅
+
+### Tus repositorios de GitHub y tus clones locales en una sola vista
+
+| Funcionalidad | Estado |
+|---------------|--------|
+| `pm repos` — repositorios agrupados por cuenta, organización, colaboraciones y solo local | ✅ Hecho |
+| `pm repos <nombre>` — detalle con colaboradores, permiso, clones y proyecto pm | ✅ Hecho |
+| `pm repos --user <login>` — repositorios públicos sin iniciar sesión | ✅ Hecho |
+| `pm config repos add/remove` — carpetas donde se buscan clones (4 niveles) | ✅ Hecho |
+| Token de `gh` o `GH_TOKEN`/`GITHUB_TOKEN`, nunca guardado | ✅ Hecho |
+| Seguridad: sin redirecciones ni enlaces a otros hosts con el token, salida segura para la terminal, URLs de remotos sin credenciales, ejecutables solo desde el PATH | ✅ Hecho |
+
 ---
 
 ## Contribuir

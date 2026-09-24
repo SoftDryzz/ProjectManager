@@ -25,6 +25,7 @@
   - [Migraciones de Base de Datos](#-migraciones-de-base-de-datos)
   - [License Key](#-license-key)
   - [Seguimiento de Rendimiento](#-seguimiento-de-rendimiento)
+  - [Vista de Repositorios](#-vista-de-repositorios)
   - [Ayuda y Versión](#-ayuda-y-versión)
 - [Variables de Entorno](#-variables-de-entorno)
   - [¿Qué Son?](#qué-son)
@@ -1245,6 +1246,50 @@ o
 pm --version
 pm -v
 ```
+
+### 🔹 Vista de Repositorios
+
+Todos tus repositorios de GitHub en un solo sitio, y dónde está clonado cada uno.
+
+#### Iniciar sesión (para repositorios privados y colaboradores)
+
+`pm repos` usa tu sesión de GitHub CLI (`gh auth login`) o la variable de entorno `GH_TOKEN` / `GITHUB_TOKEN`. pm nunca guarda el token.
+
+#### Indica a pm dónde están tus clones
+
+```bash
+pm config repos add C:\Users\yo\source\repos
+pm config repos                 # ver las carpetas configuradas
+pm config repos remove <carpeta>
+```
+
+pm busca hasta 4 niveles de profundidad, así que encuentra `repos\Personal\app`. Los proyectos registrados se incluyen siempre.
+
+#### Lista
+
+```bash
+pm repos
+pm repos --archived             # incluir repositorios archivados
+pm repos --user <login>         # repositorios públicos de cualquier cuenta, sin iniciar sesión
+```
+
+Los repositorios se agrupan por tu cuenta, cada organización, colaboraciones y "Local only" (clones cuyo remoto no es uno de tus repositorios de GitHub). `●` clonado, `○` no clonado, `[pm]` registrado en pm.
+
+#### Detalle
+
+```bash
+pm repos FindMatch
+pm repos acme-org/FindMatch     # cuando el nombre existe con varios dueños
+```
+
+Muestra dueño, visibilidad, descripción, último push, tu permiso, colaboradores y sus roles (GitHub solo los muestra si tienes permiso de escritura), cada clon local con su rama y estado, y el proyecto pm.
+
+#### Seguridad
+
+- El token solo se envía a `api.github.com` por HTTPS; se rechazan redirecciones y enlaces a otros hosts.
+- El texto que llega de GitHub se limpia de caracteres de control de terminal antes de imprimirse.
+- Las credenciales incrustadas en las URLs de los remotos se ocultan.
+- `gh` y `git` se ejecutan solo desde tu `PATH`, nunca desde la carpeta actual.
 
 ---
 
